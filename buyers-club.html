@@ -230,6 +230,12 @@
     .reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.8s ease, transform 0.8s ease; }
     .reveal.visible { opacity: 1; transform: translateY(0); }
   </style>
+
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const _supa = window.supabase.createClient('https://nmjkzhquoxuuebzyotnx.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5tamt6aHF1b3h1dWVienlvdG54Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwNzY0MDEsImV4cCI6MjA5MTY1MjQwMX0.6uwyWMSLGhG259TY9x-vpUxNiENkYAXOqFEUI3aSv5M');
+  </script>
 </head>
 <body>
 
@@ -904,32 +910,42 @@
     document.getElementById('review-content').innerHTML = `<table style="width:100%;border-collapse:collapse;">${companyRows}${prodHtml}</table>`;
   }
 
-  function submitForm() {
+  async function submitForm() {
+    const btn = document.querySelector('.btn-submit');
+    btn.textContent = 'Submitting...';
+    btn.disabled = true;
+
     const application = {
-      id: Date.now(),
-      type: 'buyer',
-      submittedAt: new Date().toLocaleString('en-IN'),
-      buyerType: selectedBuyerType,
-      companyName: document.getElementById('company-name').value,
+      buyer_type: selectedBuyerType,
+      company_name: document.getElementById('company-name').value,
       city: document.getElementById('city').value,
       state: document.getElementById('state').value,
       gst: document.getElementById('gst').value,
       iec: document.getElementById('iec').value,
       description: document.getElementById('company-desc').value,
       products: getProducts().filter(p => p.name),
-      pocName: document.getElementById('poc-name').value,
-      pocDesignation: document.getElementById('poc-designation').value,
-      pocEmail: document.getElementById('poc-email').value,
-      pocPhone: document.getElementById('poc-phone').value,
-      currentSource: document.getElementById('current-source').value,
+      poc_name: document.getElementById('poc-name').value,
+      poc_designation: document.getElementById('poc-designation').value,
+      poc_email: document.getElementById('poc-email').value,
+      poc_phone: document.getElementById('poc-phone').value,
+      current_source: document.getElementById('current-source').value,
       source: document.getElementById('source').value,
       additional: document.getElementById('additional').value,
       status: 'pending'
     };
 
-    const existing = JSON.parse(localStorage.getItem('imc_buyer_apps') || '[]');
-    existing.push(application);
-    localStorage.setItem('imc_buyer_apps', JSON.stringify(existing));
+    try {
+      const { error } = await _supa.from('buyers').insert([application]);
+      if (error) throw error;
+      const existing = JSON.parse(localStorage.getItem('imc_buyer_apps') || '[]');
+      existing.push({...application, id: Date.now(), submittedAt: new Date().toLocaleString('en-IN')});
+      localStorage.setItem('imc_buyer_apps', JSON.stringify(existing));
+    } catch(e) {
+      console.error('Supabase error:', e);
+      const existing = JSON.parse(localStorage.getItem('imc_buyer_apps') || '[]');
+      existing.push({...application, id: Date.now(), submittedAt: new Date().toLocaleString('en-IN')});
+      localStorage.setItem('imc_buyer_apps', JSON.stringify(existing));
+    }
 
     document.getElementById('form-body').style.display = 'none';
     document.getElementById('success-screen').style.display = 'block';

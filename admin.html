@@ -192,6 +192,12 @@
     /* EMPTY TABLE */
     .table-empty { padding: 48px; text-align: center; font-family: var(--serif); font-size: 20px; font-weight: 300; font-style: italic; color: var(--muted); }
   </style>
+
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const _supa = window.supabase.createClient('https://nmjkzhquoxuuebzyotnx.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5tamt6aHF1b3h1dWVienlvdG54Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwNzY0MDEsImV4cCI6MjA5MTY1MjQwMX0.6uwyWMSLGhG259TY9x-vpUxNiENkYAXOqFEUI3aSv5M');
+  </script>
 </head>
 <body>
 
@@ -886,6 +892,151 @@
   }
 
   // CLOSE MODALS ON OVERLAY CLICK
+  // SYNC FROM SUPABASE
+  async function syncFromSupabase() {
+    try {
+      // Sync manufacturer applications
+      const { data: mfgData } = await _supa.from('manufacturers').select('*').order('created_at', { ascending: false });
+      if (mfgData && mfgData.length > 0) {
+        const formatted = mfgData.map(r => ({
+          id: r.id,
+          type: 'manufacturer',
+          submittedAt: new Date(r.created_at).toLocaleString('en-IN'),
+          companyName: r.company_name,
+          gst: r.gst,
+          city: r.city,
+          state: r.state,
+          pincode: r.pincode,
+          description: r.description,
+          primarySector: r.primary_sector,
+          companyType: r.company_type,
+          capabilities: r.capabilities || [],
+          certifications: r.certifications,
+          turnover: r.turnover,
+          machines: r.machines,
+          pocName: r.poc_name,
+          pocDesignation: r.poc_designation,
+          pocEmail: r.poc_email,
+          pocPhone: r.poc_phone,
+          source: r.source,
+          additional: r.additional,
+          status: r.status || 'pending'
+        }));
+        localStorage.setItem('imc_manufacturer_apps', JSON.stringify(formatted));
+        renderMfgApps();
+      }
+
+      // Sync buyer applications
+      const { data: buyerData } = await _supa.from('buyers').select('*').order('created_at', { ascending: false });
+      if (buyerData && buyerData.length > 0) {
+        const formatted = buyerData.map(r => ({
+          id: r.id,
+          type: 'buyer',
+          submittedAt: new Date(r.created_at).toLocaleString('en-IN'),
+          buyerType: r.buyer_type,
+          companyName: r.company_name,
+          city: r.city,
+          state: r.state,
+          gst: r.gst,
+          iec: r.iec,
+          description: r.description,
+          products: r.products || [],
+          pocName: r.poc_name,
+          pocDesignation: r.poc_designation,
+          pocEmail: r.poc_email,
+          pocPhone: r.poc_phone,
+          currentSource: r.current_source,
+          source: r.source,
+          additional: r.additional,
+          status: r.status || 'pending'
+        }));
+        localStorage.setItem('imc_buyer_apps', JSON.stringify(formatted));
+        renderBuyerApps();
+      }
+
+      // Sync requirements
+      const { data: reqData } = await _supa.from('requirements').select('*').eq('is_active', true).order('created_at', { ascending: false });
+      if (reqData && reqData.length > 0) {
+        const formatted = reqData.map(r => ({
+          id: r.id,
+          industry: r.industry,
+          product: r.product,
+          desc: r.description,
+          volume: r.volume,
+          frequency: r.frequency,
+          location: r.location,
+          showLocation: r.show_location,
+          date: r.date_label,
+        }));
+        localStorage.setItem('imc_req_data', JSON.stringify(formatted));
+        renderReqTable();
+      }
+
+      // Sync market intelligence
+      const { data: miData } = await _supa.from('market_intelligence').select('*').eq('is_active', true).order('created_at', { ascending: false });
+      if (miData && miData.length > 0) {
+        const formatted = miData.map(r => ({
+          id: r.id,
+          sector: r.sector,
+          product: r.product,
+          hsn: r.hsn,
+          importValue: r.import_value,
+          volume: r.volume,
+          yoy: r.yoy,
+          trend: r.trend,
+          period: r.period,
+          source: r.source,
+          opportunity: r.opportunity
+        }));
+        localStorage.setItem('imc_mi_data', JSON.stringify(formatted));
+        renderMITable();
+      }
+
+      console.log('Synced from Supabase successfully');
+    } catch(e) {
+      console.error('Supabase sync error:', e);
+    }
+  }
+
+  // SAVE MI TO SUPABASE
+  const _origSaveMI = saveMI;
+  async function saveMIToSupabase(entry) {
+    try {
+      await _supa.from('market_intelligence').upsert([{
+        id: typeof entry.id === 'number' && entry.id > 1000000000 ? undefined : entry.id,
+        sector: entry.sector,
+        product: entry.product,
+        hsn: entry.hsn,
+        import_value: entry.importValue,
+        volume: entry.volume,
+        yoy: entry.yoy,
+        trend: entry.trend,
+        period: entry.period,
+        source: entry.source,
+        opportunity: entry.opportunity,
+        is_active: true
+      }]);
+    } catch(e) { console.error('MI save error:', e); }
+  }
+
+  // SAVE REQ TO SUPABASE
+  async function saveReqToSupabase(entry) {
+    try {
+      await _supa.from('requirements').upsert([{
+        id: typeof entry.id === 'number' && entry.id > 1000000000 ? undefined : entry.id,
+        industry: entry.industry,
+        product: entry.product,
+        description: entry.desc,
+        volume: entry.volume,
+        frequency: entry.frequency,
+        location: entry.location,
+        show_location: entry.showLocation,
+        date_label: entry.date,
+        is_active: true
+      }]);
+    } catch(e) { console.error('Req save error:', e); }
+  }
+
   document.getElementById('mi-modal').addEventListener('click', function(e) { if (e.target === this) closeMIModal(); });
   document.getElementById('req-modal').addEventListener('click', function(e) { if (e.target === this) closeReqModal(); });
 </script>
