@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Manufacturers Club — Invictus IMC</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --void: #0A0A0A;
+      --deep: #111111;
+      --gold: #B8860B;
+      --gold-light: #D4A017;
+      --gold-dim: rgba(184,134,11,0.10);
+      --gold-border: rgba(184,134,11,0.28);
+      --ink: #1C1C1C;
+      --ink-mid: rgba(28,28,28,0.55);
+      --ink-faint: rgba(28,28,28,0.07);
+      --ivory: #FAF8F3;
+      --ivory-border: rgba(28,28,28,0.10);
+      --white: #F5F2EC;
+      --muted: rgba(245,242,236,0.45);
+      --faint: rgba(245,242,236,0.08);
+      --serif: 'Cormorant Garamond', Georgia, serif;
+      --sans: 'Outfit', sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+    body { font-family: var(--sans); background: var(--ivory); color: var(--ink); overflow-x: hidden; }
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--ivory); }
+    ::-webkit-scrollbar-thumb { background: var(--gold-border); }
+
+    /* NAV */
+    nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 72px; height: 76px;
+      border-bottom: 1px solid var(--faint);
+      position: sticky; top: 0; z-index: 200;
+      background: rgba(10,10,10,0.96);
+      backdrop-filter: blur(24px);
+    }
+    .logo { display: flex; align-items: center; gap: 14px; text-decoration: none; }
+    .logo-emblem { width: 42px; height: 42px; border: 1px solid var(--gold-border); display: flex; align-items: center; justify-content: center; position: relative; flex-shrink: 0; }
+    .logo-emblem::before { content: ''; position: absolute; inset: 4px; border: 1px solid var(--gold-border); }
+    .logo-name { font-family: var(--serif); font-size: 18px; font-weight: 600; letter-spacing: 3px; color: var(--white); text-transform: uppercase; line-height: 1; }
+    .logo-tagline { font-size: 8px; font-weight: 400; letter-spacing: 3.5px; color: var(--gold); text-transform: uppercase; line-height: 1; margin-top: 2px; }
+    .nav-center { display: flex; align-items: center; gap: 40px; }
+    .nav-center a { font-size: 13px; font-weight: 400; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); text-decoration: none; transition: color 0.2s; }
+    .nav-center a:hover { color: var(--gold); }
+    .nav-center a.active { color: var(--gold); }
+    .nav-right { display: flex; align-items: center; gap: 14px; }
+    .btn-ghost { font-family: var(--sans); font-size: 13px; font-weight: 400; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); background: none; border: none; cursor: pointer; padding: 10px 18px; transition: color 0.2s; }
+    .btn-ghost:hover { color: var(--white); }
+    .btn-gold-nav { font-family: var(--sans); font-size: 13px; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase; color: var(--void); background: var(--gold); border: none; cursor: pointer; padding: 12px 26px; transition: all 0.2s; }
+    .btn-gold-nav:hover { background: var(--gold-light); }
+
+    /* HERO — DARK */
+    .hero {
+      background: var(--void);
+      padding: 96px 72px 80px;
+      position: relative; overflow: hidden;
+      min-height: 72vh;
+      display: flex; align-items: center;
+    }
+    .hero-grid {
+      position: absolute; inset: 0; pointer-events: none;
+      background-image: linear-gradient(var(--faint) 1px, transparent 1px), linear-gradient(90deg, var(--faint) 1px, transparent 1px);
+      background-size: 80px 80px;
+      mask-image: radial-gradient(ellipse 70% 100% at 80% 50%, black 20%, transparent 100%);
+    }
+    .hero-inner { position: relative; z-index: 2; display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; width: 100%; }
+    .hero-eyebrow { font-size: 10px; font-weight: 400; letter-spacing: 4px; text-transform: uppercase; color: var(--gold); margin-bottom: 24px; }
+    .hero h1 { font-family: var(--serif); font-size: 80px; font-weight: 300; line-height: 1.0; letter-spacing: -2px; color: var(--white); margin-bottom: 20px; }
+    .hero h1 em { font-style: italic; color: var(--gold); }
+    .hero-sub { font-size: 16px; font-weight: 300; color: var(--muted); line-height: 1.85; margin-bottom: 40px; max-width: 440px; }
+    .hero-sub strong { color: var(--white); font-weight: 500; }
+    .hero-actions { display: flex; gap: 14px; align-items: center; }
+    .btn-primary { font-family: var(--sans); font-size: 13px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--void); background: var(--gold); border: none; cursor: pointer; padding: 18px 40px; transition: all 0.25s; }
+    .btn-primary:hover { background: var(--gold-light); transform: translateY(-2px); }
+    .btn-outline { font-family: var(--sans); font-size: 13px; font-weight: 400; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); background: none; border: 1px solid var(--gold-border); cursor: pointer; padding: 18px 36px; transition: all 0.25s; }
+    .btn-outline:hover { border-color: var(--gold); background: var(--gold-dim); }
+
+    /* HERO RIGHT — STATS */
+    .hero-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--faint); }
+    .hero-stat { background: rgba(255,255,255,0.03); padding: 32px 28px; }
+    .hero-stat-val { font-family: var(--serif); font-size: 40px; font-weight: 300; color: var(--gold); line-height: 1; margin-bottom: 8px; }
+    .hero-stat-label { font-size: 10px; font-weight: 400; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); line-height: 1.5; }
+
+    /* DIVIDER */
+    .divider { display: flex; align-items: center; gap: 24px; padding: 72px 72px 48px; background: var(--ivory); }
+    .divider-line { flex: 1; height: 1px; background: var(--ivory-border); }
+    .divider-text { font-size: 9px; font-weight: 400; letter-spacing: 4px; text-transform: uppercase; color: var(--gold); white-space: nowrap; }
+
+    /* WHO IS THIS FOR */
+    .for-section { padding: 0 72px 80px; background: var(--ivory); }
+    .for-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+    .for-card { background: white; border: 1px solid var(--ivory-border); padding: 32px 28px; transition: all 0.25s; }
+    .for-card:hover { border-color: var(--gold-border); box-shadow: 0 4px 24px rgba(184,134,11,0.08); transform: translateY(-3px); }
+    .for-icon { width: 44px; height: 44px; border: 1px solid var(--ivory-border); display: flex; align-items: center; justify-content: center; margin-bottom: 20px; }
+    .for-icon svg { width: 20px; height: 20px; }
+    .for-title { font-family: var(--serif); font-size: 20px; font-weight: 500; color: var(--ink); margin-bottom: 10px; letter-spacing: 0.2px; }
+    .for-desc { font-size: 13px; font-weight: 300; color: var(--ink-mid); line-height: 1.7; }
+    .for-example { font-size: 11px; color: var(--gold); letter-spacing: 0.5px; margin-top: 14px; font-style: italic; }
+
+    /* WHAT YOU GET */
+    .benefits { background: var(--void); padding: 80px 72px; }
+    .benefits-inner { display: grid; grid-template-columns: 360px 1fr; gap: 96px; align-items: start; }
+    .benefits-left h2 { font-family: var(--serif); font-size: 52px; font-weight: 300; color: var(--white); line-height: 1.1; letter-spacing: -0.5px; }
+    .benefits-left h2 em { font-style: italic; color: var(--gold); }
+    .benefits-left p { font-size: 15px; font-weight: 300; color: var(--muted); line-height: 1.85; margin-top: 20px; }
+    .benefits-right { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--faint); margin-top: 8px; }
+    .benefit-item { background: rgba(255,255,255,0.03); padding: 32px 28px; }
+    .benefit-num { font-family: var(--serif); font-size: 36px; font-weight: 300; color: var(--gold); opacity: 0.3; line-height: 1; margin-bottom: 16px; }
+    .benefit-title { font-family: var(--serif); font-size: 20px; font-weight: 400; color: var(--white); margin-bottom: 10px; }
+    .benefit-desc { font-size: 13px; font-weight: 300; color: var(--muted); line-height: 1.7; }
+
+    /* INDUSTRIES */
+    .industries-section { padding: 0 72px 80px; background: var(--ivory); }
+    .industries-grid { display: flex; flex-wrap: wrap; gap: 10px; }
+    .ind-pill { font-size: 10px; font-weight: 400; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-mid); border: 1px solid var(--ivory-border); padding: 10px 18px; cursor: default; transition: all 0.2s; }
+    .ind-pill:hover { color: var(--gold); border-color: var(--gold-border); background: var(--gold-dim); }
+    .ind-pill.highlight { color: var(--gold); border-color: var(--gold-border); background: var(--gold-dim); }
+
+    /* APPLICATION FORM */
+    .form-section { background: var(--ivory); padding: 0 72px 96px; }
+    .form-wrapper { background: white; border: 1px solid var(--ivory-border); max-width: 860px; margin: 0 auto; position: relative; }
+    .form-wrapper::before { content: ''; position: absolute; top: 0; left: 10%; right: 10%; height: 2px; background: linear-gradient(90deg, transparent, var(--gold), transparent); }
+    .form-header { padding: 48px 56px 36px; border-bottom: 1px solid var(--ivory-border); }
+    .form-header-eyebrow { font-size: 10px; font-weight: 400; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); margin-bottom: 12px; }
+    .form-header h2 { font-family: var(--serif); font-size: 40px; font-weight: 300; color: var(--ink); letter-spacing: -0.5px; }
+    .form-header p { font-size: 14px; font-weight: 300; color: var(--ink-mid); margin-top: 8px; line-height: 1.7; }
+    .form-body { padding: 40px 56px 48px; }
+
+    /* FORM STEPS */
+    .step-indicator { display: flex; align-items: center; gap: 0; margin-bottom: 40px; }
+    .step { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+    .step-num { width: 32px; height: 32px; border: 1px solid var(--ivory-border); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 500; color: var(--ink-mid); transition: all 0.2s; flex-shrink: 0; }
+    .step.active .step-num { background: var(--gold); border-color: var(--gold); color: white; }
+    .step.done .step-num { background: var(--ink); border-color: var(--ink); color: white; }
+    .step-label { font-size: 11px; font-weight: 400; letter-spacing: 1px; text-transform: uppercase; color: var(--ink-mid); white-space: nowrap; }
+    .step.active .step-label { color: var(--gold); }
+    .step.done .step-label { color: var(--ink); }
+    .step-connector { flex: 1; height: 1px; background: var(--ivory-border); margin: 0 16px; }
+
+    /* FORM PANELS */
+    .form-panel { display: none; }
+    .form-panel.active { display: block; }
+
+    /* FORM ELEMENTS */
+    .form-section-title { font-family: var(--serif); font-size: 22px; font-weight: 400; color: var(--ink); margin-bottom: 24px; padding-bottom: 12px; border-bottom: 1px solid var(--ivory-border); }
+    .form-row { margin-bottom: 20px; }
+    .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+    .form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+    .form-label { font-size: 10px; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-mid); display: block; margin-bottom: 8px; }
+    .form-label span { color: var(--gold); }
+    .form-input, .form-select, .form-textarea {
+      width: 100%; padding: 13px 16px;
+      background: var(--ivory); border: 1px solid var(--ivory-border);
+      color: var(--ink); font-family: var(--sans); font-size: 14px;
+      outline: none; transition: border-color 0.2s;
+      appearance: none;
+    }
+    .form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--gold); background: white; }
+    .form-input::placeholder { color: var(--ink-mid); }
+    .form-textarea { resize: vertical; min-height: 90px; line-height: 1.6; }
+    .form-hint { font-size: 11px; color: var(--ink-mid); margin-top: 6px; line-height: 1.5; }
+    .form-select-wrap { position: relative; }
+    .form-select-wrap::after { content: '▾'; position: absolute; right: 16px; top: 50%; transform: translateY(-50%); color: var(--ink-mid); pointer-events: none; font-size: 12px; }
+
+    /* CAPABILITY CHECKBOXES */
+    .cap-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 4px; }
+    .cap-item { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border: 1px solid var(--ivory-border); cursor: pointer; transition: all 0.15s; user-select: none; }
+    .cap-item:hover { border-color: var(--gold-border); background: var(--gold-dim); }
+    .cap-item.selected { border-color: var(--gold); background: var(--gold-dim); }
+    .cap-check { width: 16px; height: 16px; border: 1px solid var(--ivory-border); flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
+    .cap-item.selected .cap-check { background: var(--gold); border-color: var(--gold); }
+    .cap-check svg { width: 10px; height: 10px; display: none; }
+    .cap-item.selected .cap-check svg { display: block; }
+    .cap-label { font-size: 11px; font-weight: 400; letter-spacing: 0.5px; color: var(--ink-mid); line-height: 1.3; }
+    .cap-item.selected .cap-label { color: var(--ink); }
+
+    /* TYPE SELECTOR */
+    .type-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 4px; }
+    .type-item { padding: 16px 20px; border: 1px solid var(--ivory-border); cursor: pointer; transition: all 0.15s; }
+    .type-item:hover { border-color: var(--gold-border); }
+    .type-item.selected { border-color: var(--gold); background: var(--gold-dim); }
+    .type-title { font-size: 13px; font-weight: 500; color: var(--ink); margin-bottom: 4px; }
+    .type-desc { font-size: 11px; color: var(--ink-mid); line-height: 1.4; }
+    .type-item.selected .type-title { color: var(--gold); }
+
+    /* FORM NAV */
+    .form-nav { display: flex; justify-content: space-between; align-items: center; padding-top: 32px; border-top: 1px solid var(--ivory-border); margin-top: 32px; }
+    .btn-back { font-family: var(--sans); font-size: 11px; font-weight: 400; letter-spacing: 2px; text-transform: uppercase; color: var(--ink-mid); background: none; border: 1px solid var(--ivory-border); cursor: pointer; padding: 14px 28px; transition: all 0.2s; }
+    .btn-back:hover { border-color: var(--ink); color: var(--ink); }
+    .btn-next { font-family: var(--sans); font-size: 13px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: white; background: var(--ink); border: none; cursor: pointer; padding: 16px 40px; transition: all 0.2s; display: flex; align-items: center; gap: 10px; }
+    .btn-next:hover { background: var(--gold); }
+    .btn-submit { font-family: var(--sans); font-size: 13px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--void); background: var(--gold); border: none; cursor: pointer; padding: 16px 48px; transition: all 0.2s; }
+    .btn-submit:hover { background: var(--gold-light); transform: translateY(-1px); }
+
+    /* SUCCESS */
+    .success-screen { display: none; padding: 80px 56px; text-align: center; }
+    .success-icon { width: 64px; height: 64px; border: 1px solid var(--gold-border); margin: 0 auto 32px; display: flex; align-items: center; justify-content: center; }
+    .success-icon svg { width: 28px; height: 28px; }
+    .success-title { font-family: var(--serif); font-size: 44px; font-weight: 300; color: var(--ink); margin-bottom: 16px; letter-spacing: -0.5px; }
+    .success-title em { font-style: italic; color: var(--gold); }
+    .success-sub { font-size: 15px; font-weight: 300; color: var(--ink-mid); line-height: 1.8; max-width: 480px; margin: 0 auto; }
+
+    /* FOOTER */
+    footer { border-top: 1px solid var(--faint); background: var(--void); padding: 36px 72px; display: flex; align-items: center; justify-content: space-between; }
+    .footer-copy { font-size: 10px; font-weight: 300; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }
+    .footer-mii { display: flex; align-items: center; gap: 10px; font-size: 9px; font-weight: 400; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); }
+    .mii-sq { width: 8px; height: 8px; background: var(--gold); }
+
+    /* ANIMATIONS */
+    .reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.8s ease, transform 0.8s ease; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /* REQUIRED FIELD ERROR */
+    .form-input.error, .form-select.error { border-color: #c0392b; }
+    .error-msg { font-size: 11px; color: #c0392b; margin-top: 5px; display: none; }
+    .error-msg.show { display: block; }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="invictus-imc-landing.html" class="logo">
+    <div class="logo-emblem">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+        <circle cx="9" cy="9" r="7" stroke="#B8860B" stroke-width="0.8"/>
+        <line x1="2" y1="9" x2="16" y2="9" stroke="#B8860B" stroke-width="0.8"/>
+        <ellipse cx="9" cy="9" rx="3.5" ry="7" stroke="#B8860B" stroke-width="0.8"/>
+      </svg>
+    </div>
+    <div>
+      <div class="logo-name">Invictus IMC</div>
+      <div class="logo-tagline">India Manufacturing Company</div>
+    </div>
+  </a>
+  <div class="nav-center">
+    <a href="invictus-imc-landing.html">Home</a>
+    <a href="the-opportunity.html">The Opportunity</a>
+    <a href="#" class="active">Manufacturers Club</a>
+    <a href="buyers-club.html">Buyers Club</a>
+  </div>
+  <div class="nav-right">
+    <button class="btn-ghost">Sign In</button>
+    <button class="btn-gold-nav" onclick="scrollToForm()">Apply Now</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-inner">
+    <div>
+      <div class="hero-eyebrow">01 · The Manufacturers Club</div>
+      <h1>Your Factory.<br/><em>Global</em><br/>Demand.</h1>
+      <p class="hero-sub">Whether you run 5 machines or 500 — if you manufacture seriously, <strong>this is your platform.</strong> No marketing budgets. No trade shows. Just high-volume orders, managed end to end by our team.</p>
+      <div class="hero-actions">
+        <button class="btn-primary" onclick="scrollToForm()">Apply for Membership</button>
+        <button class="btn-outline" onclick="document.getElementById('about').scrollIntoView({behavior:'smooth'})">Learn More</button>
+      </div>
+    </div>
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <div class="hero-stat-val">₹45L Cr</div>
+        <div class="hero-stat-label">India's Annual Import Value</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-val">70%</div>
+        <div class="hero-stat-label">Can Be Manufactured Locally</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-val">0</div>
+        <div class="hero-stat-label">Marketing Cost to You</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-val">PO→Del</div>
+        <div class="hero-stat-label">We Manage Everything</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHO IS THIS FOR -->
+<div class="divider reveal" id="about">
+  <div class="divider-line"></div>
+  <div class="divider-text">Who This Is For</div>
+  <div class="divider-line"></div>
+</div>
+
+<section class="for-section reveal">
+  <div class="for-grid">
+    <div class="for-card">
+      <div class="for-icon">
+        <svg viewBox="0 0 20 20" fill="none"><rect x="2" y="8" width="16" height="10" rx="1" stroke="#B8860B" stroke-width="1.2"/><path d="M6 8V6C6 3.79 7.79 2 10 2C12.21 2 14 3.79 14 6V8" stroke="#B8860B" stroke-width="1.2"/></svg>
+      </div>
+      <div class="for-title">Machine Shops</div>
+      <p class="for-desc">CNC turning, milling, grinding. 5 machines or 50. If you have capacity and capability, you belong here.</p>
+      <div class="for-example">e.g. Precision Components, Turned Parts</div>
+    </div>
+    <div class="for-card">
+      <div class="for-icon">
+        <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8" stroke="#B8860B" stroke-width="1.2"/><path d="M6 10H14M10 6V14" stroke="#B8860B" stroke-width="1.2" stroke-linecap="round"/></svg>
+      </div>
+      <div class="for-title">Plastic Moulders</div>
+      <p class="for-desc">Injection moulding, blow moulding, thermoforming. Consumer goods, industrial components, packaging.</p>
+      <div class="for-example">e.g. Toy Parts, Electronic Housings, Auto Components</div>
+    </div>
+    <div class="for-card">
+      <div class="for-icon">
+        <svg viewBox="0 0 20 20" fill="none"><rect x="3" y="3" width="14" height="14" rx="1" stroke="#B8860B" stroke-width="1.2"/><rect x="7" y="7" width="6" height="6" stroke="#B8860B" stroke-width="1"/></svg>
+      </div>
+      <div class="for-title">Electronics & PCB</div>
+      <p class="for-desc">PCB assembly, circuit design, electronic module manufacturing. From prototypes to production runs.</p>
+      <div class="for-example">e.g. Consumer Electronics, EV Electronics, Industrial Controllers</div>
+    </div>
+    <div class="for-card">
+      <div class="for-icon">
+        <svg viewBox="0 0 20 20" fill="none"><path d="M4 16L10 4L16 16" stroke="#B8860B" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><line x1="6" y1="12" x2="14" y2="12" stroke="#B8860B" stroke-width="1.2"/></svg>
+      </div>
+      <div class="for-title">OEMs & Large Enterprises</div>
+      <p class="for-desc">Established manufacturers with large capacity looking for consistent international and domestic order flow.</p>
+      <div class="for-example">e.g. Auto OEMs, Aerospace Tier-2, Defence Suppliers</div>
+    </div>
+  </div>
+</section>
+
+<!-- BENEFITS -->
+<section class="benefits reveal">
+  <div class="benefits-inner">
+    <div class="benefits-left">
+      <h2>What you<br/>get as a<br/><em>Member.</em></h2>
+      <p>We don't just list you in a directory. We actively work with you — from order acquisition to final delivery.</p>
+    </div>
+    <div class="benefits-right">
+      <div class="benefit-item">
+        <div class="benefit-num">01</div>
+        <div class="benefit-title">Direct Order Flow</div>
+        <p class="benefit-desc">We bring verified buyers directly to your dashboard. No cold calls, no trade fairs, no marketing spend.</p>
+      </div>
+      <div class="benefit-item">
+        <div class="benefit-num">02</div>
+        <div class="benefit-title">Managed Negotiations</div>
+        <p class="benefit-desc">Our team handles all buyer communication and price negotiation. You focus on manufacturing.</p>
+      </div>
+      <div class="benefit-item">
+        <div class="benefit-num">03</div>
+        <div class="benefit-title">White-Label Partnership</div>
+        <p class="benefit-desc">We buy from you directly as a white-label partner. No payment risk, no chasing buyers for dues.</p>
+      </div>
+      <div class="benefit-item">
+        <div class="benefit-num">04</div>
+        <div class="benefit-title">Project Management</div>
+        <p class="benefit-desc">Design, tooling, timelines, quality audits — we co-manage the project from PO to delivery.</p>
+      </div>
+      <div class="benefit-item">
+        <div class="benefit-num">05</div>
+        <div class="benefit-title">Capacity Optimisation</div>
+        <p class="benefit-desc">Fill your excess production capacity with consistent, high-volume repeat orders.</p>
+      </div>
+      <div class="benefit-item">
+        <div class="benefit-num">06</div>
+        <div class="benefit-title">Global Reach</div>
+        <p class="benefit-desc">Access buyers from India and internationally — brands, importers, and enterprises looking to source from India.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- INDUSTRIES -->
+<div class="divider reveal">
+  <div class="divider-line"></div>
+  <div class="divider-text">Sectors We Work In</div>
+  <div class="divider-line"></div>
+</div>
+
+<section class="industries-section reveal">
+  <div class="industries-grid">
+    <div class="ind-pill highlight">Automobiles</div>
+    <div class="ind-pill highlight">Electronics & ESDM</div>
+    <div class="ind-pill highlight">Aerospace & Aviation</div>
+    <div class="ind-pill highlight">Defence Manufacturing</div>
+    <div class="ind-pill highlight">Plastics & Chemicals</div>
+    <div class="ind-pill highlight">Engineering & Capital Goods</div>
+    <div class="ind-pill">Railways</div>
+    <div class="ind-pill">Renewable Energy</div>
+    <div class="ind-pill">Pharmaceuticals</div>
+    <div class="ind-pill">Metals & Mining</div>
+    <div class="ind-pill">Consumer Durables</div>
+    <div class="ind-pill">Textiles</div>
+    <div class="ind-pill">Oil & Gas</div>
+    <div class="ind-pill">Steel</div>
+    <div class="ind-pill">Biotechnology</div>
+    <div class="ind-pill">FMCG</div>
+    <div class="ind-pill">Healthcare</div>
+    <div class="ind-pill">Construction & Civil</div>
+    <div class="ind-pill">Packaging</div>
+    <div class="ind-pill">Agriculture & Allied</div>
+    <div class="ind-pill">Telecommunications</div>
+    <div class="ind-pill">Science & Technology</div>
+    <div class="ind-pill">Logistics & Warehousing</div>
+    <div class="ind-pill">Raw Materials</div>
+    <div class="ind-pill">Printing</div>
+    <div class="ind-pill">Banking & Finance</div>
+  </div>
+</section>
+
+<!-- APPLICATION FORM -->
+<div class="divider reveal" id="apply-section">
+  <div class="divider-line"></div>
+  <div class="divider-text">Membership Application</div>
+  <div class="divider-line"></div>
+</div>
+
+<section class="form-section reveal">
+  <div class="form-wrapper" id="form-wrapper">
+    <div class="form-header">
+      <div class="form-header-eyebrow">Manufacturers Club · Application</div>
+      <h2>Apply for Membership</h2>
+      <p>All applications are reviewed manually by our team. We'll reach out within 2 business days.</p>
+    </div>
+
+    <div class="form-body" id="form-body">
+      <!-- STEP INDICATOR -->
+      <div class="step-indicator">
+        <div class="step active" id="step-ind-1">
+          <div class="step-num">1</div>
+          <div class="step-label">Company</div>
+        </div>
+        <div class="step-connector"></div>
+        <div class="step" id="step-ind-2">
+          <div class="step-num">2</div>
+          <div class="step-label">Capabilities</div>
+        </div>
+        <div class="step-connector"></div>
+        <div class="step" id="step-ind-3">
+          <div class="step-num">3</div>
+          <div class="step-label">Contact</div>
+        </div>
+        <div class="step-connector"></div>
+        <div class="step" id="step-ind-4">
+          <div class="step-num">4</div>
+          <div class="step-label">Review</div>
+        </div>
+      </div>
+
+      <!-- STEP 1: COMPANY INFO -->
+      <div class="form-panel active" id="panel-1">
+        <div class="form-section-title">Company Information</div>
+        <div class="form-row">
+          <label class="form-label">Company / Factory Name <span>*</span></label>
+          <input type="text" class="form-input" id="company-name" placeholder="e.g. Sharma Precision Engineering Pvt. Ltd." />
+        </div>
+        <div class="form-row-2">
+          <div>
+            <label class="form-label">GST Number <span>*</span></label>
+            <input type="text" class="form-input" id="gst" placeholder="e.g. 27AABCS1429B1ZB" maxlength="15" style="text-transform:uppercase" />
+          </div>
+          <div>
+            <label class="form-label">Year Established</label>
+            <input type="text" class="form-input" id="year-est" placeholder="e.g. 2008" maxlength="4" />
+          </div>
+        </div>
+        <div class="form-row-2">
+          <div>
+            <label class="form-label">City <span>*</span></label>
+            <input type="text" class="form-input" id="city" placeholder="e.g. Pune" />
+          </div>
+          <div>
+            <label class="form-label">PIN Code <span>*</span></label>
+            <input type="text" class="form-input" id="pincode" placeholder="e.g. 411001" maxlength="6" />
+          </div>
+        </div>
+        <div class="form-row">
+          <label class="form-label">State <span>*</span></label>
+          <div class="form-select-wrap">
+            <select class="form-select" id="state">
+              <option value="">Select state</option>
+              <option>Andhra Pradesh</option><option>Arunachal Pradesh</option><option>Assam</option>
+              <option>Bihar</option><option>Chhattisgarh</option><option>Goa</option>
+              <option>Gujarat</option><option>Haryana</option><option>Himachal Pradesh</option>
+              <option>Jharkhand</option><option>Karnataka</option><option>Kerala</option>
+              <option>Madhya Pradesh</option><option>Maharashtra</option><option>Manipur</option>
+              <option>Meghalaya</option><option>Mizoram</option><option>Nagaland</option>
+              <option>Odisha</option><option>Punjab</option><option>Rajasthan</option>
+              <option>Sikkim</option><option>Tamil Nadu</option><option>Telangana</option>
+              <option>Tripura</option><option>Uttar Pradesh</option><option>Uttarakhand</option>
+              <option>West Bengal</option><option>Delhi</option><option>Chandigarh</option>
+              <option>Jammu & Kashmir</option><option>Ladakh</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <label class="form-label">Brief Company Description</label>
+          <textarea class="form-textarea" id="company-desc" placeholder="What does your factory make? What makes you stand out? (2-3 sentences)"></textarea>
+        </div>
+        <div class="form-nav">
+          <div></div>
+          <button class="btn-next" onclick="goToStep(2)">
+            Next: Capabilities
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7H11M8 4L11 7L8 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- STEP 2: CAPABILITIES -->
+      <div class="form-panel" id="panel-2">
+        <div class="form-section-title">Manufacturing Capabilities</div>
+
+        <div class="form-row">
+          <label class="form-label">Primary Sector <span>*</span></label>
+          <div class="form-select-wrap">
+            <select class="form-select" id="primary-sector">
+              <option value="">Select your primary sector</option>
+              <option>Agriculture & Allied Industries</option>
+              <option>Automobiles</option>
+              <option>Aviation</option>
+              <option>Railways</option>
+              <option>Mechanical</option>
+              <option>Raw Material</option>
+              <option>Logistics & Warehousing</option>
+              <option>Banking & Finance</option>
+              <option>Biotechnology</option>
+              <option>Construction & Civil</option>
+              <option>Printing</option>
+              <option>Chemicals</option>
+              <option>Consumer Durables</option>
+              <option>Defence Manufacturing</option>
+              <option>Education & Training</option>
+              <option>Electronics System Design & Manufacturing</option>
+              <option>Engineering & Capital Goods</option>
+              <option>FMCG</option>
+              <option>Healthcare</option>
+              <option>Insurance</option>
+              <option>Pharmaceuticals</option>
+              <option>Metals & Mining</option>
+              <option>Oil & Gas</option>
+              <option>Power</option>
+              <option>Renewable Energy</option>
+              <option>Real Estate</option>
+              <option>Retail</option>
+              <option>Services</option>
+              <option>Steel</option>
+              <option>Telecommunications</option>
+              <option>Textiles</option>
+              <option>Science & Technology</option>
+              <option>Packaging</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <label class="form-label">Company Type <span>*</span></label>
+          <div class="type-grid" id="company-type-grid">
+            <div class="type-item" onclick="selectType(this, 'oem')">
+              <div class="type-title">OEM / Brand</div>
+              <div class="type-desc">You design and manufacture your own products under your brand name.</div>
+            </div>
+            <div class="type-item" onclick="selectType(this, 'parts')">
+              <div class="type-title">Parts & Products Manufacturer</div>
+              <div class="type-desc">You manufacture complete parts or sub-assemblies for other companies.</div>
+            </div>
+            <div class="type-item" onclick="selectType(this, 'component')">
+              <div class="type-title">Component Manufacturer</div>
+              <div class="type-desc">You manufacture precision components that go into larger assemblies.</div>
+            </div>
+            <div class="type-item" onclick="selectType(this, 'consultant')">
+              <div class="type-title">Consultant / APC</div>
+              <div class="type-desc">You provide engineering consultancy, design services, or act as an authorised production centre.</div>
+            </div>
+          </div>
+          <input type="hidden" id="company-type" />
+        </div>
+
+        <div class="form-row">
+          <label class="form-label">Manufacturing Capabilities <span>*</span> <span style="font-weight:300;letter-spacing:0;text-transform:none;font-size:10px;">(select all that apply)</span></label>
+          <div class="cap-grid" id="cap-grid">
+            <div class="cap-item" onclick="toggleCap(this, 'CNC Machining')"><div class="cap-check"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5L4 7L8 3" stroke="white" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="cap-label">CNC Machining</span></div>
+            <div class="cap-item" onclick="toggleCap(this, 'Plastic Injection Moulding')"><div class="cap-check"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5L4 7L8 3" stroke="white" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="cap-label">Plastic Injection Moulding</span></div>
+            <div class="cap-item" onclick="toggleCap(this, 'PCB Assembly')"><div class="cap-check"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5L4 7L8 3" stroke="white" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="cap-label">PCB Assembly</span></div>
+            <div class="cap-item" onclick="toggleCap(this, 'Sheet Metal Fabrication')"><div class="cap-check"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5L4 7L8 3" stroke="white" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="cap-label">Sheet Metal Fabrication</span></div>
+            <div class="cap-item" onclick="toggleCap(this, 'Die Casting')"><div class="cap-check"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5L4 7L8 3" stroke="white" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="cap-label">Die Casting</span></div>
+            <div class="cap-item" onclick="toggleCap(this, 'Forging')"><div class="cap-check"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5L4 7L8 3" stroke="white" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="cap-label">Forging</span></div>
+            <div class="cap-item" onclick="toggleCap(this, 'Welding & Fabrication')"><div class="cap-check"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5L4 7L8 3" stroke="white" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="cap-label">Welding & Fabrication</span></div>
+            <div class="cap-item" onclick="toggleCap(this, 'Electronic Circuit Design')"><div class="cap-check"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5L4 7L8 3" stroke="white" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="cap-label">Electronic Circuit Design</span></div>
+            <div class="cap-item" onclick="toggleCap(this, 'Tool & Die Making')"><div class="cap-check"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5L4 7L8 3" stroke="white" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="cap-label">Tool & Die Making</span></div>
+            <div class="cap-item" onclick="toggleCap(this, 'Heat Treatment')"><div class="cap-check"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5L4 7L8 3" stroke="white" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="cap-label">Heat Treatment</span></div>
+            <div class="cap-item" onclick="toggleCap(this, 'Surface Treatment & Plating')"><div class="cap-check"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5L4 7L8 3" stroke="white" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="cap-label">Surface Treatment & Plating</span></div>
+            <div class="cap-item" onclick="toggleCap(this, 'Assembly & Integration')"><div class="cap-check"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5L4 7L8 3" stroke="white" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="cap-label">Assembly & Integration</span></div>
+            <div class="cap-item" onclick="toggleCap(this, 'Rubber Moulding')"><div class="cap-check"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5L4 7L8 3" stroke="white" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="cap-label">Rubber Moulding</span></div>
+            <div class="cap-item" onclick="toggleCap(this, 'Casting & Foundry')"><div class="cap-check"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5L4 7L8 3" stroke="white" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="cap-label">Casting & Foundry</span></div>
+            <div class="cap-item" onclick="toggleCap(this, 'Textile Manufacturing')"><div class="cap-check"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5L4 7L8 3" stroke="white" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="cap-label">Textile Manufacturing</span></div>
+            <div class="cap-item" onclick="toggleCap(this, 'Packaging Manufacturing')"><div class="cap-check"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5L4 7L8 3" stroke="white" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="cap-label">Packaging Manufacturing</span></div>
+            <div class="cap-item" onclick="toggleCap(this, '3D Printing / Additive Manufacturing')"><div class="cap-check"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5L4 7L8 3" stroke="white" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="cap-label">3D Printing / Additive</span></div>
+            <div class="cap-item" onclick="toggleCap(this, 'Other')"><div class="cap-check"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5L4 7L8 3" stroke="white" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="cap-label">Other</span></div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <label class="form-label">Certifications (if any)</label>
+          <input type="text" class="form-input" id="certifications" placeholder="e.g. ISO 9001, IATF 16949, AS9100, BIS, NABL..." />
+          <p class="form-hint">Separate multiple certifications with commas</p>
+        </div>
+
+        <div class="form-row-2">
+          <div>
+            <label class="form-label">Annual Turnover (approx.)</label>
+            <div class="form-select-wrap">
+              <select class="form-select" id="turnover">
+                <option value="">Select range</option>
+                <option>Under ₹1 Crore</option>
+                <option>₹1 – 5 Crore</option>
+                <option>₹5 – 25 Crore</option>
+                <option>₹25 – 100 Crore</option>
+                <option>₹100 – 500 Crore</option>
+                <option>Over ₹500 Crore</option>
+                <option>Prefer not to say</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <label class="form-label">Number of Machines / Equipment</label>
+            <div class="form-select-wrap">
+              <select class="form-select" id="machines">
+                <option value="">Select range</option>
+                <option>1 – 5</option>
+                <option>6 – 20</option>
+                <option>21 – 50</option>
+                <option>51 – 100</option>
+                <option>100+</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-nav">
+          <button class="btn-back" onclick="goToStep(1)">← Back</button>
+          <button class="btn-next" onclick="goToStep(3)">
+            Next: Contact Details
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7H11M8 4L11 7L8 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- STEP 3: CONTACT -->
+      <div class="form-panel" id="panel-3">
+        <div class="form-section-title">Point of Contact</div>
+        <div class="form-row-2">
+          <div>
+            <label class="form-label">Full Name <span>*</span></label>
+            <input type="text" class="form-input" id="poc-name" placeholder="e.g. Rajesh Kumar" />
+          </div>
+          <div>
+            <label class="form-label">Designation <span>*</span></label>
+            <input type="text" class="form-input" id="poc-designation" placeholder="e.g. Managing Director" />
+          </div>
+        </div>
+        <div class="form-row-2">
+          <div>
+            <label class="form-label">Email Address <span>*</span></label>
+            <input type="email" class="form-input" id="poc-email" placeholder="e.g. rajesh@company.com" />
+          </div>
+          <div>
+            <label class="form-label">Mobile Number <span>*</span></label>
+            <input type="tel" class="form-input" id="poc-phone" placeholder="e.g. +91 98765 43210" />
+          </div>
+        </div>
+        <div class="form-row">
+          <label class="form-label">How did you hear about Invictus IMC?</label>
+          <div class="form-select-wrap">
+            <select class="form-select" id="source">
+              <option value="">Select</option>
+              <option>Personal Network / Referral</option>
+              <option>LinkedIn</option>
+              <option>Google Search</option>
+              <option>Industry Event / Trade Show</option>
+              <option>News / Media</option>
+              <option>Other</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <label class="form-label">Anything you'd like us to know?</label>
+          <textarea class="form-textarea" id="additional" placeholder="Any specific requirements, questions, or context you'd like to share with our team..."></textarea>
+        </div>
+        <div class="form-nav">
+          <button class="btn-back" onclick="goToStep(2)">← Back</button>
+          <button class="btn-next" onclick="goToStep(4)">
+            Review Application
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7H11M8 4L11 7L8 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- STEP 4: REVIEW -->
+      <div class="form-panel" id="panel-4">
+        <div class="form-section-title">Review Your Application</div>
+        <div id="review-content" style="background:var(--ivory);border:1px solid var(--ivory-border);padding:32px;margin-bottom:24px;line-height:2;"></div>
+        <p style="font-size:13px;color:var(--ink-mid);line-height:1.7;margin-bottom:24px;">By submitting this application, you confirm that all information provided is accurate. Our team will review your application and contact you within 2 business days.</p>
+        <div class="form-nav">
+          <button class="btn-back" onclick="goToStep(3)">← Edit</button>
+          <button class="btn-submit" onclick="submitForm()">Submit Application →</button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- SUCCESS -->
+    <div class="success-screen" id="success-screen">
+      <div class="success-icon">
+        <svg viewBox="0 0 28 28" fill="none"><path d="M5 14L11 20L23 8" stroke="#B8860B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="success-title">Application <em>Received.</em></div>
+      <p class="success-sub">Thank you for applying to the Manufacturers Club. Our team will review your application and reach out within 2 business days. Welcome to Invictus IMC.</p>
+      <button class="btn-primary" style="margin-top:36px;" onclick="window.location.href='invictus-imc-landing.html'">Return to Home</button>
+    </div>
+
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <span class="footer-copy">© 2025 Invictus IMC · All Rights Reserved</span>
+  <div class="footer-mii"><div class="mii-sq"></div> Make In India Initiative</div>
+</footer>
+
+<script>
+  let currentStep = 1;
+  let selectedCaps = [];
+  let selectedType = '';
+
+  function scrollToForm() {
+    document.getElementById('apply-section').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  function goToStep(step) {
+    if (step > currentStep && !validateStep(currentStep)) return;
+    document.getElementById('panel-' + currentStep).classList.remove('active');
+    document.getElementById('panel-' + step).classList.add('active');
+
+    // Update indicators
+    for (let i = 1; i <= 4; i++) {
+      const ind = document.getElementById('step-ind-' + i);
+      ind.classList.remove('active', 'done');
+      if (i < step) ind.classList.add('done');
+      else if (i === step) ind.classList.add('active');
+    }
+
+    if (step === 4) buildReview();
+    currentStep = step;
+    document.getElementById('form-wrapper').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function validateStep(step) {
+    if (step === 1) {
+      const name = document.getElementById('company-name').value.trim();
+      const gst = document.getElementById('gst').value.trim();
+      const city = document.getElementById('city').value.trim();
+      const pin = document.getElementById('pincode').value.trim();
+      const state = document.getElementById('state').value;
+      if (!name || !gst || !city || !pin || !state) {
+        alert('Please fill all required fields in Company Information.');
+        return false;
+      }
+    }
+    if (step === 2) {
+      const sector = document.getElementById('primary-sector').value;
+      if (!sector) { alert('Please select your primary sector.'); return false; }
+      if (!selectedType) { alert('Please select your company type.'); return false; }
+      if (selectedCaps.length === 0) { alert('Please select at least one manufacturing capability.'); return false; }
+    }
+    if (step === 3) {
+      const name = document.getElementById('poc-name').value.trim();
+      const desig = document.getElementById('poc-designation').value.trim();
+      const email = document.getElementById('poc-email').value.trim();
+      const phone = document.getElementById('poc-phone').value.trim();
+      if (!name || !desig || !email || !phone) {
+        alert('Please fill all required contact fields.');
+        return false;
+      }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        alert('Please enter a valid email address.');
+        return false;
+      }
+    }
+    return true;
+  }
+
+  function toggleCap(el, cap) {
+    el.classList.toggle('selected');
+    if (el.classList.contains('selected')) {
+      selectedCaps.push(cap);
+    } else {
+      selectedCaps = selectedCaps.filter(c => c !== cap);
+    }
+  }
+
+  function selectType(el, type) {
+    document.querySelectorAll('.type-item').forEach(t => t.classList.remove('selected'));
+    el.classList.add('selected');
+    selectedType = type;
+    document.getElementById('company-type').value = type;
+  }
+
+  function buildReview() {
+    const data = {
+      'Company Name': document.getElementById('company-name').value,
+      'GST Number': document.getElementById('gst').value.toUpperCase(),
+      'Location': `${document.getElementById('city').value}, ${document.getElementById('state').value} - ${document.getElementById('pincode').value}`,
+      'Primary Sector': document.getElementById('primary-sector').value,
+      'Company Type': selectedType ? selectedType.charAt(0).toUpperCase() + selectedType.slice(1) : '—',
+      'Capabilities': selectedCaps.length ? selectedCaps.join(', ') : '—',
+      'Certifications': document.getElementById('certifications').value || '—',
+      'Annual Turnover': document.getElementById('turnover').value || '—',
+      'Machines': document.getElementById('machines').value || '—',
+      'POC Name': document.getElementById('poc-name').value,
+      'Designation': document.getElementById('poc-designation').value,
+      'Email': document.getElementById('poc-email').value,
+      'Phone': document.getElementById('poc-phone').value,
+    };
+
+    let html = '<table style="width:100%;border-collapse:collapse;">';
+    for (const [k, v] of Object.entries(data)) {
+      html += `<tr>
+        <td style="font-size:10px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink-mid);padding:8px 0;width:40%;vertical-align:top;">${k}</td>
+        <td style="font-size:14px;color:var(--ink);padding:8px 0;font-weight:400;">${v}</td>
+      </tr>`;
+    }
+    html += '</table>';
+    document.getElementById('review-content').innerHTML = html;
+  }
+
+  function submitForm() {
+    // Save to localStorage for admin to see
+    const application = {
+      id: Date.now(),
+      type: 'manufacturer',
+      submittedAt: new Date().toLocaleString('en-IN'),
+      companyName: document.getElementById('company-name').value,
+      gst: document.getElementById('gst').value.toUpperCase(),
+      city: document.getElementById('city').value,
+      state: document.getElementById('state').value,
+      pincode: document.getElementById('pincode').value,
+      description: document.getElementById('company-desc').value,
+      primarySector: document.getElementById('primary-sector').value,
+      companyType: selectedType,
+      capabilities: selectedCaps,
+      certifications: document.getElementById('certifications').value,
+      turnover: document.getElementById('turnover').value,
+      machines: document.getElementById('machines').value,
+      pocName: document.getElementById('poc-name').value,
+      pocDesignation: document.getElementById('poc-designation').value,
+      pocEmail: document.getElementById('poc-email').value,
+      pocPhone: document.getElementById('poc-phone').value,
+      source: document.getElementById('source').value,
+      additional: document.getElementById('additional').value,
+      status: 'pending'
+    };
+
+    const existing = JSON.parse(localStorage.getItem('imc_manufacturer_apps') || '[]');
+    existing.push(application);
+    localStorage.setItem('imc_manufacturer_apps', JSON.stringify(existing));
+
+    document.getElementById('form-body').style.display = 'none';
+    document.getElementById('success-screen').style.display = 'block';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // Scroll reveal
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.08 });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>

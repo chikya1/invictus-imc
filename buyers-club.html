@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Buyers Club — Invictus IMC</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --void: #0A0A0A;
+      --deep: #111111;
+      --gold: #B8860B;
+      --gold-light: #D4A017;
+      --gold-dim: rgba(184,134,11,0.10);
+      --gold-border: rgba(184,134,11,0.28);
+      --ink: #1C1C1C;
+      --ink-mid: rgba(28,28,28,0.55);
+      --ink-faint: rgba(28,28,28,0.07);
+      --ivory: #FAF8F3;
+      --ivory-border: rgba(28,28,28,0.10);
+      --white: #F5F2EC;
+      --muted: rgba(245,242,236,0.45);
+      --faint: rgba(245,242,236,0.08);
+      --serif: 'Cormorant Garamond', Georgia, serif;
+      --sans: 'Outfit', sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+    body { font-family: var(--sans); background: var(--ivory); color: var(--ink); overflow-x: hidden; }
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--ivory); }
+    ::-webkit-scrollbar-thumb { background: var(--gold-border); }
+
+    /* NAV */
+    nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 72px; height: 76px;
+      border-bottom: 1px solid var(--faint);
+      position: sticky; top: 0; z-index: 200;
+      background: rgba(10,10,10,0.96);
+      backdrop-filter: blur(24px);
+    }
+    .logo { display: flex; align-items: center; gap: 14px; text-decoration: none; }
+    .logo-emblem { width: 42px; height: 42px; border: 1px solid var(--gold-border); display: flex; align-items: center; justify-content: center; position: relative; flex-shrink: 0; }
+    .logo-emblem::before { content: ''; position: absolute; inset: 4px; border: 1px solid var(--gold-border); }
+    .logo-name { font-family: var(--serif); font-size: 18px; font-weight: 600; letter-spacing: 3px; color: var(--white); text-transform: uppercase; line-height: 1; }
+    .logo-tagline { font-size: 8px; font-weight: 400; letter-spacing: 3.5px; color: var(--gold); text-transform: uppercase; line-height: 1; margin-top: 2px; }
+    .nav-center { display: flex; align-items: center; gap: 40px; }
+    .nav-center a { font-size: 13px; font-weight: 400; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); text-decoration: none; transition: color 0.2s; }
+    .nav-center a:hover { color: var(--gold); }
+    .nav-center a.active { color: var(--gold); }
+    .nav-right { display: flex; align-items: center; gap: 14px; }
+    .btn-ghost { font-family: var(--sans); font-size: 13px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); background: none; border: none; cursor: pointer; padding: 10px 18px; transition: color 0.2s; }
+    .btn-ghost:hover { color: var(--white); }
+    .btn-gold-nav { font-family: var(--sans); font-size: 13px; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase; color: var(--void); background: var(--gold); border: none; cursor: pointer; padding: 12px 26px; transition: all 0.2s; }
+    .btn-gold-nav:hover { background: var(--gold-light); }
+
+    /* HERO */
+    .hero {
+      background: var(--void);
+      padding: 96px 72px 80px;
+      position: relative; overflow: hidden;
+      min-height: 72vh;
+      display: flex; align-items: center;
+    }
+    .hero-grid {
+      position: absolute; inset: 0; pointer-events: none;
+      background-image: linear-gradient(var(--faint) 1px, transparent 1px), linear-gradient(90deg, var(--faint) 1px, transparent 1px);
+      background-size: 80px 80px;
+      mask-image: radial-gradient(ellipse 70% 100% at 20% 50%, black 20%, transparent 100%);
+    }
+    .hero-inner { position: relative; z-index: 2; display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; width: 100%; }
+    .hero-eyebrow { font-size: 10px; font-weight: 400; letter-spacing: 4px; text-transform: uppercase; color: var(--gold); margin-bottom: 24px; }
+    .hero h1 { font-family: var(--serif); font-size: 80px; font-weight: 300; line-height: 1.0; letter-spacing: -2px; color: var(--white); margin-bottom: 20px; }
+    .hero h1 em { font-style: italic; color: var(--gold); }
+    .hero-sub { font-size: 16px; font-weight: 300; color: var(--muted); line-height: 1.85; margin-bottom: 40px; max-width: 440px; }
+    .hero-sub strong { color: var(--white); font-weight: 500; }
+    .hero-actions { display: flex; gap: 14px; align-items: center; }
+    .btn-primary { font-family: var(--sans); font-size: 13px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--void); background: var(--gold); border: none; cursor: pointer; padding: 18px 40px; transition: all 0.25s; }
+    .btn-primary:hover { background: var(--gold-light); transform: translateY(-2px); }
+    .btn-outline { font-family: var(--sans); font-size: 13px; font-weight: 400; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); background: none; border: 1px solid var(--gold-border); cursor: pointer; padding: 18px 36px; transition: all 0.25s; }
+    .btn-outline:hover { border-color: var(--gold); background: var(--gold-dim); }
+
+    /* HERO RIGHT — PROOF POINTS */
+    .hero-right { display: flex; flex-direction: column; gap: 1px; }
+    .proof-item { background: rgba(255,255,255,0.03); border: 1px solid var(--faint); padding: 24px 28px; display: flex; align-items: flex-start; gap: 16px; transition: background 0.2s; }
+    .proof-item:hover { background: rgba(255,255,255,0.05); }
+    .proof-icon { width: 36px; height: 36px; border: 1px solid var(--gold-border); display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+    .proof-icon svg { width: 16px; height: 16px; }
+    .proof-title { font-family: var(--serif); font-size: 18px; font-weight: 400; color: var(--white); margin-bottom: 4px; }
+    .proof-desc { font-size: 13px; font-weight: 300; color: var(--muted); line-height: 1.6; }
+
+    /* DIVIDER */
+    .divider { display: flex; align-items: center; gap: 24px; padding: 72px 72px 48px; background: var(--ivory); }
+    .divider-line { flex: 1; height: 1px; background: var(--ivory-border); }
+    .divider-text { font-size: 9px; font-weight: 400; letter-spacing: 4px; text-transform: uppercase; color: var(--gold); white-space: nowrap; }
+
+    /* WHO IS THIS FOR */
+    .for-section { padding: 0 72px 80px; background: var(--ivory); }
+    .for-intro { max-width: 680px; margin-bottom: 40px; }
+    .for-intro p { font-size: 16px; font-weight: 300; color: var(--ink-mid); line-height: 1.85; }
+    .for-intro p strong { color: var(--ink); font-weight: 500; }
+    .for-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .for-card { background: white; border: 1px solid var(--ivory-border); padding: 32px 28px; transition: all 0.25s; }
+    .for-card:hover { border-color: var(--gold-border); box-shadow: 0 4px 24px rgba(184,134,11,0.08); transform: translateY(-3px); }
+    .for-num { font-family: var(--serif); font-size: 32px; font-weight: 300; color: var(--gold); opacity: 0.4; line-height: 1; margin-bottom: 16px; }
+    .for-title { font-family: var(--serif); font-size: 20px; font-weight: 500; color: var(--ink); margin-bottom: 10px; }
+    .for-desc { font-size: 13px; font-weight: 300; color: var(--ink-mid); line-height: 1.7; }
+    .for-examples { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--ivory-border); }
+    .for-example-label { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); margin-bottom: 8px; }
+    .for-example-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+    .for-tag { font-size: 10px; color: var(--ink-mid); border: 1px solid var(--ivory-border); padding: 3px 8px; }
+
+    /* HOW WE WORK */
+    .how-section { background: var(--void); padding: 80px 72px; }
+    .how-inner { display: grid; grid-template-columns: 340px 1fr; gap: 96px; align-items: start; }
+    .how-left h2 { font-family: var(--serif); font-size: 52px; font-weight: 300; color: var(--white); line-height: 1.1; letter-spacing: -0.5px; }
+    .how-left h2 em { font-style: italic; color: var(--gold); }
+    .how-left p { font-size: 15px; font-weight: 300; color: var(--muted); line-height: 1.85; margin-top: 20px; }
+    .how-right { display: flex; flex-direction: column; gap: 1px; }
+    .how-step { background: rgba(255,255,255,0.03); padding: 28px 32px; display: grid; grid-template-columns: 48px 1fr; gap: 20px; align-items: start; }
+    .how-step-num { font-family: var(--serif); font-size: 32px; font-weight: 300; color: var(--gold); opacity: 0.5; line-height: 1; }
+    .how-step-title { font-family: var(--serif); font-size: 20px; font-weight: 400; color: var(--white); margin-bottom: 8px; }
+    .how-step-desc { font-size: 13px; font-weight: 300; color: var(--muted); line-height: 1.7; }
+
+    /* COMMITMENT */
+    .commitment { padding: 0 72px 80px; background: var(--ivory); }
+    .commitment-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--ivory-border); }
+    .commitment-item { background: white; padding: 36px 32px; }
+    .commitment-icon { width: 40px; height: 40px; border: 1px solid var(--ivory-border); display: flex; align-items: center; justify-content: center; margin-bottom: 20px; }
+    .commitment-icon svg { width: 18px; height: 18px; }
+    .commitment-title { font-family: var(--serif); font-size: 20px; font-weight: 500; color: var(--ink); margin-bottom: 10px; }
+    .commitment-desc { font-size: 13px; font-weight: 300; color: var(--ink-mid); line-height: 1.7; }
+
+    /* FORM */
+    .form-section { background: var(--ivory); padding: 0 72px 96px; }
+    .form-wrapper { background: white; border: 1px solid var(--ivory-border); max-width: 860px; margin: 0 auto; position: relative; }
+    .form-wrapper::before { content: ''; position: absolute; top: 0; left: 10%; right: 10%; height: 2px; background: linear-gradient(90deg, transparent, var(--gold), transparent); }
+    .form-header { padding: 48px 56px 36px; border-bottom: 1px solid var(--ivory-border); }
+    .form-header-eyebrow { font-size: 10px; font-weight: 400; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); margin-bottom: 12px; }
+    .form-header h2 { font-family: var(--serif); font-size: 40px; font-weight: 300; color: var(--ink); letter-spacing: -0.5px; }
+    .form-header p { font-size: 14px; font-weight: 300; color: var(--ink-mid); margin-top: 8px; line-height: 1.7; }
+    .form-body { padding: 40px 56px 48px; }
+
+    /* STEP INDICATOR */
+    .step-indicator { display: flex; align-items: center; gap: 0; margin-bottom: 40px; }
+    .step { display: flex; align-items: center; gap: 10px; }
+    .step-num { width: 32px; height: 32px; border: 1px solid var(--ivory-border); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 500; color: var(--ink-mid); transition: all 0.2s; flex-shrink: 0; }
+    .step.active .step-num { background: var(--gold); border-color: var(--gold); color: white; }
+    .step.done .step-num { background: var(--ink); border-color: var(--ink); color: white; }
+    .step-label { font-size: 11px; font-weight: 400; letter-spacing: 1px; text-transform: uppercase; color: var(--ink-mid); white-space: nowrap; }
+    .step.active .step-label { color: var(--gold); }
+    .step.done .step-label { color: var(--ink); }
+    .step-connector { flex: 1; height: 1px; background: var(--ivory-border); margin: 0 16px; }
+
+    /* FORM PANELS */
+    .form-panel { display: none; }
+    .form-panel.active { display: block; }
+
+    /* FORM ELEMENTS */
+    .form-section-title { font-family: var(--serif); font-size: 22px; font-weight: 400; color: var(--ink); margin-bottom: 24px; padding-bottom: 12px; border-bottom: 1px solid var(--ivory-border); }
+    .form-row { margin-bottom: 20px; }
+    .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+    .form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+    .form-label { font-size: 10px; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-mid); display: block; margin-bottom: 8px; }
+    .form-label span.req { color: var(--gold); }
+    .form-label span.opt { color: var(--ink-mid); font-weight: 300; letter-spacing: 0; text-transform: none; font-size: 10px; }
+    .form-input, .form-select, .form-textarea {
+      width: 100%; padding: 13px 16px;
+      background: var(--ivory); border: 1px solid var(--ivory-border);
+      color: var(--ink); font-family: var(--sans); font-size: 14px;
+      outline: none; transition: border-color 0.2s; appearance: none;
+    }
+    .form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--gold); background: white; }
+    .form-input::placeholder { color: var(--ink-mid); }
+    .form-textarea { resize: vertical; min-height: 90px; line-height: 1.6; }
+    .form-hint { font-size: 11px; color: var(--ink-mid); margin-top: 6px; line-height: 1.5; }
+    .form-select-wrap { position: relative; }
+    .form-select-wrap::after { content: '▾'; position: absolute; right: 16px; top: 50%; transform: translateY(-50%); color: var(--ink-mid); pointer-events: none; font-size: 12px; }
+
+    /* OPTIONAL BADGE */
+    .optional-badge { display: inline-block; font-size: 9px; font-weight: 400; letter-spacing: 1px; text-transform: uppercase; color: var(--ink-mid); border: 1px solid var(--ivory-border); padding: 2px 7px; margin-left: 8px; vertical-align: middle; }
+
+    /* PRODUCT ENTRY */
+    .product-entries { display: flex; flex-direction: column; gap: 12px; margin-bottom: 12px; }
+    .product-entry { background: var(--ivory); border: 1px solid var(--ivory-border); padding: 20px; position: relative; }
+    .product-entry-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+    .product-entry-label { font-size: 10px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); }
+    .btn-remove-product { font-family: var(--sans); font-size: 10px; color: #c0392b; background: none; border: none; cursor: pointer; letter-spacing: 1px; text-transform: uppercase; }
+    .btn-add-product { font-family: var(--sans); font-size: 11px; font-weight: 400; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); background: var(--gold-dim); border: 1px solid var(--gold-border); cursor: pointer; padding: 10px 20px; transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px; margin-top: 4px; }
+    .btn-add-product:hover { background: var(--gold-border); }
+
+    /* BUYER TYPE */
+    .buyer-type-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .buyer-type-item { padding: 16px 18px; border: 1px solid var(--ivory-border); cursor: pointer; transition: all 0.15s; text-align: center; }
+    .buyer-type-item:hover { border-color: var(--gold-border); }
+    .buyer-type-item.selected { border-color: var(--gold); background: var(--gold-dim); }
+    .buyer-type-icon { font-size: 20px; margin-bottom: 8px; }
+    .buyer-type-title { font-size: 12px; font-weight: 500; color: var(--ink); }
+    .buyer-type-item.selected .buyer-type-title { color: var(--gold); }
+
+    /* FORM NAV */
+    .form-nav { display: flex; justify-content: space-between; align-items: center; padding-top: 32px; border-top: 1px solid var(--ivory-border); margin-top: 32px; }
+    .btn-back { font-family: var(--sans); font-size: 11px; font-weight: 400; letter-spacing: 2px; text-transform: uppercase; color: var(--ink-mid); background: none; border: 1px solid var(--ivory-border); cursor: pointer; padding: 14px 28px; transition: all 0.2s; }
+    .btn-back:hover { border-color: var(--ink); color: var(--ink); }
+    .btn-next { font-family: var(--sans); font-size: 13px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: white; background: var(--ink); border: none; cursor: pointer; padding: 16px 40px; transition: all 0.2s; display: flex; align-items: center; gap: 10px; }
+    .btn-next:hover { background: var(--gold); }
+    .btn-submit { font-family: var(--sans); font-size: 13px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--void); background: var(--gold); border: none; cursor: pointer; padding: 16px 48px; transition: all 0.2s; }
+    .btn-submit:hover { background: var(--gold-light); transform: translateY(-1px); }
+
+    /* SUCCESS */
+    .success-screen { display: none; padding: 80px 56px; text-align: center; }
+    .success-icon { width: 64px; height: 64px; border: 1px solid var(--gold-border); margin: 0 auto 32px; display: flex; align-items: center; justify-content: center; }
+    .success-icon svg { width: 28px; height: 28px; }
+    .success-title { font-family: var(--serif); font-size: 44px; font-weight: 300; color: var(--ink); margin-bottom: 16px; letter-spacing: -0.5px; }
+    .success-title em { font-style: italic; color: var(--gold); }
+    .success-sub { font-size: 15px; font-weight: 300; color: var(--ink-mid); line-height: 1.8; max-width: 480px; margin: 0 auto; }
+
+    /* FOOTER */
+    footer { border-top: 1px solid var(--faint); background: var(--void); padding: 36px 72px; display: flex; align-items: center; justify-content: space-between; }
+    .footer-copy { font-size: 10px; font-weight: 300; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }
+    .footer-mii { display: flex; align-items: center; gap: 10px; font-size: 9px; font-weight: 400; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); }
+    .mii-sq { width: 8px; height: 8px; background: var(--gold); }
+
+    /* ANIMATIONS */
+    .reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.8s ease, transform 0.8s ease; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="invictus-imc-landing.html" class="logo">
+    <div class="logo-emblem">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+        <circle cx="9" cy="9" r="7" stroke="#B8860B" stroke-width="0.8"/>
+        <line x1="2" y1="9" x2="16" y2="9" stroke="#B8860B" stroke-width="0.8"/>
+        <ellipse cx="9" cy="9" rx="3.5" ry="7" stroke="#B8860B" stroke-width="0.8"/>
+      </svg>
+    </div>
+    <div>
+      <div class="logo-name">Invictus IMC</div>
+      <div class="logo-tagline">India Manufacturing Company</div>
+    </div>
+  </a>
+  <div class="nav-center">
+    <a href="invictus-imc-landing.html">Home</a>
+    <a href="the-opportunity.html">The Opportunity</a>
+    <a href="manufacturers-club.html">Manufacturers Club</a>
+    <a href="#" class="active">Buyers Club</a>
+  </div>
+  <div class="nav-right">
+    <button class="btn-ghost">Sign In</button>
+    <button class="btn-gold-nav" onclick="scrollToForm()">Apply Now</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-inner">
+    <div>
+      <div class="hero-eyebrow">02 · The Buyers Club</div>
+      <h1>Source India.<br/><em>Scale</em><br/>Anywhere.</h1>
+      <p class="hero-sub">For startups, brands, and enterprises sourcing in India. <strong>Whether you're a drone maker, an EV brand, a global importer, or a Fortune 500 procurement team</strong> — we find you the right manufacturer and manage every step.</p>
+      <div class="hero-actions">
+        <button class="btn-primary" onclick="scrollToForm()">Apply for Membership</button>
+        <button class="btn-outline" onclick="document.getElementById('about').scrollIntoView({behavior:'smooth'})">Learn More</button>
+      </div>
+    </div>
+    <div class="hero-right">
+      <div class="proof-item">
+        <div class="proof-icon">
+          <svg viewBox="0 0 16 16" fill="none"><path d="M8 2L10 6H14L11 9L12 13L8 11L4 13L5 9L2 6H6L8 2Z" stroke="#B8860B" stroke-width="1"/></svg>
+        </div>
+        <div>
+          <div class="proof-title">Verified Manufacturers Only</div>
+          <p class="proof-desc">Every manufacturer in our network is personally vetted. No unverified listings, no surprises.</p>
+        </div>
+      </div>
+      <div class="proof-item">
+        <div class="proof-icon">
+          <svg viewBox="0 0 16 16" fill="none"><rect x="2" y="5" width="12" height="9" rx="1" stroke="#B8860B" stroke-width="1"/><path d="M5 5V4C5 2.9 5.9 2 7 2H9C10.1 2 11 2.9 11 4V5" stroke="#B8860B" stroke-width="1"/></svg>
+        </div>
+        <div>
+          <div class="proof-title">Your Identity Protected</div>
+          <p class="proof-desc">Your sourcing requirements and company identity are shared only when you explicitly approve it.</p>
+        </div>
+      </div>
+      <div class="proof-item">
+        <div class="proof-icon">
+          <svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="#B8860B" stroke-width="1"/><path d="M8 5V8L10 10" stroke="#B8860B" stroke-width="1" stroke-linecap="round"/></svg>
+        </div>
+        <div>
+          <div class="proof-title">End-to-End Management</div>
+          <p class="proof-desc">From RFQ to delivery — we manage timelines, quality, and communication so you don't have to.</p>
+        </div>
+      </div>
+      <div class="proof-item">
+        <div class="proof-icon">
+          <svg viewBox="0 0 16 16" fill="none"><path d="M2 8C2 4.69 4.69 2 8 2C11.31 2 14 4.69 14 8C14 11.31 11.31 14 8 14C4.69 14 2 11.31 2 8Z" stroke="#B8860B" stroke-width="1"/><path d="M5 8C5.5 10 6.5 11 8 11C9.5 11 10.5 10 11 8" stroke="#B8860B" stroke-width="1" stroke-linecap="round"/></svg>
+        </div>
+        <div>
+          <div class="proof-title">Import Substitution Ready</div>
+          <p class="proof-desc">Currently importing? We help you find Indian manufacturers who can match or beat your current source.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHO IS THIS FOR -->
+<div class="divider reveal" id="about">
+  <div class="divider-line"></div>
+  <div class="divider-text">Who This Is For</div>
+  <div class="divider-line"></div>
+</div>
+
+<section class="for-section reveal">
+  <div class="for-intro">
+    <p>The Buyers Club is <strong>not limited to importers.</strong> It is for any serious business — startup or enterprise — that needs to source manufactured goods from India. The only criterion is that you're serious about what you're building.</p>
+  </div>
+  <div class="for-grid">
+    <div class="for-card">
+      <div class="for-num">01</div>
+      <div class="for-title">Startups & New Brands</div>
+      <p class="for-desc">You're building something new and need a manufacturing partner who takes you as seriously as a large enterprise would.</p>
+      <div class="for-examples">
+        <div class="for-example-label">Examples</div>
+        <div class="for-example-tags">
+          <span class="for-tag">EV Startups</span>
+          <span class="for-tag">Drone Makers</span>
+          <span class="for-tag">Consumer Electronics Brands</span>
+          <span class="for-tag">D2C Brands</span>
+        </div>
+      </div>
+    </div>
+    <div class="for-card">
+      <div class="for-num">02</div>
+      <div class="for-title">Importers & Global Buyers</div>
+      <p class="for-desc">You currently import from China, Taiwan, or elsewhere and want to explore Indian sourcing — for cost, quality, or geopolitical reasons.</p>
+      <div class="for-examples">
+        <div class="for-example-label">Examples</div>
+        <div class="for-example-tags">
+          <span class="for-tag">Import-Export Houses</span>
+          <span class="for-tag">Trading Companies</span>
+          <span class="for-tag">Global Distributors</span>
+          <span class="for-tag">Retail Chains</span>
+        </div>
+      </div>
+    </div>
+    <div class="for-card">
+      <div class="for-num">03</div>
+      <div class="for-title">Enterprises & OEMs</div>
+      <p class="for-desc">You're an established company looking to diversify your supply chain or localise components currently sourced internationally.</p>
+      <div class="for-examples">
+        <div class="for-example-label">Examples</div>
+        <div class="for-example-tags">
+          <span class="for-tag">Auto OEMs</span>
+          <span class="for-tag">Tier-1 Suppliers</span>
+          <span class="for-tag">Electronics Companies</span>
+          <span class="for-tag">Defence Primes</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW WE WORK -->
+<section class="how-section reveal">
+  <div class="how-inner">
+    <div class="how-left">
+      <h2>How we<br/>work for<br/><em>Buyers.</em></h2>
+      <p>We don't send you a list of manufacturers and leave you to figure it out. We own the process — from understanding your requirement to delivering the product.</p>
+    </div>
+    <div class="how-right">
+      <div class="how-step">
+        <div class="how-step-num">01</div>
+        <div>
+          <div class="how-step-title">You Share Your Requirement</div>
+          <p class="how-step-desc">Product specs, HSN code, volume, frequency, and any quality standards. The more detail, the better the match.</p>
+        </div>
+      </div>
+      <div class="how-step">
+        <div class="how-step-num">02</div>
+        <div>
+          <div class="how-step-title">We Find the Right Manufacturer</div>
+          <p class="how-step-desc">Our team searches our verified network and shortlists manufacturers with the exact capability you need.</p>
+        </div>
+      </div>
+      <div class="how-step">
+        <div class="how-step-num">03</div>
+        <div>
+          <div class="how-step-title">We Manage the Negotiation</div>
+          <p class="how-step-desc">Pricing, lead times, tooling costs — we handle all commercial discussions. Your identity stays protected until you approve.</p>
+        </div>
+      </div>
+      <div class="how-step">
+        <div class="how-step-num">04</div>
+        <div>
+          <div class="how-step-title">Production & Quality</div>
+          <p class="how-step-desc">We co-manage the production timeline and conduct quality checks before dispatch. We buy from the manufacturer and sell to you.</p>
+        </div>
+      </div>
+      <div class="how-step">
+        <div class="how-step-num">05</div>
+        <div>
+          <div class="how-step-title">Delivery & Repeat</div>
+          <p class="how-step-desc">Product delivered to your specification. Repeat orders become increasingly efficient as we learn your requirements.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- COMMITMENTS -->
+<div class="divider reveal">
+  <div class="divider-line"></div>
+  <div class="divider-text">Our Commitments to Buyers</div>
+  <div class="divider-line"></div>
+</div>
+
+<section class="commitment reveal">
+  <div class="commitment-grid">
+    <div class="commitment-item">
+      <div class="commitment-icon">
+        <svg viewBox="0 0 18 18" fill="none"><path d="M9 2L11 7H16L12 10L14 15L9 12L4 15L6 10L2 7H7L9 2Z" stroke="#B8860B" stroke-width="1"/></svg>
+      </div>
+      <div class="commitment-title">Quality or We Redo It</div>
+      <p class="commitment-desc">If the product doesn't meet the agreed specification, we take responsibility — not you. We re-do or refund.</p>
+    </div>
+    <div class="commitment-item">
+      <div class="commitment-icon">
+        <svg viewBox="0 0 18 18" fill="none"><rect x="2" y="4" width="14" height="12" rx="1" stroke="#B8860B" stroke-width="1"/><path d="M5 4V3C5 2.45 5.45 2 6 2H12C12.55 2 13 2.45 13 3V4" stroke="#B8860B" stroke-width="1"/><line x1="9" y1="8" x2="9" y2="12" stroke="#B8860B" stroke-width="1" stroke-linecap="round"/><line x1="7" y1="10" x2="11" y2="10" stroke="#B8860B" stroke-width="1" stroke-linecap="round"/></svg>
+      </div>
+      <div class="commitment-title">No Hidden Costs</div>
+      <p class="commitment-desc">The price we quote is the price you pay. No surprise tooling charges, no hidden logistics fees after the fact.</p>
+    </div>
+    <div class="commitment-item">
+      <div class="commitment-icon">
+        <svg viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="7" stroke="#B8860B" stroke-width="1"/><path d="M9 5V9L12 11" stroke="#B8860B" stroke-width="1" stroke-linecap="round"/></svg>
+      </div>
+      <div class="commitment-title">Timeline Accountability</div>
+      <p class="commitment-desc">We commit to production timelines in writing. If we miss a deadline, you'll know before it affects your business.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FORM -->
+<div class="divider reveal" id="apply-section">
+  <div class="divider-line"></div>
+  <div class="divider-text">Membership Application</div>
+  <div class="divider-line"></div>
+</div>
+
+<section class="form-section reveal">
+  <div class="form-wrapper" id="form-wrapper">
+    <div class="form-header">
+      <div class="form-header-eyebrow">Buyers Club · Application</div>
+      <h2>Apply for Membership</h2>
+      <p>Tell us what you're looking to source. Our team reviews every application and responds within 2 business days.</p>
+    </div>
+
+    <div class="form-body" id="form-body">
+      <!-- STEP INDICATOR -->
+      <div class="step-indicator">
+        <div class="step active" id="step-ind-1"><div class="step-num">1</div><div class="step-label">Company</div></div>
+        <div class="step-connector"></div>
+        <div class="step" id="step-ind-2"><div class="step-num">2</div><div class="step-label">Sourcing Need</div></div>
+        <div class="step-connector"></div>
+        <div class="step" id="step-ind-3"><div class="step-num">3</div><div class="step-label">Contact</div></div>
+        <div class="step-connector"></div>
+        <div class="step" id="step-ind-4"><div class="step-num">4</div><div class="step-label">Review</div></div>
+      </div>
+
+      <!-- STEP 1: COMPANY -->
+      <div class="form-panel active" id="panel-1">
+        <div class="form-section-title">Company Information</div>
+
+        <div class="form-row">
+          <label class="form-label">Buyer Type <span class="req">*</span></label>
+          <div class="buyer-type-grid" id="buyer-type-grid">
+            <div class="buyer-type-item" onclick="selectBuyerType(this, 'startup')">
+              <div class="buyer-type-title">Startup / New Brand</div>
+            </div>
+            <div class="buyer-type-item" onclick="selectBuyerType(this, 'importer')">
+              <div class="buyer-type-title">Importer / Trading Co.</div>
+            </div>
+            <div class="buyer-type-item" onclick="selectBuyerType(this, 'enterprise')">
+              <div class="buyer-type-title">Enterprise / OEM</div>
+            </div>
+          </div>
+          <input type="hidden" id="buyer-type" />
+        </div>
+
+        <div class="form-row">
+          <label class="form-label">Company Name <span class="req">*</span></label>
+          <input type="text" class="form-input" id="company-name" placeholder="e.g. Nexus EV Technologies Pvt. Ltd." />
+        </div>
+
+        <div class="form-row-2">
+          <div>
+            <label class="form-label">City <span class="req">*</span></label>
+            <input type="text" class="form-input" id="city" placeholder="e.g. Mumbai" />
+          </div>
+          <div>
+            <label class="form-label">State <span class="req">*</span></label>
+            <div class="form-select-wrap">
+              <select class="form-select" id="state">
+                <option value="">Select state</option>
+                <option>Andhra Pradesh</option><option>Arunachal Pradesh</option><option>Assam</option>
+                <option>Bihar</option><option>Chhattisgarh</option><option>Goa</option>
+                <option>Gujarat</option><option>Haryana</option><option>Himachal Pradesh</option>
+                <option>Jharkhand</option><option>Karnataka</option><option>Kerala</option>
+                <option>Madhya Pradesh</option><option>Maharashtra</option><option>Manipur</option>
+                <option>Meghalaya</option><option>Mizoram</option><option>Nagaland</option>
+                <option>Odisha</option><option>Punjab</option><option>Rajasthan</option>
+                <option>Sikkim</option><option>Tamil Nadu</option><option>Telangana</option>
+                <option>Tripura</option><option>Uttar Pradesh</option><option>Uttarakhand</option>
+                <option>West Bengal</option><option>Delhi</option><option>Chandigarh</option>
+                <option>Jammu & Kashmir</option><option>Ladakh</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row-2">
+          <div>
+            <label class="form-label">GST Number <span class="opt">(optional)</span></label>
+            <input type="text" class="form-input" id="gst" placeholder="e.g. 27AABCS1429B1ZB" maxlength="15" style="text-transform:uppercase" />
+          </div>
+          <div>
+            <label class="form-label">IEC Code <span class="opt">(optional — importers only)</span></label>
+            <input type="text" class="form-input" id="iec" placeholder="e.g. 0315012345" maxlength="10" />
+            <p class="form-hint">Import Export Code issued by DGFT. Only required if you are an active importer.</p>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <label class="form-label">Brief Company Description</label>
+          <textarea class="form-textarea" id="company-desc" placeholder="What does your company do? What products do you sell or build? (2-3 sentences)"></textarea>
+        </div>
+
+        <div class="form-nav">
+          <div></div>
+          <button class="btn-next" onclick="goToStep(2)">
+            Next: Sourcing Need
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7H11M8 4L11 7L8 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- STEP 2: SOURCING -->
+      <div class="form-panel" id="panel-2">
+        <div class="form-section-title">What Are You Sourcing?</div>
+        <p style="font-size:13px;color:var(--ink-mid);margin-bottom:24px;line-height:1.7;">You can add up to 3 products or categories. Be as specific as possible — it helps us find the right manufacturer faster.</p>
+
+        <div class="product-entries" id="product-entries">
+          <!-- Product 1 — always shown -->
+          <div class="product-entry" id="product-0">
+            <div class="product-entry-header">
+              <div class="product-entry-label">Product / Requirement 1</div>
+            </div>
+            <div class="form-row">
+              <label class="form-label">Product Name / Description <span class="req">*</span></label>
+              <input type="text" class="form-input prod-name" placeholder="e.g. Plastic injection moulded enclosures for EV charger" />
+            </div>
+            <div class="form-row-2">
+              <div>
+                <label class="form-label">HSN Code <span class="opt">(if known)</span></label>
+                <input type="text" class="form-input prod-hsn" placeholder="e.g. 3926" maxlength="8" />
+              </div>
+              <div>
+                <label class="form-label">Industry / Sector <span class="req">*</span></label>
+                <div class="form-select-wrap">
+                  <select class="form-select prod-sector">
+                    <option value="">Select sector</option>
+                    <option>Automobiles & EV</option><option>Electronics & ESDM</option>
+                    <option>Aerospace & Aviation</option><option>Defence</option>
+                    <option>Plastics & Chemicals</option><option>Engineering & Capital Goods</option>
+                    <option>Consumer Durables</option><option>Pharmaceuticals</option>
+                    <option>Textiles</option><option>Steel & Metals</option>
+                    <option>Packaging</option><option>FMCG</option>
+                    <option>Healthcare</option><option>Renewable Energy</option>
+                    <option>Railways</option><option>Other</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="form-row-3">
+              <div>
+                <label class="form-label">Annual Volume <span class="req">*</span></label>
+                <input type="text" class="form-input prod-volume" placeholder="e.g. 50,000 units" />
+              </div>
+              <div>
+                <label class="form-label">Approx. Import / Purchase Value</label>
+                <input type="text" class="form-input prod-value" placeholder="e.g. ₹80 Lakhs / year" />
+              </div>
+              <div>
+                <label class="form-label">Frequency <span class="req">*</span></label>
+                <div class="form-select-wrap">
+                  <select class="form-select prod-frequency">
+                    <option value="">Select</option>
+                    <option>Monthly</option><option>Quarterly</option>
+                    <option>Bi-Annual</option><option>Annual</option><option>One-time</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="form-row">
+              <label class="form-label">Additional Requirements</label>
+              <input type="text" class="form-input prod-specs" placeholder="e.g. ISO certified, food-grade material, specific tolerances, certifications needed..." />
+            </div>
+          </div>
+        </div>
+
+        <button class="btn-add-product" id="btn-add-product" onclick="addProduct()">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><line x1="6" y1="1" x2="6" y2="11" stroke="currentColor" stroke-width="1.5"/><line x1="1" y1="6" x2="11" y2="6" stroke="currentColor" stroke-width="1.5"/></svg>
+          Add Another Product
+        </button>
+
+        <div class="form-nav">
+          <button class="btn-back" onclick="goToStep(1)">← Back</button>
+          <button class="btn-next" onclick="goToStep(3)">
+            Next: Contact Details
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7H11M8 4L11 7L8 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- STEP 3: CONTACT -->
+      <div class="form-panel" id="panel-3">
+        <div class="form-section-title">Point of Contact</div>
+        <div class="form-row-2">
+          <div>
+            <label class="form-label">Full Name <span class="req">*</span></label>
+            <input type="text" class="form-input" id="poc-name" placeholder="e.g. Priya Sharma" />
+          </div>
+          <div>
+            <label class="form-label">Designation <span class="req">*</span></label>
+            <input type="text" class="form-input" id="poc-designation" placeholder="e.g. Head of Procurement" />
+          </div>
+        </div>
+        <div class="form-row-2">
+          <div>
+            <label class="form-label">Email Address <span class="req">*</span></label>
+            <input type="email" class="form-input" id="poc-email" placeholder="e.g. priya@company.com" />
+          </div>
+          <div>
+            <label class="form-label">Mobile Number <span class="req">*</span></label>
+            <input type="tel" class="form-input" id="poc-phone" placeholder="e.g. +91 98765 43210" />
+          </div>
+        </div>
+        <div class="form-row">
+          <label class="form-label">Currently Sourcing From</label>
+          <div class="form-select-wrap">
+            <select class="form-select" id="current-source">
+              <option value="">Select</option>
+              <option>Currently importing from China</option>
+              <option>Currently importing from Taiwan</option>
+              <option>Currently importing from other countries</option>
+              <option>Currently sourcing domestically in India</option>
+              <option>New product — no existing source</option>
+              <option>Mix of domestic and imports</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <label class="form-label">How did you hear about Invictus IMC?</label>
+          <div class="form-select-wrap">
+            <select class="form-select" id="source">
+              <option value="">Select</option>
+              <option>Personal Network / Referral</option>
+              <option>LinkedIn</option>
+              <option>Google Search</option>
+              <option>Industry Event / Trade Show</option>
+              <option>News / Media</option>
+              <option>Other</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <label class="form-label">Anything else you'd like us to know?</label>
+          <textarea class="form-textarea" id="additional" placeholder="Timeline pressures, quality certifications required, existing supplier issues, or anything that helps us serve you better..."></textarea>
+        </div>
+        <div class="form-nav">
+          <button class="btn-back" onclick="goToStep(2)">← Back</button>
+          <button class="btn-next" onclick="goToStep(4)">
+            Review Application
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7H11M8 4L11 7L8 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- STEP 4: REVIEW -->
+      <div class="form-panel" id="panel-4">
+        <div class="form-section-title">Review Your Application</div>
+        <div id="review-content" style="background:var(--ivory);border:1px solid var(--ivory-border);padding:32px;margin-bottom:24px;line-height:2;"></div>
+        <p style="font-size:13px;color:var(--ink-mid);line-height:1.7;margin-bottom:24px;">By submitting, you confirm all information is accurate. Our team will review and contact you within 2 business days.</p>
+        <div class="form-nav">
+          <button class="btn-back" onclick="goToStep(3)">← Edit</button>
+          <button class="btn-submit" onclick="submitForm()">Submit Application →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SUCCESS -->
+    <div class="success-screen" id="success-screen">
+      <div class="success-icon">
+        <svg viewBox="0 0 28 28" fill="none"><path d="M5 14L11 20L23 8" stroke="#B8860B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="success-title">Application <em>Received.</em></div>
+      <p class="success-sub">Thank you for applying to the Buyers Club. Our team will personally review your sourcing requirement and reach out within 2 business days. Welcome to Invictus IMC.</p>
+      <button class="btn-primary" style="margin-top:36px;" onclick="window.location.href='invictus-imc-landing.html'">Return to Home</button>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <span class="footer-copy">© 2025 Invictus IMC · All Rights Reserved</span>
+  <div class="footer-mii"><div class="mii-sq"></div> Make In India Initiative</div>
+</footer>
+
+<script>
+  let currentStep = 1;
+  let selectedBuyerType = '';
+  let productCount = 1;
+
+  function scrollToForm() {
+    document.getElementById('apply-section').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  function selectBuyerType(el, type) {
+    document.querySelectorAll('.buyer-type-item').forEach(t => t.classList.remove('selected'));
+    el.classList.add('selected');
+    selectedBuyerType = type;
+    document.getElementById('buyer-type').value = type;
+    // Show IEC hint if importer
+    const iecHint = document.querySelector('#iec + .form-hint');
+    if (iecHint) {
+      if (type === 'importer') {
+        document.getElementById('iec').style.borderColor = 'var(--gold-border)';
+      }
+    }
+  }
+
+  function addProduct() {
+    if (productCount >= 3) {
+      document.getElementById('btn-add-product').style.display = 'none';
+      return;
+    }
+    productCount++;
+    const entry = document.createElement('div');
+    entry.className = 'product-entry';
+    entry.id = 'product-' + (productCount - 1);
+    entry.innerHTML = `
+      <div class="product-entry-header">
+        <div class="product-entry-label">Product / Requirement ${productCount}</div>
+        <button class="btn-remove-product" onclick="removeProduct(this, ${productCount - 1})">Remove</button>
+      </div>
+      <div class="form-row">
+        <label class="form-label">Product Name / Description <span class="req">*</span></label>
+        <input type="text" class="form-input prod-name" placeholder="e.g. Aluminium die-cast motor housing" />
+      </div>
+      <div class="form-row-2">
+        <div>
+          <label class="form-label">HSN Code <span class="opt">(if known)</span></label>
+          <input type="text" class="form-input prod-hsn" placeholder="e.g. 7601" maxlength="8" />
+        </div>
+        <div>
+          <label class="form-label">Industry / Sector <span class="req">*</span></label>
+          <div class="form-select-wrap">
+            <select class="form-select prod-sector">
+              <option value="">Select sector</option>
+              <option>Automobiles & EV</option><option>Electronics & ESDM</option>
+              <option>Aerospace & Aviation</option><option>Defence</option>
+              <option>Plastics & Chemicals</option><option>Engineering & Capital Goods</option>
+              <option>Consumer Durables</option><option>Pharmaceuticals</option>
+              <option>Textiles</option><option>Steel & Metals</option>
+              <option>Packaging</option><option>FMCG</option>
+              <option>Healthcare</option><option>Renewable Energy</option>
+              <option>Railways</option><option>Other</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="form-row-3">
+        <div>
+          <label class="form-label">Annual Volume <span class="req">*</span></label>
+          <input type="text" class="form-input prod-volume" placeholder="e.g. 10,000 units" />
+        </div>
+        <div>
+          <label class="form-label">Approx. Value</label>
+          <input type="text" class="form-input prod-value" placeholder="e.g. ₹40 Lakhs / year" />
+        </div>
+        <div>
+          <label class="form-label">Frequency <span class="req">*</span></label>
+          <div class="form-select-wrap">
+            <select class="form-select prod-frequency">
+              <option value="">Select</option>
+              <option>Monthly</option><option>Quarterly</option>
+              <option>Bi-Annual</option><option>Annual</option><option>One-time</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="form-row">
+        <label class="form-label">Additional Requirements</label>
+        <input type="text" class="form-input prod-specs" placeholder="e.g. specific material grade, tolerance, certification..." />
+      </div>
+    `;
+    document.getElementById('product-entries').appendChild(entry);
+    if (productCount >= 3) document.getElementById('btn-add-product').style.display = 'none';
+  }
+
+  function removeProduct(btn, idx) {
+    document.getElementById('product-' + idx).remove();
+    productCount--;
+    document.getElementById('btn-add-product').style.display = 'inline-flex';
+  }
+
+  function getProducts() {
+    const entries = document.querySelectorAll('.product-entry');
+    return Array.from(entries).map((e, i) => ({
+      name: e.querySelector('.prod-name')?.value || '',
+      hsn: e.querySelector('.prod-hsn')?.value || '',
+      sector: e.querySelector('.prod-sector')?.value || '',
+      volume: e.querySelector('.prod-volume')?.value || '',
+      value: e.querySelector('.prod-value')?.value || '',
+      frequency: e.querySelector('.prod-frequency')?.value || '',
+      specs: e.querySelector('.prod-specs')?.value || '',
+    }));
+  }
+
+  function goToStep(step) {
+    if (step > currentStep && !validateStep(currentStep)) return;
+    document.getElementById('panel-' + currentStep).classList.remove('active');
+    document.getElementById('panel-' + step).classList.add('active');
+    for (let i = 1; i <= 4; i++) {
+      const ind = document.getElementById('step-ind-' + i);
+      ind.classList.remove('active', 'done');
+      if (i < step) ind.classList.add('done');
+      else if (i === step) ind.classList.add('active');
+    }
+    if (step === 4) buildReview();
+    currentStep = step;
+    document.getElementById('form-wrapper').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function validateStep(step) {
+    if (step === 1) {
+      if (!selectedBuyerType) { alert('Please select your buyer type.'); return false; }
+      if (!document.getElementById('company-name').value.trim()) { alert('Please enter your company name.'); return false; }
+      if (!document.getElementById('city').value.trim()) { alert('Please enter your city.'); return false; }
+      if (!document.getElementById('state').value) { alert('Please select your state.'); return false; }
+    }
+    if (step === 2) {
+      const prods = getProducts();
+      if (!prods[0].name || !prods[0].sector || !prods[0].volume || !prods[0].frequency) {
+        alert('Please fill all required fields for Product / Requirement 1.');
+        return false;
+      }
+    }
+    if (step === 3) {
+      const name = document.getElementById('poc-name').value.trim();
+      const desig = document.getElementById('poc-designation').value.trim();
+      const email = document.getElementById('poc-email').value.trim();
+      const phone = document.getElementById('poc-phone').value.trim();
+      if (!name || !desig || !email || !phone) { alert('Please fill all required contact fields.'); return false; }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { alert('Please enter a valid email address.'); return false; }
+    }
+    return true;
+  }
+
+  function buildReview() {
+    const prods = getProducts();
+    let prodHtml = prods.map((p, i) => p.name ? `
+      <tr><td colspan="2" style="padding-top:16px;padding-bottom:4px;font-size:10px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);">Product ${i+1}</td></tr>
+      <tr><td style="font-size:10px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink-mid);padding:4px 0;width:40%;vertical-align:top;">Name</td><td style="font-size:14px;color:var(--ink);padding:4px 0;">${p.name}</td></tr>
+      ${p.hsn ? `<tr><td style="font-size:10px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink-mid);padding:4px 0;">HSN</td><td style="font-size:14px;color:var(--ink);padding:4px 0;">${p.hsn}</td></tr>` : ''}
+      <tr><td style="font-size:10px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink-mid);padding:4px 0;">Sector</td><td style="font-size:14px;color:var(--ink);padding:4px 0;">${p.sector}</td></tr>
+      <tr><td style="font-size:10px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink-mid);padding:4px 0;">Volume / Frequency</td><td style="font-size:14px;color:var(--ink);padding:4px 0;">${p.volume} · ${p.frequency}</td></tr>
+      ${p.value ? `<tr><td style="font-size:10px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink-mid);padding:4px 0;">Value</td><td style="font-size:14px;color:var(--ink);padding:4px 0;">${p.value}</td></tr>` : ''}
+    ` : '').join('');
+
+    const companyRows = [
+      ['Buyer Type', selectedBuyerType],
+      ['Company', document.getElementById('company-name').value],
+      ['Location', `${document.getElementById('city').value}, ${document.getElementById('state').value}`],
+      ['GST', document.getElementById('gst').value || '—'],
+      ['IEC Code', document.getElementById('iec').value || '—'],
+      ['POC Name', document.getElementById('poc-name').value],
+      ['Designation', document.getElementById('poc-designation').value],
+      ['Email', document.getElementById('poc-email').value],
+      ['Phone', document.getElementById('poc-phone').value],
+    ].map(([k,v]) => `<tr><td style="font-size:10px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink-mid);padding:8px 0;width:40%;vertical-align:top;">${k}</td><td style="font-size:14px;color:var(--ink);padding:8px 0;">${v}</td></tr>`).join('');
+
+    document.getElementById('review-content').innerHTML = `<table style="width:100%;border-collapse:collapse;">${companyRows}${prodHtml}</table>`;
+  }
+
+  function submitForm() {
+    const application = {
+      id: Date.now(),
+      type: 'buyer',
+      submittedAt: new Date().toLocaleString('en-IN'),
+      buyerType: selectedBuyerType,
+      companyName: document.getElementById('company-name').value,
+      city: document.getElementById('city').value,
+      state: document.getElementById('state').value,
+      gst: document.getElementById('gst').value,
+      iec: document.getElementById('iec').value,
+      description: document.getElementById('company-desc').value,
+      products: getProducts().filter(p => p.name),
+      pocName: document.getElementById('poc-name').value,
+      pocDesignation: document.getElementById('poc-designation').value,
+      pocEmail: document.getElementById('poc-email').value,
+      pocPhone: document.getElementById('poc-phone').value,
+      currentSource: document.getElementById('current-source').value,
+      source: document.getElementById('source').value,
+      additional: document.getElementById('additional').value,
+      status: 'pending'
+    };
+
+    const existing = JSON.parse(localStorage.getItem('imc_buyer_apps') || '[]');
+    existing.push(application);
+    localStorage.setItem('imc_buyer_apps', JSON.stringify(existing));
+
+    document.getElementById('form-body').style.display = 'none';
+    document.getElementById('success-screen').style.display = 'block';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // Scroll reveal
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.08 });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>

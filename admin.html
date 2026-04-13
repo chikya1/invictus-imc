@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin — Invictus IMC</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --void: #0A0A0A; --deep: #111; --surface: #181818; --raised: #202020;
+      --gold: #B8860B; --gold-light: #D4A017; --gold-dim: rgba(184,134,11,0.10); --gold-border: rgba(184,134,11,0.28);
+      --white: #F5F2EC; --muted: rgba(245,242,236,0.45); --faint: rgba(245,242,236,0.08);
+      --danger: #C0392B; --danger-dim: rgba(192,57,43,0.12);
+      --green: #3DAA6E; --green-dim: rgba(61,170,110,0.10);
+      --serif: 'Cormorant Garamond', Georgia, serif;
+      --sans: 'Outfit', sans-serif;
+    }
+    body { font-family: var(--sans); background: var(--void); color: var(--white); min-height: 100vh; }
+
+    /* LOGIN */
+    #login-screen {
+      min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      background: var(--void);
+    }
+    .login-box {
+      background: var(--deep); border: 1px solid var(--faint);
+      padding: 56px 56px; width: 400px; text-align: center;
+      position: relative;
+    }
+    .login-box::before {
+      content: ''; position: absolute; top: 0; left: 20%; right: 20%; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    }
+    .login-logo { font-family: var(--serif); font-size: 22px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: var(--white); margin-bottom: 4px; }
+    .login-sub { font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); margin-bottom: 40px; }
+    .login-label { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); display: block; text-align: left; margin-bottom: 8px; }
+    .login-input {
+      width: 100%; padding: 14px 16px; background: var(--surface); border: 1px solid var(--faint);
+      color: var(--white); font-family: var(--sans); font-size: 15px;
+      outline: none; transition: border-color 0.2s; margin-bottom: 20px;
+    }
+    .login-input:focus { border-color: var(--gold-border); }
+    .login-btn {
+      width: 100%; padding: 16px; background: var(--gold); color: var(--void);
+      font-family: var(--sans); font-size: 13px; font-weight: 500; letter-spacing: 2px;
+      text-transform: uppercase; border: none; cursor: pointer; transition: background 0.2s;
+    }
+    .login-btn:hover { background: var(--gold-light); }
+    .login-error { font-size: 12px; color: #e74c3c; margin-top: 12px; display: none; }
+
+    /* ADMIN LAYOUT */
+    #admin-app { display: none; min-height: 100vh; }
+
+    /* TOP BAR */
+    .admin-topbar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 48px; height: 68px;
+      background: var(--deep); border-bottom: 1px solid var(--faint);
+      position: sticky; top: 0; z-index: 100;
+    }
+    .admin-brand { font-family: var(--serif); font-size: 16px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--white); }
+    .admin-brand span { color: var(--gold); margin-right: 12px; }
+    .topbar-right { display: flex; align-items: center; gap: 20px; }
+    .admin-badge { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); border: 1px solid var(--gold-border); padding: 5px 12px; }
+    .logout-btn { font-family: var(--sans); font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); background: none; border: none; cursor: pointer; transition: color 0.2s; }
+    .logout-btn:hover { color: var(--danger); }
+
+    /* MAIN LAYOUT */
+    .admin-body { display: grid; grid-template-columns: 220px 1fr; min-height: calc(100vh - 68px); }
+
+    /* SIDEBAR */
+    .sidebar { background: #0D0D0D; border-right: 1px solid var(--faint); padding: 32px 0; }
+    .sidebar-section { margin-bottom: 8px; }
+    .sidebar-label { font-size: 8px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); padding: 0 24px; margin-bottom: 8px; display: block; }
+    .sidebar-link {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 24px; font-size: 13px; font-weight: 400; color: var(--muted);
+      cursor: pointer; transition: all 0.2s; border-left: 2px solid transparent;
+      text-decoration: none;
+    }
+    .sidebar-link:hover { color: var(--white); background: var(--faint); }
+    .sidebar-link.active { color: var(--gold); border-left-color: var(--gold); background: var(--gold-dim); }
+    .sidebar-link svg { width: 14px; height: 14px; flex-shrink: 0; }
+    .sidebar-divider { height: 1px; background: var(--faint); margin: 16px 24px; }
+
+    /* MAIN CONTENT */
+    .admin-main { padding: 40px 48px; }
+
+    /* TABS */
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* PAGE TITLE */
+    .page-title { font-family: var(--serif); font-size: 36px; font-weight: 300; color: var(--white); margin-bottom: 6px; letter-spacing: -0.5px; }
+    .page-title em { font-style: italic; color: var(--gold); }
+    .page-subtitle { font-size: 13px; color: var(--muted); margin-bottom: 36px; }
+
+    /* STATS ROW */
+    .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--faint); margin-bottom: 40px; }
+    .stat-card { background: var(--surface); padding: 24px 28px; }
+    .stat-val { font-family: var(--serif); font-size: 36px; font-weight: 300; color: var(--gold); line-height: 1; margin-bottom: 6px; }
+    .stat-label { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }
+
+    /* SECTION HEADER */
+    .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--faint); }
+    .section-title { font-family: var(--serif); font-size: 24px; font-weight: 400; color: var(--white); }
+    .btn-add {
+      display: flex; align-items: center; gap: 8px;
+      font-family: var(--sans); font-size: 11px; font-weight: 500; letter-spacing: 2px;
+      text-transform: uppercase; color: var(--void); background: var(--gold);
+      border: none; padding: 10px 20px; cursor: pointer; transition: background 0.2s;
+    }
+    .btn-add:hover { background: var(--gold-light); }
+    .btn-add svg { width: 12px; height: 12px; }
+
+    /* ADMIN TABLE */
+    .admin-table { width: 100%; border-collapse: collapse; }
+    .admin-table th {
+      font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted);
+      padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--faint);
+      font-weight: 400;
+    }
+    .admin-table td { padding: 16px 16px; border-bottom: 1px solid var(--faint); font-size: 13px; color: var(--white); vertical-align: top; }
+    .admin-table tr:hover td { background: var(--faint); }
+    .td-sector { font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gold); border: 1px solid var(--gold-border); padding: 3px 8px; display: inline-block; }
+    .td-muted { color: var(--muted); font-size: 12px; }
+    .td-actions { display: flex; gap: 8px; }
+    .btn-edit {
+      font-family: var(--sans); font-size: 10px; letter-spacing: 1px; text-transform: uppercase;
+      color: var(--gold); background: var(--gold-dim); border: 1px solid var(--gold-border);
+      padding: 6px 12px; cursor: pointer; transition: all 0.2s;
+    }
+    .btn-edit:hover { background: var(--gold-border); }
+    .btn-del {
+      font-family: var(--sans); font-size: 10px; letter-spacing: 1px; text-transform: uppercase;
+      color: #e74c3c; background: var(--danger-dim); border: 1px solid rgba(192,57,43,0.3);
+      padding: 6px 12px; cursor: pointer; transition: all 0.2s;
+    }
+    .btn-del:hover { background: rgba(192,57,43,0.2); }
+    .live-dot { display: inline-flex; align-items: center; gap: 5px; font-size: 10px; color: var(--green); }
+    .live-dot::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--green); display: inline-block; }
+
+    /* MODAL OVERLAY */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.8); z-index: 500;
+      align-items: center; justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--deep); border: 1px solid var(--faint);
+      width: 600px; max-height: 85vh; overflow-y: auto;
+      position: relative;
+    }
+    .modal::before {
+      content: ''; position: absolute; top: 0; left: 10%; right: 10%; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    }
+    .modal-header { padding: 32px 36px 24px; border-bottom: 1px solid var(--faint); display: flex; align-items: center; justify-content: space-between; }
+    .modal-title { font-family: var(--serif); font-size: 26px; font-weight: 400; color: var(--white); }
+    .modal-close { background: none; border: none; color: var(--muted); font-size: 20px; cursor: pointer; padding: 4px 8px; transition: color 0.2s; font-family: var(--sans); }
+    .modal-close:hover { color: var(--white); }
+    .modal-body { padding: 28px 36px; }
+    .form-row { margin-bottom: 20px; }
+    .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+    .form-label { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 8px; }
+    .form-input, .form-select, .form-textarea {
+      width: 100%; padding: 12px 14px;
+      background: var(--surface); border: 1px solid var(--faint);
+      color: var(--white); font-family: var(--sans); font-size: 14px;
+      outline: none; transition: border-color 0.2s;
+    }
+    .form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--gold-border); }
+    .form-select option { background: var(--surface); }
+    .form-textarea { resize: vertical; min-height: 80px; line-height: 1.6; }
+    .form-checkbox-row { display: flex; align-items: center; gap: 10px; }
+    .form-checkbox { width: 16px; height: 16px; accent-color: var(--gold); cursor: pointer; }
+    .form-checkbox-label { font-size: 13px; color: var(--muted); cursor: pointer; }
+    .modal-footer { padding: 20px 36px 32px; display: flex; gap: 12px; justify-content: flex-end; }
+    .btn-cancel {
+      font-family: var(--sans); font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase;
+      color: var(--muted); background: none; border: 1px solid var(--faint); padding: 12px 24px; cursor: pointer;
+    }
+    .btn-save {
+      font-family: var(--sans); font-size: 11px; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase;
+      color: var(--void); background: var(--gold); border: none; padding: 12px 28px; cursor: pointer; transition: background 0.2s;
+    }
+    .btn-save:hover { background: var(--gold-light); }
+
+    /* EMPTY TABLE */
+    .table-empty { padding: 48px; text-align: center; font-family: var(--serif); font-size: 20px; font-weight: 300; font-style: italic; color: var(--muted); }
+  </style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">Invictus IMC</div>
+    <div class="login-sub">Admin Control Panel</div>
+    <label class="login-label">Password</label>
+    <input type="password" class="login-input" id="pwd" placeholder="Enter admin password" onkeydown="if(event.key==='Enter') doLogin()" />
+    <button class="login-btn" onclick="doLogin()">Authenticate</button>
+    <div class="login-error" id="login-error">Access denied. Incorrect password.</div>
+    <p style="font-size:10px;color:var(--muted);margin-top:20px;letter-spacing:1px;">Demo password: admin123</p>
+  </div>
+</div>
+
+<!-- ADMIN APP -->
+<div id="admin-app">
+
+  <div class="admin-topbar">
+    <div class="admin-brand"><span>⬡</span> Invictus IMC</div>
+    <div class="topbar-right">
+      <div class="admin-badge">Admin Panel</div>
+      <button class="logout-btn" onclick="doLogout()">Sign Out</button>
+    </div>
+  </div>
+
+  <div class="admin-body">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-section">
+        <span class="sidebar-label">Overview</span>
+        <div class="sidebar-link active" onclick="showTab('dashboard', this)">
+          <svg viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="5" height="5" stroke="currentColor" stroke-width="1"/><rect x="8" y="1" width="5" height="5" stroke="currentColor" stroke-width="1"/><rect x="1" y="8" width="5" height="5" stroke="currentColor" stroke-width="1"/><rect x="8" y="8" width="5" height="5" stroke="currentColor" stroke-width="1"/></svg>
+          Dashboard
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <span class="sidebar-label">The Opportunity</span>
+        <div class="sidebar-link" onclick="showTab('mi', this)">
+          <svg viewBox="0 0 14 14" fill="none"><path d="M1 11L5 7L8 9L13 3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Market Intelligence
+        </div>
+        <div class="sidebar-link" onclick="showTab('reqs', this)">
+          <svg viewBox="0 0 14 14" fill="none"><rect x="2" y="1" width="10" height="12" rx="1" stroke="currentColor" stroke-width="1"/><line x1="4" y1="5" x2="10" y2="5" stroke="currentColor" stroke-width="1"/><line x1="4" y1="8" x2="8" y2="8" stroke="currentColor" stroke-width="1"/></svg>
+          Live Requirements
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <span class="sidebar-label">Members</span>
+        <div class="sidebar-link" onclick="showTab('manufacturers', this)">
+          <svg viewBox="0 0 14 14" fill="none"><rect x="1" y="5" width="12" height="8" rx="1" stroke="currentColor" stroke-width="1"/><path d="M4 5V3.5C4 2.12 5.12 1 6.5 1H7.5C8.88 1 10 2.12 10 3.5V5" stroke="currentColor" stroke-width="1"/></svg>
+          Manufacturers
+        </div>
+        <div class="sidebar-link" onclick="showTab('buyers', this)">
+          <svg viewBox="0 0 14 14" fill="none"><circle cx="7" cy="4" r="3" stroke="currentColor" stroke-width="1"/><path d="M1 13C1 10.24 3.69 8 7 8C10.31 8 13 10.24 13 13" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
+          Buyers
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <span class="sidebar-label">Platform</span>
+        <div class="sidebar-link" onclick="window.open('the-opportunity.html','_blank')">
+          <svg viewBox="0 0 14 14" fill="none"><path d="M6 2H2V12H12V8M8 2H12M12 2V6M12 2L6 8" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          View Live Site
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="admin-main">
+
+      <!-- DASHBOARD -->
+      <div class="tab-panel active" id="tab-dashboard">
+        <div class="page-title">Good to see you, <em>Admin.</em></div>
+        <div class="page-subtitle">Here's what's happening on the platform right now.</div>
+        <div class="stats-row">
+          <div class="stat-card">
+            <div class="stat-val" id="stat-mi">—</div>
+            <div class="stat-label">Market Intel Entries</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-val" id="stat-reqs">—</div>
+            <div class="stat-label">Live Requirements</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-val" id="stat-mfg">—</div>
+            <div class="stat-label">Manufacturer Apps</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-val" id="stat-buyer">—</div>
+            <div class="stat-label">Buyer Apps</div>
+          </div>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--faint);padding:36px;max-width:600px;">
+          <div style="font-family:var(--serif);font-size:22px;font-weight:400;color:var(--white);margin-bottom:12px;">Quick Actions</div>
+          <div style="display:flex;flex-direction:column;gap:10px;margin-top:20px;">
+            <button class="btn-add" onclick="showTab('mi', document.querySelector('.sidebar-link:nth-child(1)'));openMIModal()" style="width:fit-content;">
+              <svg viewBox="0 0 12 12" fill="none"><line x1="6" y1="1" x2="6" y2="11" stroke="currentColor" stroke-width="1.5"/><line x1="1" y1="6" x2="11" y2="6" stroke="currentColor" stroke-width="1.5"/></svg>
+              Add Market Intelligence Entry
+            </button>
+            <button class="btn-add" onclick="showTab('reqs', document.querySelector('.sidebar-link:nth-child(2)'));openReqModal()" style="width:fit-content;background:var(--surface);color:var(--gold);border:1px solid var(--gold-border);">
+              <svg viewBox="0 0 12 12" fill="none"><line x1="6" y1="1" x2="6" y2="11" stroke="currentColor" stroke-width="1.5"/><line x1="1" y1="6" x2="11" y2="6" stroke="currentColor" stroke-width="1.5"/></svg>
+              Add Live Requirement
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- MARKET INTELLIGENCE TAB -->
+      <div class="tab-panel" id="tab-mi">
+        <div class="page-title">Market <em>Intelligence</em></div>
+        <div class="page-subtitle">Ministry of Commerce import data displayed on The Opportunity page.</div>
+        <div class="section-header">
+          <div class="section-title">All Entries</div>
+          <button class="btn-add" onclick="openMIModal()">
+            <svg viewBox="0 0 12 12" fill="none"><line x1="6" y1="1" x2="6" y2="11" stroke="currentColor" stroke-width="1.5"/><line x1="1" y1="6" x2="11" y2="6" stroke="currentColor" stroke-width="1.5"/></svg>
+            Add Entry
+          </button>
+        </div>
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Sector</th><th>Product</th><th>HSN</th><th>Import Value</th><th>YoY</th><th>Period</th><th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="mi-tbody"></tbody>
+        </table>
+      </div>
+
+      <!-- LIVE REQUIREMENTS TAB -->
+      <div class="tab-panel" id="tab-reqs">
+        <div class="page-title">Live <em>Requirements</em></div>
+        <div class="page-subtitle">Anonymised buyer requirements shown on The Opportunity page.</div>
+        <div class="section-header">
+          <div class="section-title">All Requirements</div>
+          <button class="btn-add" onclick="openReqModal()">
+            <svg viewBox="0 0 12 12" fill="none"><line x1="6" y1="1" x2="6" y2="11" stroke="currentColor" stroke-width="1.5"/><line x1="1" y1="6" x2="11" y2="6" stroke="currentColor" stroke-width="1.5"/></svg>
+            Add Requirement
+          </button>
+        </div>
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Status</th><th>Industry</th><th>Product</th><th>Volume</th><th>Location</th><th>Posted</th><th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="req-tbody"></tbody>
+        </table>
+      </div>
+
+      <!-- MANUFACTURERS TAB -->
+      <div class="tab-panel" id="tab-manufacturers">
+        <div class="page-title">Manufacturers <em>Club</em></div>
+        <div class="page-subtitle">All membership applications from the Manufacturers Club form.</div>
+        <div class="section-header">
+          <div class="section-title">Applications</div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn-edit" onclick="exportApps('manufacturer')" style="padding:10px 16px;">Export CSV</button>
+          </div>
+        </div>
+        <table class="admin-table" id="mfg-apps-table">
+          <thead>
+            <tr>
+              <th>Status</th><th>Company</th><th>Sector</th><th>City</th><th>POC</th><th>Phone</th><th>Submitted</th><th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="mfg-apps-tbody"></tbody>
+        </table>
+      </div>
+
+      <!-- BUYERS TAB -->
+      <div class="tab-panel" id="tab-buyers">
+        <div class="page-title">Buyers <em>Club</em></div>
+        <div class="page-subtitle">All membership applications from the Buyers Club form.</div>
+        <div class="section-header">
+          <div class="section-title">Applications</div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn-edit" onclick="exportApps('buyer')" style="padding:10px 16px;">Export CSV</button>
+          </div>
+        </div>
+        <table class="admin-table">
+          <thead>
+            <tr><th>Status</th><th>Company</th><th>Type</th><th>City</th><th>Products</th><th>POC</th><th>Submitted</th><th>Actions</th></tr>
+          </thead>
+          <tbody id="buyer-apps-tbody"></tbody>
+        </table>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- MARKET INTELLIGENCE MODAL -->
+<div class="modal-overlay" id="mi-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="mi-modal-title">Add Market Intelligence</div>
+      <button class="modal-close" onclick="closeMIModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="mi-edit-id" />
+      <div class="form-row-2">
+        <div>
+          <label class="form-label">Sector *</label>
+          <select class="form-select" id="mi-sector">
+            <option value="">Select sector</option>
+            <option>Electronics</option><option>Automotive</option><option>Plastics</option>
+            <option>Machinery</option><option>Pharmaceuticals</option><option>Textiles</option>
+            <option>Steel</option><option>Chemicals</option><option>Defence</option>
+            <option>Renewable Energy</option><option>Aerospace</option><option>FMCG</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div>
+          <label class="form-label">HSN Code</label>
+          <input type="text" class="form-input" id="mi-hsn" placeholder="e.g. HSN 8534" />
+        </div>
+      </div>
+      <div class="form-row">
+        <label class="form-label">Product Name *</label>
+        <input type="text" class="form-input" id="mi-product" placeholder="e.g. Printed Circuit Board Assemblies" />
+      </div>
+      <div class="form-row-2">
+        <div>
+          <label class="form-label">Annual Import Value *</label>
+          <input type="text" class="form-input" id="mi-value" placeholder="e.g. ₹38,400 Cr" />
+        </div>
+        <div>
+          <label class="form-label">Import Volume</label>
+          <input type="text" class="form-input" id="mi-volume" placeholder="e.g. 12.4M units" />
+        </div>
+      </div>
+      <div class="form-row-2">
+        <div>
+          <label class="form-label">YoY Change *</label>
+          <input type="text" class="form-input" id="mi-yoy" placeholder="e.g. +14.2% or -3.1%" />
+        </div>
+        <div>
+          <label class="form-label">Trend</label>
+          <select class="form-select" id="mi-trend">
+            <option value="up">↑ Up (Importing more)</option>
+            <option value="down">↓ Down (Importing less)</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row-2">
+        <div>
+          <label class="form-label">Period *</label>
+          <input type="text" class="form-input" id="mi-period" placeholder="e.g. FY 2023-24" />
+        </div>
+        <div>
+          <label class="form-label">Data Source</label>
+          <input type="text" class="form-input" id="mi-source" placeholder="e.g. DGCI&S / MoCI" />
+        </div>
+      </div>
+      <div class="form-row">
+        <label class="form-label">Opportunity Note</label>
+        <textarea class="form-textarea" id="mi-opportunity" placeholder="Brief note on the manufacturing opportunity this data represents..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeMIModal()">Cancel</button>
+      <button class="btn-save" onclick="saveMI()">Save Entry</button>
+    </div>
+  </div>
+</div>
+
+<!-- REQUIREMENT MODAL -->
+<div class="modal-overlay" id="req-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="req-modal-title">Add Live Requirement</div>
+      <button class="modal-close" onclick="closeReqModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="req-edit-id" />
+      <div class="form-row-2">
+        <div>
+          <label class="form-label">Industry *</label>
+          <select class="form-select" id="req-industry">
+            <option value="">Select industry</option>
+            <option>Electronics</option><option>Automotive</option><option>Plastics</option>
+            <option>Machinery</option><option>Pharmaceuticals</option><option>Textiles</option>
+            <option>Steel</option><option>Chemicals</option><option>Defence</option>
+            <option>Renewable Energy</option><option>Aerospace</option><option>FMCG</option>
+            <option>Consumer Durables</option><option>Other</option>
+          </select>
+        </div>
+        <div>
+          <label class="form-label">Volume *</label>
+          <input type="text" class="form-input" id="req-volume" placeholder="e.g. 5,000 units/month" />
+        </div>
+      </div>
+      <div class="form-row">
+        <label class="form-label">Product / Requirement Title *</label>
+        <input type="text" class="form-input" id="req-product" placeholder="e.g. Electronic Control Units" />
+      </div>
+      <div class="form-row">
+        <label class="form-label">Description (anonymised) *</label>
+        <textarea class="form-textarea" id="req-desc" placeholder="Describe the requirement without revealing buyer identity..."></textarea>
+      </div>
+      <div class="form-row-2">
+        <div>
+          <label class="form-label">Frequency</label>
+          <select class="form-select" id="req-frequency">
+            <option>Monthly</option><option>Quarterly</option><option>Annually</option><option>One-time</option>
+          </select>
+        </div>
+        <div>
+          <label class="form-label">Posted Date Label</label>
+          <input type="text" class="form-input" id="req-date" placeholder="e.g. Posted 3 days ago" />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-checkbox-row" style="margin-bottom:12px;">
+          <input type="checkbox" class="form-checkbox" id="req-show-location" onchange="toggleLocation()" />
+          <label class="form-checkbox-label" for="req-show-location">Show location on public page</label>
+        </div>
+        <div id="location-field" style="display:none;">
+          <input type="text" class="form-input" id="req-location" placeholder="e.g. Pune Region, NCR Region" />
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeReqModal()">Cancel</button>
+      <button class="btn-save" onclick="saveReq()">Save Requirement</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const ADMIN_PASS = 'admin123';
+  const MI_KEY = 'imc_mi_data';
+  const REQ_KEY = 'imc_req_data';
+
+  const DEFAULT_MI = [
+    { id:1, sector:"Electronics", product:"Printed Circuit Board Assemblies", hsn:"HSN 8534", importValue:"₹38,400 Cr", yoy:"+14.2%", trend:"up", volume:"12.4M units", period:"FY 2023-24", source:"DGCI&S / MoCI", opportunity:"High-volume PCB demand from EV, consumer electronics & defence sectors." },
+    { id:2, sector:"Automotive", product:"Automotive Transmission Parts", hsn:"HSN 8708", importValue:"₹22,100 Cr", yoy:"+9.8%", trend:"up", volume:"4.8M units", period:"FY 2023-24", source:"DGCI&S / MoCI", opportunity:"Strong import substitution potential in precision-machined drivetrain components." },
+    { id:3, sector:"Plastics", product:"Plastic Injection Moulded Parts", hsn:"HSN 3926", importValue:"₹14,700 Cr", yoy:"+6.1%", trend:"up", volume:"38M kg", period:"FY 2023-24", source:"DGCI&S / MoCI", opportunity:"Significant domestic manufacturing gap for technical & consumer plastic components." },
+    { id:4, sector:"Machinery", product:"Industrial Electric Motors", hsn:"HSN 8501", importValue:"₹9,800 Cr", yoy:"-2.3%", trend:"down", volume:"2.1M units", period:"FY 2023-24", source:"DGCI&S / MoCI", opportunity:"Declining imports signal growing domestic manufacturing capability." },
+    { id:5, sector:"Electronics", product:"Lithium-Ion Battery Cells", hsn:"HSN 8507", importValue:"₹31,200 Cr", yoy:"+22.4%", trend:"up", volume:"890M cells", period:"FY 2023-24", source:"DGCI&S / MoCI", opportunity:"Massive EV & storage demand. PLI scheme actively supports domestic cell makers." },
+    { id:6, sector:"Machinery", product:"CNC Machine Tool Components", hsn:"HSN 8466", importValue:"₹7,200 Cr", yoy:"+5.5%", trend:"up", volume:"1.4M units", period:"FY 2023-24", source:"DGCI&S / MoCI", opportunity:"Growing machining sector creating demand for precision tooling & accessories." }
+  ];
+
+  const DEFAULT_REQS = [
+    { id:1, industry:"Electronics", product:"Electronic Control Units", desc:"Seeking manufacturer for automotive-grade ECUs. Buyer is an established EV startup scaling production.", volume:"5,000 units/month", frequency:"Monthly", location:"Pune Region", showLocation:true, date:"Posted 3 days ago" },
+    { id:2, industry:"Plastics", product:"ABS Plastic Toy Components", desc:"Requirement for injection-moulded plastic parts for consumer toy range. Multi-colour, food-grade ABS.", volume:"80,000 units/month", frequency:"Monthly", location:"", showLocation:false, date:"Posted 1 week ago" },
+    { id:3, industry:"Automotive", product:"Precision Steel Fasteners", desc:"ISO-certified fasteners for 2-wheeler assembly line. High-tensile grade required with full traceability.", volume:"2,00,000 units/month", frequency:"Monthly", location:"NCR Region", showLocation:true, date:"Posted 5 days ago" },
+    { id:4, industry:"Electronics", product:"PCB Assemblies — Consumer Grade", desc:"Buyer importing PCBAs from China seeking Indian alternative. Initial order 10,000 units with long-term potential.", volume:"10,000 units/quarter", frequency:"Quarterly", location:"", showLocation:false, date:"Posted 2 weeks ago" },
+    { id:5, industry:"Machinery", product:"Hydraulic Pump Components", desc:"Precision-machined pump bodies and impellers. Material: SS316. Buyer is an industrial equipment OEM.", volume:"500 units/month", frequency:"Monthly", location:"Coimbatore Region", showLocation:true, date:"Posted 4 days ago" },
+    { id:6, industry:"Automotive", product:"EV Battery Enclosures", desc:"Aluminium die-cast battery housing for 2-wheeler EV platform. Design files available under NDA.", volume:"3,000 units/month", frequency:"Monthly", location:"Bengaluru Region", showLocation:true, date:"Posted 1 day ago" }
+  ];
+
+  function getMI() { const d = localStorage.getItem(MI_KEY); return d ? JSON.parse(d) : DEFAULT_MI; }
+  function getReqs() { const d = localStorage.getItem(REQ_KEY); return d ? JSON.parse(d) : DEFAULT_REQS; }
+  function saveMIData(data) { localStorage.setItem(MI_KEY, JSON.stringify(data)); }
+  function saveReqData(data) { localStorage.setItem(REQ_KEY, JSON.stringify(data)); }
+
+  // AUTH
+  function doLogin() {
+    const pwd = document.getElementById('pwd').value;
+    if (pwd === ADMIN_PASS) {
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('admin-app').style.display = 'block';
+      refreshDashboard();
+      renderMITable();
+      renderReqTable();
+    } else {
+      document.getElementById('login-error').style.display = 'block';
+    }
+  }
+
+  function doLogout() {
+    document.getElementById('admin-app').style.display = 'none';
+    document.getElementById('login-screen').style.display = 'flex';
+    document.getElementById('pwd').value = '';
+  }
+
+  // TABS
+  function showTab(name, clickedEl) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+    document.getElementById('tab-' + name).classList.add('active');
+    if (clickedEl) clickedEl.classList.add('active');
+  }
+
+  // DASHBOARD
+  function refreshDashboard() {
+    document.getElementById('stat-mi').textContent = getMI().length;
+    document.getElementById('stat-reqs').textContent = getReqs().length;
+  }
+
+  // MI TABLE
+  function renderMITable() {
+    const data = getMI();
+    const tbody = document.getElementById('mi-tbody');
+    if (!data.length) {
+      tbody.innerHTML = '<tr><td colspan="7" class="table-empty">No entries yet. Add your first market intelligence entry.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = data.map(d => `
+      <tr>
+        <td><span class="td-sector">${d.sector}</span></td>
+        <td>${d.product}<br/><span class="td-muted">${d.opportunity ? d.opportunity.substring(0,60)+'...' : ''}</span></td>
+        <td class="td-muted">${d.hsn}</td>
+        <td>${d.importValue}</td>
+        <td style="color:${d.trend==='up'?'#3DAA6E':'var(--gold)'}">${d.yoy}</td>
+        <td class="td-muted">${d.period}</td>
+        <td>
+          <div class="td-actions">
+            <button class="btn-edit" onclick="editMI(${d.id})">Edit</button>
+            <button class="btn-del" onclick="deleteMI(${d.id})">Delete</button>
+          </div>
+        </td>
+      </tr>
+    `).join('');
+    refreshDashboard();
+  }
+
+  // REQ TABLE
+  function renderReqTable() {
+    const data = getReqs();
+    const tbody = document.getElementById('req-tbody');
+    if (!data.length) {
+      tbody.innerHTML = '<tr><td colspan="7" class="table-empty">No requirements yet. Add your first live requirement.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = data.map(d => `
+      <tr>
+        <td><span class="live-dot">Live</span></td>
+        <td><span class="td-sector">${d.industry}</span></td>
+        <td>${d.product}<br/><span class="td-muted">${d.desc.substring(0,55)}...</span></td>
+        <td class="td-muted">${d.volume}</td>
+        <td class="td-muted">${d.showLocation && d.location ? d.location : '<em style="opacity:0.4">Hidden</em>'}</td>
+        <td class="td-muted">${d.date}</td>
+        <td>
+          <div class="td-actions">
+            <button class="btn-edit" onclick="editReq(${d.id})">Edit</button>
+            <button class="btn-del" onclick="deleteReq(${d.id})">Delete</button>
+          </div>
+        </td>
+      </tr>
+    `).join('');
+    refreshDashboard();
+  }
+
+  // MI MODAL
+  function openMIModal(data) {
+    document.getElementById('mi-modal-title').textContent = data ? 'Edit Entry' : 'Add Market Intelligence';
+    document.getElementById('mi-edit-id').value = data ? data.id : '';
+    document.getElementById('mi-sector').value = data ? data.sector : '';
+    document.getElementById('mi-product').value = data ? data.product : '';
+    document.getElementById('mi-hsn').value = data ? data.hsn : '';
+    document.getElementById('mi-value').value = data ? data.importValue : '';
+    document.getElementById('mi-volume').value = data ? data.volume : '';
+    document.getElementById('mi-yoy').value = data ? data.yoy : '';
+    document.getElementById('mi-trend').value = data ? data.trend : 'up';
+    document.getElementById('mi-period').value = data ? data.period : '';
+    document.getElementById('mi-source').value = data ? data.source : '';
+    document.getElementById('mi-opportunity').value = data ? data.opportunity : '';
+    document.getElementById('mi-modal').classList.add('open');
+  }
+
+  function closeMIModal() { document.getElementById('mi-modal').classList.remove('open'); }
+
+  function saveMI() {
+    const sector = document.getElementById('mi-sector').value;
+    const product = document.getElementById('mi-product').value;
+    const importValue = document.getElementById('mi-value').value;
+    const period = document.getElementById('mi-period').value;
+    const yoy = document.getElementById('mi-yoy').value;
+
+    if (!sector || !product || !importValue || !period || !yoy) {
+      alert('Please fill all required fields (*)'); return;
+    }
+
+    const editId = document.getElementById('mi-edit-id').value;
+    const data = getMI();
+
+    const entry = {
+      id: editId ? parseInt(editId) : Date.now(),
+      sector, product,
+      hsn: document.getElementById('mi-hsn').value,
+      importValue,
+      yoy,
+      trend: document.getElementById('mi-trend').value,
+      volume: document.getElementById('mi-volume').value,
+      period,
+      source: document.getElementById('mi-source').value || 'DGCI&S / MoCI',
+      opportunity: document.getElementById('mi-opportunity').value
+    };
+
+    if (editId) {
+      const idx = data.findIndex(d => d.id === parseInt(editId));
+      if (idx > -1) data[idx] = entry;
+    } else {
+      data.push(entry);
+    }
+
+    saveMIData(data);
+    renderMITable();
+    closeMIModal();
+  }
+
+  function editMI(id) {
+    const d = getMI().find(x => x.id === id);
+    if (d) { showTab('mi', null); openMIModal(d); }
+  }
+
+  function deleteMI(id) {
+    if (!confirm('Delete this market intelligence entry?')) return;
+    const data = getMI().filter(d => d.id !== id);
+    saveMIData(data);
+    renderMITable();
+  }
+
+  // REQ MODAL
+  function openReqModal(data) {
+    document.getElementById('req-modal-title').textContent = data ? 'Edit Requirement' : 'Add Live Requirement';
+    document.getElementById('req-edit-id').value = data ? data.id : '';
+    document.getElementById('req-industry').value = data ? data.industry : '';
+    document.getElementById('req-product').value = data ? data.product : '';
+    document.getElementById('req-desc').value = data ? data.desc : '';
+    document.getElementById('req-volume').value = data ? data.volume : '';
+    document.getElementById('req-frequency').value = data ? data.frequency : 'Monthly';
+    document.getElementById('req-date').value = data ? data.date : 'Posted today';
+    document.getElementById('req-show-location').checked = data ? data.showLocation : false;
+    document.getElementById('req-location').value = data ? data.location : '';
+    document.getElementById('location-field').style.display = (data && data.showLocation) ? 'block' : 'none';
+    document.getElementById('req-modal').classList.add('open');
+  }
+
+  function closeReqModal() { document.getElementById('req-modal').classList.remove('open'); }
+
+  function toggleLocation() {
+    const show = document.getElementById('req-show-location').checked;
+    document.getElementById('location-field').style.display = show ? 'block' : 'none';
+  }
+
+  function saveReq() {
+    const industry = document.getElementById('req-industry').value;
+    const product = document.getElementById('req-product').value;
+    const desc = document.getElementById('req-desc').value;
+    const volume = document.getElementById('req-volume').value;
+
+    if (!industry || !product || !desc || !volume) {
+      alert('Please fill all required fields (*)'); return;
+    }
+
+    const editId = document.getElementById('req-edit-id').value;
+    const data = getReqs();
+    const showLoc = document.getElementById('req-show-location').checked;
+
+    const entry = {
+      id: editId ? parseInt(editId) : Date.now(),
+      industry, product, desc, volume,
+      frequency: document.getElementById('req-frequency').value,
+      date: document.getElementById('req-date').value,
+      showLocation: showLoc,
+      location: showLoc ? document.getElementById('req-location').value : ''
+    };
+
+    if (editId) {
+      const idx = data.findIndex(d => d.id === parseInt(editId));
+      if (idx > -1) data[idx] = entry;
+    } else {
+      data.push(entry);
+    }
+
+    saveReqData(data);
+    renderReqTable();
+    closeReqModal();
+  }
+
+  function editReq(id) {
+    const d = getReqs().find(x => x.id === id);
+    if (d) { showTab('reqs', null); openReqModal(d); }
+  }
+
+  function deleteReq(id) {
+    if (!confirm('Delete this requirement?')) return;
+    const data = getReqs().filter(d => d.id !== id);
+    saveReqData(data);
+    renderReqTable();
+  }
+
+  // MANUFACTURER APPLICATIONS
+  function renderMfgApps() {
+    const apps = JSON.parse(localStorage.getItem('imc_manufacturer_apps') || '[]');
+    const tbody = document.getElementById('mfg-apps-tbody');
+    document.getElementById('stat-mfg').textContent = apps.length;
+    if (!apps.length) {
+      tbody.innerHTML = '<tr><td colspan="8" class="table-empty">No applications yet. Share the Manufacturers Club page to start receiving applications.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = apps.map((a, i) => `
+      <tr>
+        <td><span style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;padding:4px 10px;background:${a.status==='approved'?'rgba(61,170,110,0.15)':a.status==='rejected'?'rgba(192,57,43,0.15)':'rgba(184,134,11,0.10)'};color:${a.status==='approved'?'#3DAA6E':a.status==='rejected'?'#e74c3c':'var(--gold)'};">${a.status||'Pending'}</span></td>
+        <td><strong style="font-size:13px;">${a.companyName}</strong><br/><span class="td-muted">${a.companyType||''}</span></td>
+        <td><span class="td-sector">${(a.primarySector||'').substring(0,20)}</span></td>
+        <td class="td-muted">${a.city}, ${a.state}</td>
+        <td>${a.pocName}<br/><span class="td-muted">${a.pocDesignation}</span></td>
+        <td class="td-muted">${a.pocPhone}</td>
+        <td class="td-muted" style="font-size:11px;">${a.submittedAt}</td>
+        <td>
+          <div class="td-actions">
+            <button class="btn-edit" onclick="viewApp(${i})">View</button>
+            <button class="btn-edit" style="color:#3DAA6E;background:rgba(61,170,110,0.10);border-color:rgba(61,170,110,0.3);" onclick="updateAppStatus(${i},'approved','manufacturer')">Approve</button>
+            <button class="btn-del" onclick="updateAppStatus(${i},'rejected','manufacturer')">Reject</button>
+          </div>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  function viewApp(idx) {
+    const apps = JSON.parse(localStorage.getItem('imc_manufacturer_apps') || '[]');
+    const a = apps[idx];
+    if (!a) return;
+    const details = Object.entries(a).map(([k,v]) => {
+      if (k === 'capabilities' && Array.isArray(v)) return `<b>${k}:</b> ${v.join(', ')}`;
+      return `<b>${k}:</b> ${v}`;
+    }).join('<br/>');
+    const w = window.open('', '_blank', 'width=600,height=700');
+    w.document.write(`<html><body style="font-family:sans-serif;padding:24px;background:#fafaf8;font-size:13px;line-height:2;">${details}</body></html>`);
+  }
+
+  function updateAppStatus(idx, status, type) {
+    const key = type === 'manufacturer' ? 'imc_manufacturer_apps' : 'imc_buyer_apps';
+    const apps = JSON.parse(localStorage.getItem(key) || '[]');
+    apps[idx].status = status;
+    localStorage.setItem(key, JSON.stringify(apps));
+    if (type === 'manufacturer') renderMfgApps();
+    else renderBuyerApps();
+  }
+
+  function exportApps(type) {
+    const key = type === 'manufacturer' ? 'imc_manufacturer_apps' : 'imc_buyer_apps';
+    const apps = JSON.parse(localStorage.getItem(key) || '[]');
+    if (!apps.length) { alert('No applications to export.'); return; }
+    const keys = Object.keys(apps[0]);
+    const csv = [keys.join(','), ...apps.map(a => keys.map(k => JSON.stringify(Array.isArray(a[k]) ? a[k].join('; ') : (a[k]||''))).join(','))].join('\n');
+    const blob = new Blob([csv], {type:'text/csv'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = type + '-applications.csv'; a.click();
+  }
+
+  // BUYER APPLICATIONS
+  function renderBuyerApps() {
+    const apps = JSON.parse(localStorage.getItem('imc_buyer_apps') || '[]');
+    const tbody = document.getElementById('buyer-apps-tbody');
+    document.getElementById('stat-buyer').textContent = apps.length;
+    if (!apps.length) {
+      tbody.innerHTML = '<tr><td colspan="8" class="table-empty">No applications yet. Share the Buyers Club page to start receiving applications.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = apps.map((a, i) => `
+      <tr>
+        <td><span style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;padding:4px 10px;background:${a.status==='approved'?'rgba(61,170,110,0.15)':a.status==='rejected'?'rgba(192,57,43,0.15)':'rgba(184,134,11,0.10)'};color:${a.status==='approved'?'#3DAA6E':a.status==='rejected'?'#e74c3c':'var(--gold)'};">${a.status||'Pending'}</span></td>
+        <td><strong style="font-size:13px;">${a.companyName}</strong><br/><span class="td-muted">${a.city}, ${a.state}</span></td>
+        <td><span class="td-sector">${a.buyerType||''}</span></td>
+        <td class="td-muted">${a.city}</td>
+        <td style="font-size:12px;color:var(--muted);">${(a.products||[]).map(p=>p.name).filter(Boolean).slice(0,2).join('<br/>') || '—'}</td>
+        <td>${a.pocName}<br/><span class="td-muted">${a.pocEmail}</span></td>
+        <td class="td-muted" style="font-size:11px;">${a.submittedAt}</td>
+        <td>
+          <div class="td-actions">
+            <button class="btn-edit" onclick="viewBuyerApp(${i})">View</button>
+            <button class="btn-edit" style="color:#3DAA6E;background:rgba(61,170,110,0.10);border-color:rgba(61,170,110,0.3);" onclick="updateAppStatus(${i},'approved','buyer')">Approve</button>
+            <button class="btn-del" onclick="updateAppStatus(${i},'rejected','buyer')">Reject</button>
+          </div>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  function viewBuyerApp(idx) {
+    const apps = JSON.parse(localStorage.getItem('imc_buyer_apps') || '[]');
+    const a = apps[idx];
+    if (!a) return;
+    let html = Object.entries(a).map(([k,v]) => {
+      if (k === 'products' && Array.isArray(v)) return `<b>products:</b><br/>${v.map((p,i)=>`&nbsp;&nbsp;${i+1}. ${p.name} | ${p.sector} | ${p.volume} | ${p.frequency}`).join('<br/>')}`;
+      return `<b>${k}:</b> ${v}`;
+    }).join('<br/>');
+    const w = window.open('', '_blank', 'width=600,height=700');
+    w.document.write(`<html><body style="font-family:sans-serif;padding:24px;background:#fafaf8;font-size:13px;line-height:2;">${html}</body></html>`);
+  }
+
+  // CLOSE MODALS ON OVERLAY CLICK
+  document.getElementById('mi-modal').addEventListener('click', function(e) { if (e.target === this) closeMIModal(); });
+  document.getElementById('req-modal').addEventListener('click', function(e) { if (e.target === this) closeReqModal(); });
+</script>
+</body>
+</html>

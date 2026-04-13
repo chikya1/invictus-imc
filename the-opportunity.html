@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Opportunity — Invictus IMC</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --void: #0A0A0A;
+      --deep: #111111;
+      --surface: #FAF8F3;
+      --raised: #F2EEE6;
+      --gold: #B8860B;
+      --gold-light: #D4A017;
+      --gold-dim: rgba(184,134,11,0.10);
+      --gold-border: rgba(184,134,11,0.28);
+      --white: #F5F2EC;
+      --muted: rgba(245,242,236,0.45);
+      --faint: rgba(245,242,236,0.08);
+      --green: #2E8B57;
+      --green-dim: rgba(46,139,87,0.10);
+      --ink: #1C1C1C;
+      --ink-mid: rgba(28,28,28,0.55);
+      --ink-faint: rgba(28,28,28,0.07);
+      --ivory: #FAF8F3;
+      --ivory-border: rgba(28,28,28,0.10);
+      --serif: 'Cormorant Garamond', Georgia, serif;
+      --sans: 'Outfit', sans-serif;
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: var(--sans); background: var(--ivory); color: var(--ink); overflow-x: hidden; }
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--ivory); }
+    ::-webkit-scrollbar-thumb { background: var(--gold-border); }
+
+    /* NAV */
+    nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 72px; height: 76px;
+      border-bottom: 1px solid var(--faint);
+      position: sticky; top: 0; z-index: 200;
+      background: rgba(10,10,10,0.94);
+      backdrop-filter: blur(24px);
+    }
+    .logo { display: flex; align-items: center; gap: 14px; text-decoration: none; }
+    .logo-emblem {
+      width: 42px; height: 42px;
+      border: 1px solid var(--gold-border);
+      display: flex; align-items: center; justify-content: center;
+      position: relative; flex-shrink: 0;
+    }
+    .logo-emblem::before { content: ''; position: absolute; inset: 4px; border: 1px solid var(--gold-border); }
+    .logo-wordmark { display: flex; flex-direction: column; gap: 2px; }
+    .logo-name { font-family: var(--serif); font-size: 18px; font-weight: 600; letter-spacing: 3px; color: var(--white); text-transform: uppercase; line-height: 1; }
+    .logo-tagline { font-size: 8px; font-weight: 400; letter-spacing: 3.5px; color: var(--gold); text-transform: uppercase; line-height: 1; }
+    .nav-center { display: flex; align-items: center; gap: 40px; }
+    .nav-center a { font-size: 13px; font-weight: 400; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); text-decoration: none; transition: color 0.2s; }
+    .nav-center a:hover, .nav-center a.active { color: var(--gold); }
+    .nav-right { display: flex; align-items: center; gap: 14px; }
+    .btn-ghost { font-family: var(--sans); font-size: 13px; font-weight: 400; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); background: none; border: none; cursor: pointer; padding: 10px 18px; transition: color 0.2s; }
+    .btn-ghost:hover { color: var(--white); }
+    .btn-gold { font-family: var(--sans); font-size: 13px; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase; color: var(--void); background: var(--gold); border: none; cursor: pointer; padding: 12px 26px; transition: all 0.2s; }
+    .btn-gold:hover { background: var(--gold-light); }
+
+    /* PAGE HEADER */
+    .page-header {
+      padding: 88px 72px 72px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: end;
+      border-bottom: 1px solid var(--ivory-border);
+      position: relative;
+      overflow: hidden;
+      background: var(--void);
+    }
+    .page-header::after {
+      content: '';
+      position: absolute;
+      bottom: -1px; left: 72px; width: 120px; height: 2px;
+      background: var(--gold);
+    }
+    .header-eyebrow { font-size: 10px; font-weight: 400; letter-spacing: 4px; text-transform: uppercase; color: var(--gold); margin-bottom: 20px; }
+    .page-header h1 { font-family: var(--serif); font-size: 72px; font-weight: 300; line-height: 1.0; letter-spacing: -1.5px; color: var(--white); }
+    .page-header h1 em { font-style: italic; color: var(--gold); }
+    .header-right { padding-bottom: 8px; }
+    .header-right p { font-size: 16px; font-weight: 300; color: var(--muted); line-height: 1.85; margin-bottom: 28px; }
+    .header-right p strong { color: var(--white); font-weight: 500; }
+    .header-pills { display: flex; gap: 10px; flex-wrap: wrap; }
+    .header-pill {
+      font-size: 11px; font-weight: 400; letter-spacing: 1.5px; text-transform: uppercase;
+      padding: 8px 16px; border: 1px solid rgba(245,242,236,0.3); color: rgba(245,242,236,0.7);
+      cursor: pointer; transition: all 0.2s;
+    }
+    .header-pill:hover, .header-pill.active { color: var(--gold); border-color: var(--gold-border); background: var(--gold-dim); }
+
+    /* SECTION DIVIDER */
+    .divider { display: flex; align-items: center; gap: 24px; padding: 72px 72px 48px; background: var(--ivory); }
+    .divider-line { flex: 1; height: 1px; background: var(--ivory-border); }
+    .divider-text { font-size: 9px; font-weight: 400; letter-spacing: 4px; text-transform: uppercase; color: var(--gold); white-space: nowrap; }
+    .divider-count { font-size: 9px; font-weight: 400; letter-spacing: 2px; text-transform: uppercase; color: var(--ink-mid); }
+
+    /* MARKET INTELLIGENCE — IMPORT DATA */
+    .mi-section { padding: 0 72px 80px; background: var(--ivory); }
+    .mi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .mi-card {
+      background: white; padding: 36px 36px 32px;
+      transition: background 0.25s;
+      position: relative; overflow: hidden;
+      border: 1px solid var(--ivory-border);
+    }
+    .mi-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, var(--gold), transparent);
+      transform: scaleX(0); transform-origin: left;
+      transition: transform 0.35s;
+    }
+    .mi-card:hover { background: var(--raised); }
+    .mi-card:hover::before { transform: scaleX(1); }
+    .mi-card-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 20px; gap: 12px; }
+    .mi-sector {
+      font-size: 9px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase;
+      color: var(--gold); border: 1px solid var(--gold-border); padding: 4px 10px;
+      white-space: nowrap;
+    }
+    .mi-source { font-size: 9px; color: var(--ink-mid); letter-spacing: 0.5px; text-align: right; line-height: 1.4; }
+    .mi-product { font-family: var(--serif); font-size: 22px; font-weight: 400; color: var(--ink); margin-bottom: 8px; letter-spacing: 0.2px; line-height: 1.2; }
+    .mi-hsn { font-size: 10px; color: var(--ink-mid); letter-spacing: 1px; margin-bottom: 24px; }
+    .mi-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+    .mi-stat-val { font-family: var(--serif); font-size: 28px; font-weight: 300; color: var(--ink); line-height: 1; margin-bottom: 4px; }
+    .mi-stat-val span { color: var(--gold); }
+    .mi-stat-label { font-size: 9px; font-weight: 400; letter-spacing: 2px; text-transform: uppercase; color: var(--ink-mid); }
+    .mi-trend {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 11px; font-weight: 400;
+      padding: 5px 10px;
+    }
+    .mi-trend.up { background: rgba(61,170,110,0.10); color: #3DAA6E; }
+    .mi-trend.down { background: rgba(201,168,76,0.10); color: var(--gold); }
+    .mi-trend svg { width: 10px; height: 10px; }
+    .mi-footer { border-top: 1px solid var(--ivory-border); padding-top: 16px; margin-top: 16px; display: flex; justify-content: space-between; align-items: center; }
+    .mi-period { font-size: 10px; color: var(--ink-mid); letter-spacing: 1px; }
+    .mi-cta { font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gold); cursor: pointer; transition: opacity 0.2s; }
+    .mi-cta:hover { opacity: 0.7; }
+
+    /* LIVE REQUIREMENTS */
+    .req-section { padding: 0 72px 80px; background: var(--ivory); }
+    .req-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 36px; }
+    .req-filters { display: flex; gap: 8px; }
+    .req-filter {
+      font-size: 10px; font-weight: 400; letter-spacing: 1.5px; text-transform: uppercase;
+      padding: 7px 16px; border: 1px solid var(--ivory-border); color: var(--ink-mid);
+      cursor: pointer; transition: all 0.2s; background: white;
+      font-family: var(--sans);
+    }
+    .req-filter:hover, .req-filter.active { color: var(--gold); border-color: var(--gold-border); background: var(--gold-dim); }
+    .req-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .req-card {
+      background: white; padding: 32px 32px 28px;
+      transition: background 0.25s; position: relative;
+      border: 1px solid var(--ivory-border);
+    }
+    .req-card:hover { background: var(--raised); }
+    .req-live {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 9px; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase;
+      color: var(--green); margin-bottom: 20px;
+    }
+    .req-live-dot {
+      width: 6px; height: 6px; border-radius: 50%; background: var(--green);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; } 50% { opacity: 0.3; }
+    }
+    .req-industry {
+      font-size: 9px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase;
+      color: var(--gold); border: 1px solid var(--gold-border);
+      padding: 4px 10px; display: inline-block; margin-bottom: 16px;
+    }
+    .req-product { font-family: var(--serif); font-size: 24px; font-weight: 400; color: var(--ink); margin-bottom: 8px; line-height: 1.2; letter-spacing: 0.2px; }
+    .req-desc { font-size: 13px; font-weight: 300; color: var(--ink-mid); line-height: 1.7; margin-bottom: 24px; }
+    .req-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+    .req-meta-item {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 11px; color: var(--ink-mid);
+      background: var(--ivory); border: 1px solid var(--ivory-border); padding: 5px 12px;
+    }
+    .req-meta-item svg { width: 11px; height: 11px; color: var(--gold); flex-shrink: 0; }
+    .req-footer { border-top: 1px solid var(--ivory-border); padding-top: 16px; display: flex; justify-content: space-between; align-items: center; }
+    .req-date { font-size: 10px; color: var(--ink-mid); letter-spacing: 0.5px; }
+    .req-respond {
+      font-family: var(--sans); font-size: 10px; font-weight: 500; letter-spacing: 2px;
+      text-transform: uppercase; color: var(--void); background: var(--gold);
+      border: none; padding: 8px 16px; cursor: pointer; transition: background 0.2s;
+    }
+    .req-respond:hover { background: var(--gold-light); }
+
+    /* EMPTY STATE */
+    .empty-state {
+      grid-column: 1 / -1; padding: 80px; text-align: center;
+      background: var(--deep);
+    }
+    .empty-state p { font-family: var(--serif); font-size: 24px; font-weight: 300; font-style: italic; color: var(--muted); }
+
+    /* BOTTOM CTA */
+    .bottom-cta {
+      margin: 0 72px 80px;
+      border: 1px solid var(--gold-border);
+      background: var(--void);
+      padding: 64px 72px;
+      display: flex; align-items: center; justify-content: space-between; gap: 60px;
+      position: relative;
+    }
+    .bottom-cta::before {
+      content: ''; position: absolute; top: -1px; left: 10%; right: 10%; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    }
+    .bottom-cta h2 { font-family: var(--serif); font-size: 44px; font-weight: 300; color: var(--white); letter-spacing: -0.5px; line-height: 1.1; }
+    .bottom-cta h2 em { font-style: italic; color: var(--gold); }
+    .bottom-cta p { font-size: 15px; font-weight: 300; color: var(--muted); margin-top: 12px; line-height: 1.7; max-width: 480px; }
+    .cta-btns { display: flex; flex-direction: column; gap: 12px; flex-shrink: 0; }
+    .btn-primary-large {
+      font-family: var(--sans); font-size: 13px; font-weight: 500; letter-spacing: 2px;
+      text-transform: uppercase; color: var(--void); background: var(--gold); border: none;
+      cursor: pointer; padding: 18px 44px; transition: all 0.25s; white-space: nowrap;
+    }
+    .btn-primary-large:hover { background: var(--gold-light); transform: translateY(-2px); }
+    .btn-outline-large {
+      font-family: var(--sans); font-size: 13px; font-weight: 400; letter-spacing: 2px;
+      text-transform: uppercase; color: var(--gold); background: none;
+      border: 1px solid var(--gold-border); cursor: pointer; padding: 18px 44px;
+      transition: all 0.25s; white-space: nowrap;
+    }
+    .btn-outline-large:hover { border-color: var(--gold); background: var(--gold-dim); }
+
+    /* FOOTER */
+    footer { border-top: 1px solid var(--faint); background: var(--void); padding: 36px 72px; display: flex; align-items: center; justify-content: space-between; }
+    .footer-copy { font-size: 10px; font-weight: 300; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }
+    .footer-mii { display: flex; align-items: center; gap: 10px; font-size: 9px; font-weight: 400; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); }
+    .mii-square { width: 8px; height: 8px; background: var(--gold); }
+
+    /* ANIMATIONS */
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+    .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.8s ease, transform 0.8s ease; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="invictus-imc-landing.html" class="logo">
+      <div class="logo-emblem">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+          <circle cx="9" cy="9" r="7" stroke="#C9A84C" stroke-width="0.8"/>
+          <line x1="2" y1="9" x2="16" y2="9" stroke="#C9A84C" stroke-width="0.8"/>
+          <ellipse cx="9" cy="9" rx="3.5" ry="7" stroke="#C9A84C" stroke-width="0.8"/>
+        </svg>
+      </div>
+      <div class="logo-wordmark">
+        <span class="logo-name">Invictus IMC</span>
+        <span class="logo-tagline">India Manufacturing Company</span>
+      </div>
+    </a>
+    <div class="nav-center">
+      <a href="invictus-imc-landing.html">Home</a>
+      <a href="#" class="active">The Opportunity</a>
+      <a href="#">Manufacturers Club</a>
+      <a href="#">Buyers Club</a>
+    </div>
+    <div class="nav-right">
+      <button class="btn-ghost">Sign In</button>
+      <button class="btn-gold">Request Membership</button>
+    </div>
+  </nav>
+
+  <!-- PAGE HEADER -->
+  <section class="page-header">
+    <div>
+      <div class="header-eyebrow">Market Intelligence · Live Demand</div>
+      <h1>The<br/><em>Opportunity</em><br/>Is Real.</h1>
+    </div>
+    <div class="header-right">
+      <p>India imports over <strong>₹45 lakh crore worth of goods annually</strong>. Much of it can be manufactured right here. We track the data, identify the gaps, and connect the right manufacturers with the right buyers.</p>
+      <p>Every requirement on this page is a real business opportunity waiting to be captured.</p>
+      <div class="header-pills">
+        <div class="header-pill active" onclick="filterAll()">All Sectors</div>
+        <div class="header-pill" onclick="filterSector('Electronics')">Electronics</div>
+        <div class="header-pill" onclick="filterSector('Automotive')">Automotive</div>
+        <div class="header-pill" onclick="filterSector('Plastics')">Plastics</div>
+        <div class="header-pill" onclick="filterSector('Machinery')">Machinery</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MARKET INTELLIGENCE -->
+  <div class="divider reveal">
+    <div class="divider-line"></div>
+    <div class="divider-text">Market Intelligence — Ministry of Commerce Data</div>
+    <div class="divider-line"></div>
+    <div class="divider-count" id="mi-count"></div>
+  </div>
+
+  <section class="mi-section reveal">
+    <div class="mi-grid" id="mi-grid">
+      <!-- Populated by JS -->
+    </div>
+  </section>
+
+  <!-- LIVE REQUIREMENTS -->
+  <div class="divider reveal">
+    <div class="divider-line"></div>
+    <div class="divider-text">Live Requirements on Platform</div>
+    <div class="divider-line"></div>
+    <div class="divider-count" id="req-count"></div>
+  </div>
+
+  <section class="req-section reveal">
+    <div class="req-header">
+      <div></div>
+      <div class="req-filters">
+        <button class="req-filter active" onclick="filterReqs('all', this)">All</button>
+        <button class="req-filter" onclick="filterReqs('Electronics', this)">Electronics</button>
+        <button class="req-filter" onclick="filterReqs('Automotive', this)">Automotive</button>
+        <button class="req-filter" onclick="filterReqs('Plastics', this)">Plastics</button>
+        <button class="req-filter" onclick="filterReqs('Machinery', this)">Machinery</button>
+      </div>
+    </div>
+    <div class="req-grid" id="req-grid">
+      <!-- Populated by JS -->
+    </div>
+  </section>
+
+  <!-- BOTTOM CTA -->
+  <div class="bottom-cta reveal">
+    <div>
+      <h2>See your<br/>opportunity <em>here?</em></h2>
+      <p>Apply for membership and our team will personally connect you with the right counterpart — manufacturer or buyer — within our network.</p>
+    </div>
+    <div class="cta-btns">
+      <button class="btn-primary-large">I'm a Manufacturer</button>
+      <button class="btn-outline-large">I'm a Buyer</button>
+    </div>
+  </div>
+
+  <footer>
+    <span class="footer-copy">© 2025 Invictus IMC · All Rights Reserved</span>
+    <div class="footer-mii"><div class="mii-square"></div> Make In India Initiative</div>
+  </footer>
+
+  <script>
+    // ── DEFAULT DATA (shown if admin hasn't added anything yet) ──
+    const DEFAULT_MI = [
+      {
+        id: 1, sector: "Electronics", product: "Printed Circuit Board Assemblies",
+        hsn: "HSN 8534", importValue: "₹38,400 Cr", yoy: "+14.2%", trend: "up",
+        volume: "12.4M units", period: "FY 2023-24", source: "DGCI&S / MoCI",
+        opportunity: "High-volume PCB demand from EV, consumer electronics & defence sectors."
+      },
+      {
+        id: 2, sector: "Automotive", product: "Automotive Transmission Parts",
+        hsn: "HSN 8708", importValue: "₹22,100 Cr", yoy: "+9.8%", trend: "up",
+        volume: "4.8M units", period: "FY 2023-24", source: "DGCI&S / MoCI",
+        opportunity: "Strong import substitution potential in precision-machined drivetrain components."
+      },
+      {
+        id: 3, sector: "Plastics", product: "Plastic Injection Moulded Parts",
+        hsn: "HSN 3926", importValue: "₹14,700 Cr", yoy: "+6.1%", trend: "up",
+        volume: "38M kg", period: "FY 2023-24", source: "DGCI&S / MoCI",
+        opportunity: "Significant domestic manufacturing gap for technical & consumer plastic components."
+      },
+      {
+        id: 4, sector: "Machinery", product: "Industrial Electric Motors",
+        hsn: "HSN 8501", importValue: "₹9,800 Cr", yoy: "-2.3%", trend: "down",
+        volume: "2.1M units", period: "FY 2023-24", source: "DGCI&S / MoCI",
+        opportunity: "Declining imports signal growing domestic manufacturing capability."
+      },
+      {
+        id: 5, sector: "Electronics", product: "Lithium-Ion Battery Cells",
+        hsn: "HSN 8507", importValue: "₹31,200 Cr", yoy: "+22.4%", trend: "up",
+        volume: "890M cells", period: "FY 2023-24", source: "DGCI&S / MoCI",
+        opportunity: "Massive EV & storage demand. PLI scheme actively supports domestic cell makers."
+      },
+      {
+        id: 6, sector: "Machinery", product: "CNC Machine Tool Components",
+        hsn: "HSN 8466", importValue: "₹7,200 Cr", yoy: "+5.5%", trend: "up",
+        volume: "1.4M units", period: "FY 2023-24", source: "DGCI&S / MoCI",
+        opportunity: "Growing machining sector creating demand for precision tooling & accessories."
+      }
+    ];
+
+    const DEFAULT_REQS = [
+      {
+        id: 1, industry: "Electronics", product: "Electronic Control Units",
+        desc: "Seeking manufacturer for automotive-grade ECUs. Buyer is an established EV startup scaling production.",
+        volume: "5,000 units/month", frequency: "Monthly", location: "Pune Region",
+        showLocation: true, date: "Posted 3 days ago", urgent: false
+      },
+      {
+        id: 2, industry: "Plastics", product: "ABS Plastic Toy Components",
+        desc: "Requirement for injection-moulded plastic parts for consumer toy range. Multi-colour, food-grade ABS.",
+        volume: "80,000 units/month", frequency: "Monthly", location: "",
+        showLocation: false, date: "Posted 1 week ago", urgent: true
+      },
+      {
+        id: 3, industry: "Automotive", product: "Precision Steel Fasteners",
+        desc: "ISO-certified fasteners for 2-wheeler assembly line. High-tensile grade required with full traceability.",
+        volume: "2,00,000 units/month", frequency: "Monthly", location: "NCR Region",
+        showLocation: true, date: "Posted 5 days ago", urgent: false
+      },
+      {
+        id: 4, industry: "Electronics", product: "PCB Assemblies — Consumer Grade",
+        desc: "Buyer importing PCBAs from China seeking Indian alternative. Initial order 10,000 units with long-term potential.",
+        volume: "10,000 units/quarter", frequency: "Quarterly", location: "",
+        showLocation: false, date: "Posted 2 weeks ago", urgent: false
+      },
+      {
+        id: 5, industry: "Machinery", product: "Hydraulic Pump Components",
+        desc: "Precision-machined pump bodies and impellers. Material: SS316. Buyer is an industrial equipment OEM.",
+        volume: "500 units/month", frequency: "Monthly", location: "Coimbatore Region",
+        showLocation: true, date: "Posted 4 days ago", urgent: true
+      },
+      {
+        id: 6, industry: "Automotive", product: "EV Battery Enclosures",
+        desc: "Aluminium die-cast battery housing for 2-wheeler EV platform. Design files available under NDA.",
+        volume: "3,000 units/month", frequency: "Monthly", location: "Bengaluru Region",
+        showLocation: true, date: "Posted 1 day ago", urgent: true
+      }
+    ];
+
+    // ── LOAD FROM STORAGE OR USE DEFAULTS ──
+    function getMIData() {
+      const stored = localStorage.getItem('imc_mi_data');
+      return stored ? JSON.parse(stored) : DEFAULT_MI;
+    }
+
+    function getReqData() {
+      const stored = localStorage.getItem('imc_req_data');
+      return stored ? JSON.parse(stored) : DEFAULT_REQS;
+    }
+
+    // ── RENDER MARKET INTELLIGENCE ──
+    function renderMI(filter) {
+      const data = getMIData();
+      const grid = document.getElementById('mi-grid');
+      const filtered = filter ? data.filter(d => d.sector === filter) : data;
+      document.getElementById('mi-count').textContent = filtered.length + ' datasets';
+
+      if (filtered.length === 0) {
+        grid.innerHTML = '<div class="empty-state"><p>No market intelligence data available in this sector yet.</p></div>';
+        return;
+      }
+
+      grid.innerHTML = filtered.map(d => `
+        <div class="mi-card" data-sector="${d.sector}">
+          <div class="mi-card-header">
+            <span class="mi-sector">${d.sector}</span>
+            <span class="mi-source">${d.source}<br/>${d.period}</span>
+          </div>
+          <div class="mi-product">${d.product}</div>
+          <div class="mi-hsn">${d.hsn}</div>
+          <div class="mi-stats">
+            <div>
+              <div class="mi-stat-val">${d.importValue}</div>
+              <div class="mi-stat-label">Annual Import Value</div>
+            </div>
+            <div>
+              <div class="mi-stat-val">${d.volume}</div>
+              <div class="mi-stat-label">Import Volume</div>
+            </div>
+          </div>
+          <div class="mi-trend ${d.trend}">
+            ${d.trend === 'up'
+              ? '<svg viewBox="0 0 10 10" fill="none"><path d="M2 8L5 2L8 8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+              : '<svg viewBox="0 0 10 10" fill="none"><path d="M2 2L5 8L8 2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+            }
+            ${d.yoy} YoY
+          </div>
+          <div class="mi-footer">
+            <span class="mi-period">${d.opportunity}</span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // ── RENDER REQUIREMENTS ──
+    let currentReqFilter = 'all';
+
+    function renderReqs(filter) {
+      const data = getReqData();
+      const grid = document.getElementById('req-grid');
+      const filtered = filter && filter !== 'all' ? data.filter(d => d.industry === filter) : data;
+      document.getElementById('req-count').textContent = filtered.length + ' open requirements';
+
+      if (filtered.length === 0) {
+        grid.innerHTML = '<div class="empty-state"><p>No live requirements in this category right now.</p></div>';
+        return;
+      }
+
+      grid.innerHTML = filtered.map(d => `
+        <div class="req-card" data-industry="${d.industry}">
+          <div class="req-live"><div class="req-live-dot"></div> Live Requirement</div>
+          <div class="req-industry">${d.industry}</div>
+          <div class="req-product">${d.product}</div>
+          <p class="req-desc">${d.desc}</p>
+          <div class="req-meta">
+            <div class="req-meta-item">
+              <svg viewBox="0 0 11 11" fill="none"><rect x="1" y="1" width="9" height="9" rx="1" stroke="currentColor" stroke-width="1"/><line x1="1" y1="4" x2="10" y2="4" stroke="currentColor" stroke-width="1"/></svg>
+              ${d.volume}
+            </div>
+            <div class="req-meta-item">
+              <svg viewBox="0 0 11 11" fill="none"><circle cx="5.5" cy="5.5" r="4" stroke="currentColor" stroke-width="1"/><line x1="5.5" y1="3" x2="5.5" y2="5.5" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="5.5" y1="5.5" x2="7" y2="7" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
+              ${d.frequency}
+            </div>
+            ${d.showLocation && d.location ? `
+            <div class="req-meta-item">
+              <svg viewBox="0 0 11 11" fill="none"><circle cx="5.5" cy="4.5" r="2" stroke="currentColor" stroke-width="1"/><path d="M5.5 10C5.5 10 2 7 2 4.5C2 2.57 3.57 1 5.5 1C7.43 1 9 2.57 9 4.5C9 7 5.5 10 5.5 10Z" stroke="currentColor" stroke-width="1"/></svg>
+              ${d.location}
+            </div>` : ''}
+          </div>
+          <div class="req-footer">
+            <span class="req-date">${d.date}</span>
+            <button class="req-respond" onclick="handleRespond('${d.product}')">Express Interest</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function handleRespond(product) {
+      alert('To express interest in "' + product + '", please apply for Manufacturers Club membership. Our team will connect you directly.');
+    }
+
+    function filterReqs(sector, btn) {
+      currentReqFilter = sector;
+      document.querySelectorAll('.req-filter').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderReqs(sector);
+    }
+
+    function filterAll() {
+      document.querySelectorAll('.header-pill').forEach(p => p.classList.remove('active'));
+      event.target.classList.add('active');
+      renderMI(null);
+      renderReqs('all');
+    }
+
+    function filterSector(sector) {
+      document.querySelectorAll('.header-pill').forEach(p => p.classList.remove('active'));
+      event.target.classList.add('active');
+      renderMI(sector);
+    }
+
+    // ── SCROLL REVEAL ──
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.08 });
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    // ── INIT ──
+    renderMI(null);
+    renderReqs('all');
+  </script>
+</body>
+</html>

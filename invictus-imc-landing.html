@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Invictus IMC — India Manufacturing Company</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --void: #0A0A0A;
+      --deep: #111111;
+      --surface: #FAF8F3;
+      --raised: #F2EEE6;
+      --gold: #B8860B;
+      --gold-light: #D4A017;
+      --gold-dim: rgba(184,134,11,0.10);
+      --gold-border: rgba(184,134,11,0.28);
+      --white: #F5F2EC;
+      --muted: rgba(245,242,236,0.45);
+      --faint: rgba(245,242,236,0.08);
+      --ink: #1C1C1C;
+      --ink-mid: rgba(28,28,28,0.55);
+      --ink-faint: rgba(28,28,28,0.08);
+      --ivory: #FAF8F3;
+      --ivory-border: rgba(28,28,28,0.10);
+      --ink: #1C1C1C;
+      --ink-mid: rgba(28,28,28,0.55);
+      --ink-faint: rgba(28,28,28,0.07);
+      --ivory: #FAF8F3;
+      --ivory-border: rgba(28,28,28,0.10);
+      --serif: 'Cormorant Garamond', Georgia, serif;
+      --sans: 'Outfit', sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--sans);
+      background: var(--ivory);
+      color: var(--ink);
+      overflow-x: hidden;
+    }
+
+    /* ── SCROLLBAR ── */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--ivory); }
+    ::-webkit-scrollbar-thumb { background: var(--gold-border); }
+
+    /* ── NAV ── */
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 72px;
+      height: 76px;
+      border-bottom: 1px solid var(--faint);
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      background: rgba(10,10,10,0.94);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      text-decoration: none;
+    }
+
+    .logo-emblem {
+      width: 42px;
+      height: 42px;
+      border: 1px solid var(--gold-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    .logo-emblem::before {
+      content: '';
+      position: absolute;
+      inset: 4px;
+      border: 1px solid var(--gold-border);
+    }
+
+    .logo-wordmark { display: flex; flex-direction: column; gap: 2px; }
+
+    .logo-name {
+      font-family: var(--serif);
+      font-size: 18px;
+      font-weight: 600;
+      letter-spacing: 3px;
+      color: var(--white);
+      text-transform: uppercase;
+      line-height: 1;
+    }
+
+    .logo-tagline {
+      font-size: 8px;
+      font-weight: 400;
+      letter-spacing: 3.5px;
+      color: var(--gold);
+      text-transform: uppercase;
+      line-height: 1;
+    }
+
+    .nav-center {
+      display: flex;
+      align-items: center;
+      gap: 40px;
+    }
+
+    .nav-center a {
+      font-size: 11px;
+      font-weight: 400;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .nav-center a:hover { color: var(--gold); }
+
+    .nav-right { display: flex; align-items: center; gap: 14px; }
+
+    .btn-ghost {
+      font-family: var(--sans);
+      font-size: 13px;
+      font-weight: 400;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--muted);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 10px 18px;
+      transition: color 0.2s;
+    }
+
+    .btn-ghost:hover { color: var(--white); }
+
+    .btn-gold {
+      font-family: var(--sans);
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--void);
+      background: var(--gold);
+      border: none;
+      cursor: pointer;
+      padding: 12px 26px;
+      transition: all 0.2s;
+    }
+
+    .btn-gold:hover { background: var(--gold-light); }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: calc(100vh - 76px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 80px 72px 80px;
+      position: relative;
+      overflow: hidden;
+      background: var(--void);
+    }
+
+    .hero-grid-bg {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(var(--faint) 1px, transparent 1px),
+        linear-gradient(90deg, var(--faint) 1px, transparent 1px);
+      background-size: 80px 80px;
+      mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%);
+      -webkit-mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%);
+    }
+
+    .hero-orb {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 600px;
+      height: 600px;
+      border: 1px solid var(--gold-border);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .hero-orb::before {
+      content: '';
+      position: absolute;
+      inset: 60px;
+      border: 1px solid var(--faint);
+      border-radius: 50%;
+    }
+
+    .hero-orb::after {
+      content: '';
+      position: absolute;
+      inset: -60px;
+      border: 1px solid var(--faint);
+      border-radius: 50%;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+    }
+
+    .hero-rule {
+      width: 1px;
+      height: 72px;
+      background: linear-gradient(to bottom, transparent, var(--gold));
+      margin-bottom: 36px;
+      opacity: 0;
+      animation: fadeIn 1s 0.3s forwards;
+    }
+
+    .hero-eyebrow {
+      font-size: 10px;
+      font-weight: 400;
+      letter-spacing: 5px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 32px;
+      opacity: 0;
+      animation: fadeUp 0.8s 0.5s forwards;
+    }
+
+    .hero h1 {
+      font-family: var(--serif);
+      font-size: 96px;
+      font-weight: 300;
+      line-height: 1.0;
+      letter-spacing: -2px;
+      text-align: center;
+      color: var(--white);
+      max-width: 1000px;
+      margin-bottom: 12px;
+      opacity: 0;
+      animation: fadeUp 0.9s 0.65s forwards;
+    }
+
+    .hero h1 em {
+      font-style: italic;
+      color: var(--gold);
+    }
+
+    .hero-subtitle {
+      font-family: var(--serif);
+      font-size: 24px;
+      font-weight: 300;
+      font-style: italic;
+      color: var(--muted);
+      text-align: center;
+      margin-bottom: 52px;
+      letter-spacing: 0.5px;
+      opacity: 0;
+      animation: fadeUp 0.8s 0.8s forwards;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      margin-bottom: 80px;
+      opacity: 0;
+      animation: fadeUp 0.8s 0.95s forwards;
+    }
+
+    .btn-primary-large {
+      font-family: var(--sans);
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--void);
+      background: var(--gold);
+      border: none;
+      cursor: pointer;
+      padding: 18px 44px;
+      transition: all 0.25s;
+    }
+
+    .btn-primary-large:hover {
+      background: var(--gold-light);
+      transform: translateY(-2px);
+    }
+
+    .btn-outline-large {
+      font-family: var(--sans);
+      font-size: 13px;
+      font-weight: 400;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--gold);
+      background: none;
+      border: 1px solid var(--gold-border);
+      cursor: pointer;
+      padding: 18px 44px;
+      transition: all 0.25s;
+    }
+
+    .btn-outline-large:hover {
+      border-color: var(--gold);
+      background: var(--gold-dim);
+    }
+
+    /* ── CLUB CARDS ── */
+    .clubs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1px;
+      background: var(--faint);
+      width: 100%;
+      max-width: 1000px;
+      opacity: 0;
+      animation: fadeUp 0.8s 1.1s forwards;
+    }
+
+    .club-card {
+      background: var(--deep);
+      padding: 48px 52px;
+      cursor: pointer;
+      transition: background 0.3s;
+      position: relative;
+      overflow: hidden;
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+
+    .club-card::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      transform: scaleX(0);
+      transition: transform 0.4s;
+    }
+
+    .club-card:hover { background: var(--surface); }
+    .club-card:hover::after { transform: scaleX(1); }
+
+    .club-num {
+      font-size: 10px;
+      font-weight: 400;
+      letter-spacing: 3px;
+      color: var(--gold);
+      margin-bottom: 20px;
+      display: block;
+      text-transform: uppercase;
+    }
+
+    .club-title {
+      font-family: var(--serif);
+      font-size: 38px;
+      font-weight: 400;
+      letter-spacing: 0.5px;
+      color: var(--white);
+      margin-bottom: 16px;
+      line-height: 1.1;
+    }
+
+    .club-desc {
+      font-size: 14px;
+      font-weight: 300;
+      color: var(--muted);
+      line-height: 1.8;
+      margin-bottom: 28px;
+      max-width: 360px;
+    }
+
+    .club-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 32px;
+    }
+
+    .club-tag {
+      font-size: 9px;
+      font-weight: 400;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--gold);
+      border: 1px solid var(--gold-border);
+      padding: 5px 12px;
+    }
+
+    .club-cta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--gold);
+      transition: gap 0.25s;
+    }
+
+    .club-card:hover .club-cta { gap: 20px; }
+
+    .cta-line {
+      width: 32px;
+      height: 1px;
+      background: var(--gold);
+      position: relative;
+      transition: width 0.25s;
+    }
+
+    .club-card:hover .cta-line { width: 48px; }
+
+    .cta-line::after {
+      content: '';
+      position: absolute;
+      right: 0; top: -3px;
+      width: 7px; height: 7px;
+      border-right: 1px solid var(--gold);
+      border-top: 1px solid var(--gold);
+      transform: rotate(45deg);
+    }
+
+    /* ── SECTION DIVIDER ── */
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      padding: 88px 72px 56px;
+      background: var(--ivory);
+    }
+
+    .divider-line { flex: 1; height: 1px; background: var(--ivory-border); }
+
+    .divider-text {
+      font-size: 9px;
+      font-weight: 400;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--gold);
+      white-space: nowrap;
+    }
+
+    /* ── MANIFESTO ── */
+    .manifesto {
+      padding: 0 72px 88px;
+      display: grid;
+      grid-template-columns: 420px 1fr;
+      gap: 96px;
+      align-items: start;
+      background: var(--ivory);
+    }
+
+    .manifesto-left {}
+
+    .manifesto-eyebrow {
+      font-family: var(--serif);
+      font-size: 14px;
+      font-weight: 400;
+      font-style: italic;
+      color: var(--gold);
+      margin-bottom: 24px;
+      letter-spacing: 0.5px;
+    }
+
+    .manifesto h2 {
+      font-family: var(--serif);
+      font-size: 52px;
+      font-weight: 300;
+      line-height: 1.15;
+      letter-spacing: -0.5px;
+      color: var(--ink);
+    }
+
+    .manifesto h2 em {
+      font-style: italic;
+      color: var(--gold);
+    }
+
+    .manifesto-right { padding-top: 4px; }
+
+    .manifesto-right p {
+      font-size: 16px;
+      font-weight: 300;
+      color: var(--ink-mid);
+      line-height: 1.9;
+      margin-bottom: 24px;
+    }
+
+    .manifesto-right p strong {
+      color: var(--ink);
+      font-weight: 500;
+    }
+
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: var(--ivory-border);
+      margin-top: 48px;
+    }
+
+    .stat-box {
+      background: white;
+      border: 1px solid var(--ivory-border);
+      padding: 28px 32px;
+    }
+
+    .stat-val {
+      font-family: var(--serif);
+      font-size: 44px;
+      font-weight: 300;
+      color: var(--gold);
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+
+    .stat-label {
+      font-size: 9px;
+      font-weight: 400;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    /* ── HOW IT WORKS ── */
+    .process {
+      margin: 0 72px 88px;
+      background: white;
+      border: 1px solid var(--ivory-border);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .process::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent 5%, var(--gold) 30%, var(--gold) 70%, transparent 95%);
+    }
+
+    .process-inner {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0;
+    }
+
+    .process-step {
+      padding: 48px 40px;
+      border-right: 1px solid var(--ivory-border);
+      position: relative;
+    }
+
+    .process-step:last-child { border-right: none; }
+
+    .step-num {
+      font-family: var(--serif);
+      font-size: 56px;
+      font-weight: 300;
+      color: var(--gold);
+      opacity: 0.2;
+      line-height: 1;
+      margin-bottom: 20px;
+    }
+
+    .step-title {
+      font-family: var(--serif);
+      font-size: 20px;
+      font-weight: 400;
+      color: var(--ink);
+      margin-bottom: 12px;
+      letter-spacing: 0.3px;
+    }
+
+    .step-desc {
+      font-size: 13px;
+      font-weight: 300;
+      color: var(--ink-mid);
+      line-height: 1.75;
+    }
+
+    /* ── INDUSTRIES ── */
+    .industries { padding: 0 72px 88px; background: var(--ivory); }
+
+    .industry-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .ind-pill {
+      font-size: 10px;
+      font-weight: 400;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--ink-mid);
+      border: 1px solid var(--ivory-border);
+      padding: 10px 18px;
+      cursor: default;
+      transition: all 0.2s;
+    }
+
+    .ind-pill:hover {
+      color: var(--gold);
+      border-color: var(--gold-border);
+      background: var(--gold-dim);
+    }
+
+    /* ── CTA BANNER ── */
+    .cta-banner {
+      margin: 0 72px 88px;
+      border: 1px solid var(--gold-border);
+      background: var(--void);
+      padding: 72px 80px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 60px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cta-banner::before {
+      content: '';
+      position: absolute;
+      top: -1px; left: 10%; right: 10%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    }
+
+    .cta-banner::after {
+      content: 'IMC';
+      position: absolute;
+      right: -20px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-family: var(--serif);
+      font-size: 180px;
+      font-weight: 700;
+      color: var(--white);
+      opacity: 0.02;
+      pointer-events: none;
+      line-height: 1;
+      letter-spacing: -5px;
+    }
+
+    .cta-left {}
+
+    .cta-eyebrow {
+      font-size: 10px;
+      font-weight: 400;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 16px;
+    }
+
+    .cta-left h2 {
+      font-family: var(--serif);
+      font-size: 52px;
+      font-weight: 300;
+      line-height: 1.1;
+      color: var(--white);
+      letter-spacing: -0.5px;
+    }
+
+    .cta-left h2 em {
+      font-style: italic;
+      color: var(--gold);
+    }
+
+    .cta-right {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      flex-shrink: 0;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--faint);
+      background: var(--void);
+      padding: 36px 72px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .footer-left { display: flex; align-items: center; gap: 32px; }
+
+    .footer-copy {
+      font-size: 10px;
+      font-weight: 300;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .footer-links { display: flex; gap: 24px; }
+
+    .footer-links a {
+      font-size: 10px;
+      font-weight: 300;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .footer-links a:hover { color: var(--gold); }
+
+    .footer-mii {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 9px;
+      font-weight: 400;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--gold);
+    }
+
+    .mii-square { width: 8px; height: 8px; background: var(--gold); }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeIn {
+      to { opacity: 1; }
+    }
+
+    /* ── SCROLL REVEAL ── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <a href="#" class="logo">
+      <div class="logo-emblem">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+          <circle cx="9" cy="9" r="7" stroke="#C9A84C" stroke-width="0.8"/>
+          <line x1="2" y1="9" x2="16" y2="9" stroke="#C9A84C" stroke-width="0.8"/>
+          <ellipse cx="9" cy="9" rx="3.5" ry="7" stroke="#C9A84C" stroke-width="0.8"/>
+        </svg>
+      </div>
+      <div class="logo-wordmark">
+        <span class="logo-name">Invictus IMC</span>
+        <span class="logo-tagline">India Manufacturing Company</span>
+      </div>
+    </a>
+
+    <div class="nav-center">
+      <a href="#clubs">The Clubs</a>
+      <a href="#process">Our Process</a>
+      <a href="#industries">Industries</a>
+      <a href="#about">About</a>
+    </div>
+
+    <div class="nav-right">
+      <button class="btn-ghost">Sign In</button>
+      <button class="btn-gold">Request Membership</button>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-grid-bg"></div>
+    <div class="hero-orb"></div>
+    <div class="hero-content">
+      <div class="hero-rule"></div>
+      <h1>Where <em>Serious</em> Manufacturers<br/>Meet <em>Serious</em> Buyers.</h1>
+      <p class="hero-subtitle">End-to-end project management. From purchase order to delivery.</p>
+      <div class="hero-actions">
+        <button class="btn-primary-large">Request Membership</button>
+        <button class="btn-outline-large">Explore the Platform</button>
+      </div>
+
+      <div class="clubs" id="clubs">
+        <a href="#" class="club-card">
+          <span class="club-num">01 · The</span>
+          <div class="club-title">Manufacturers<br/>Club</div>
+          <p class="club-desc">For factories of every scale — from a 5-machine CNC shop to a 500-line enterprise. If you manufacture seriously, you belong here.</p>
+          <div class="club-tags">
+            <span class="club-tag">Machine Tools</span>
+            <span class="club-tag">Plastics</span>
+            <span class="club-tag">Electronics</span>
+            <span class="club-tag">Automotive</span>
+            <span class="club-tag">Aerospace</span>
+            <span class="club-tag">Defence</span>
+            <span class="club-tag">+18 more</span>
+          </div>
+          <div class="club-cta">
+            Apply for Membership
+            <div class="cta-line"></div>
+          </div>
+        </a>
+
+        <a href="#" class="club-card">
+          <span class="club-num">02 · The</span>
+          <div class="club-title">Buyers<br/>Club</div>
+          <p class="club-desc">For startups, brands, and enterprises sourcing in India. Whether you're a drone maker, an EV brand, or a global importer — source with confidence.</p>
+          <div class="club-tags">
+            <span class="club-tag">EV Makers</span>
+            <span class="club-tag">Consumer Tech</span>
+            <span class="club-tag">Importers</span>
+            <span class="club-tag">OEMs</span>
+            <span class="club-tag">Startups</span>
+            <span class="club-tag">Defence</span>
+            <span class="club-tag">+more</span>
+          </div>
+          <div class="club-cta">
+            Apply for Membership
+            <div class="cta-line"></div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- MANIFESTO -->
+  <div class="divider reveal" id="about">
+    <div class="divider-line"></div>
+    <div class="divider-text">Our Philosophy</div>
+    <div class="divider-line"></div>
+  </div>
+
+  <section class="manifesto reveal">
+    <div class="manifesto-left">
+      <div class="manifesto-eyebrow">Why Invictus IMC exists</div>
+      <h2>Not a directory.<br/>Not a marketplace.<br/><em>An operator.</em></h2>
+    </div>
+    <div class="manifesto-right">
+      <p>India manufactures at scale. The world wants to source from India. Yet the gap between a serious buyer and a capable manufacturer remains filled with middlemen, mistrust, and missed timelines.</p>
+      <p><strong>Invictus IMC closes that gap — permanently.</strong> We don't just introduce you. We manage the entire journey: design, tooling, production timelines, quality checks, and delivery. We operate as a white-label partner — buying from our manufacturers, delivering to our buyers.</p>
+      <p>This is not for everyone. <strong>It is for those who are serious about building something real.</strong> Whether you've just started your machine shop or you're sourcing for a publicly listed company — seriousness of intent is the only criterion that matters.</p>
+      <div class="stats-row">
+        <div class="stat-box">
+          <div class="stat-val">PO</div>
+          <div class="stat-label">To Delivery</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val">100%</div>
+          <div class="stat-label">Managed Process</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val">0</div>
+          <div class="stat-label">Middlemen</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <div class="divider reveal" id="process">
+    <div class="divider-line"></div>
+    <div class="divider-text">How It Works</div>
+    <div class="divider-line"></div>
+  </div>
+
+  <div class="process reveal">
+    <div class="process-inner">
+      <div class="process-step">
+        <div class="step-num">01</div>
+        <div class="step-title">Apply for Membership</div>
+        <p class="step-desc">Submit your profile. We review every application manually — no bots, no auto-approvals. Quality over quantity.</p>
+      </div>
+      <div class="process-step">
+        <div class="step-num">02</div>
+        <div class="step-title">Get Matched</div>
+        <p class="step-desc">Our team identifies the right manufacturer or buyer from within our curated, verified network.</p>
+      </div>
+      <div class="process-step">
+        <div class="step-num">03</div>
+        <div class="step-title">We Manage the Project</div>
+        <p class="step-desc">Design, tooling, production timelines, quality audits — we own the process from end to end.</p>
+      </div>
+      <div class="process-step">
+        <div class="step-num">04</div>
+        <div class="step-title">Deliver &amp; Scale</div>
+        <p class="step-desc">Product delivered to spec, on time. Repeat orders handled with increasing precision and efficiency.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- INDUSTRIES -->
+  <div class="divider reveal" id="industries">
+    <div class="divider-line"></div>
+    <div class="divider-text">Industries We Serve</div>
+    <div class="divider-line"></div>
+  </div>
+
+  <section class="industries reveal">
+    <div class="industry-grid">
+      <div class="ind-pill">Automobiles</div>
+      <div class="ind-pill">Electronics &amp; ESDM</div>
+      <div class="ind-pill">Aerospace &amp; Aviation</div>
+      <div class="ind-pill">Railways</div>
+      <div class="ind-pill">Defence Manufacturing</div>
+      <div class="ind-pill">Renewable Energy</div>
+      <div class="ind-pill">Pharmaceuticals</div>
+      <div class="ind-pill">Engineering &amp; Capital Goods</div>
+      <div class="ind-pill">Metals &amp; Mining</div>
+      <div class="ind-pill">Consumer Durables</div>
+      <div class="ind-pill">Plastics &amp; Chemicals</div>
+      <div class="ind-pill">Textiles</div>
+      <div class="ind-pill">Oil &amp; Gas</div>
+      <div class="ind-pill">Steel</div>
+      <div class="ind-pill">Biotechnology</div>
+      <div class="ind-pill">FMCG</div>
+      <div class="ind-pill">Healthcare</div>
+      <div class="ind-pill">Construction &amp; Civil</div>
+      <div class="ind-pill">Packaging</div>
+      <div class="ind-pill">Agriculture &amp; Allied</div>
+      <div class="ind-pill">Telecommunications</div>
+      <div class="ind-pill">Science &amp; Technology</div>
+      <div class="ind-pill">Logistics &amp; Warehousing</div>
+      <div class="ind-pill">Raw Materials</div>
+      <div class="ind-pill">Mechanical</div>
+      <div class="ind-pill">Printing</div>
+      <div class="ind-pill">Real Estate &amp; Infrastructure</div>
+      <div class="ind-pill">Banking &amp; Finance</div>
+    </div>
+  </section>
+
+  <!-- CTA BANNER -->
+  <div class="cta-banner reveal">
+    <div class="cta-left">
+      <div class="cta-eyebrow">Ready to join?</div>
+      <h2>Serious about<br/><em>manufacturing</em><br/>or sourcing?</h2>
+    </div>
+    <div class="cta-right">
+      <button class="btn-primary-large">Join the Manufacturers Club</button>
+      <button class="btn-outline-large">Join the Buyers Club</button>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-left">
+      <span class="footer-copy">© 2025 Invictus IMC</span>
+      <div class="footer-links">
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Use</a>
+        <a href="#">Contact</a>
+      </div>
+    </div>
+    <div class="footer-mii">
+      <div class="mii-square"></div>
+      Make In India Initiative
+    </div>
+  </footer>
+
+  <script>
+    // Scroll reveal
+    const reveals = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.1 });
+    reveals.forEach(el => observer.observe(el));
+  </script>
+
+</body>
+</html>
