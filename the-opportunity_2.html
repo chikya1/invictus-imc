@@ -342,8 +342,8 @@
       <p>Apply for membership and our team will personally connect you with the right counterpart — manufacturer or buyer — within our network.</p>
     </div>
     <div class="cta-btns">
-      <button class="btn-primary-large">I'm a Manufacturer</button>
-      <button class="btn-outline-large">I'm a Buyer</button>
+      <button class="btn-primary-large" onclick="window.location.href='/manufacturers-club'">I'm a Manufacturer</button>
+      <button class="btn-outline-large" onclick="window.location.href='/buyers-club'">I'm a Buyer</button>
     </div>
   </div>
 
@@ -531,7 +531,7 @@
     }
 
     function handleRespond(product) {
-      alert('To express interest in "' + product + '", please apply for Manufacturers Club membership. Our team will connect you directly.');
+      window.location.href = '/manufacturers-club';
     }
 
     function filterReqs(sector, btn) {
