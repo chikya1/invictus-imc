@@ -562,7 +562,7 @@
   function saveReqData(data) { localStorage.setItem(REQ_KEY, JSON.stringify(data)); }
 
   // AUTH
-  function doLogin() {
+  async function doLogin() {
     const pwd = document.getElementById('pwd').value;
     if (pwd === ADMIN_PASS) {
       document.getElementById('login-screen').style.display = 'none';
@@ -570,6 +570,9 @@
       refreshDashboard();
       renderMITable();
       renderReqTable();
+      renderMfgApps();
+      renderBuyerApps();
+      await syncFromSupabase();
     } else {
       document.getElementById('login-error').style.display = 'block';
     }
@@ -895,9 +898,13 @@
   // CLOSE MODALS ON OVERLAY CLICK
   // SYNC FROM SUPABASE
   async function syncFromSupabase() {
+    // Show syncing indicator
+    const subtitle = document.querySelector('.page-subtitle');
+    if (subtitle) subtitle.textContent = 'Syncing from database...';
     try {
       // Sync manufacturer applications
-      const { data: mfgData } = await _supa.from('manufacturers').select('*').order('created_at', { ascending: false });
+      const { data: mfgData, error: mfgError } = await _supa.from('manufacturers').select('*').order('created_at', { ascending: false });
+      if (mfgError) console.error('MFG sync error:', mfgError);
       if (mfgData && mfgData.length > 0) {
         const formatted = mfgData.map(r => ({
           id: r.id,
@@ -994,8 +1001,10 @@
       }
 
       console.log('Synced from Supabase successfully');
+      if (subtitle) subtitle.textContent = 'All data synced from database. Last synced: ' + new Date().toLocaleTimeString('en-IN');
     } catch(e) {
       console.error('Supabase sync error:', e);
+      if (subtitle) subtitle.textContent = 'Sync error — showing cached data.';
     }
   }
 
