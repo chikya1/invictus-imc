@@ -11,7 +11,7 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
       --void: #0A0A0A; --deep: #111; --surface: #181818; --raised: #202020;
-      --gold: #B8860B; --gold-light: #D4A017; --gold-dim: rgba(184,134,11,0.10); --gold-border: rgba(184,134,11,0.28);
+      --gold: #D4970D; --gold-light: #D4A017; --gold-dim: rgba(184,134,11,0.10); --gold-border: rgba(184,134,11,0.28);
       --white: #F5F2EC; --muted: rgba(245,242,236,0.45); --faint: rgba(245,242,236,0.08);
       --danger: #C0392B; --danger-dim: rgba(192,57,43,0.12);
       --green: #3DAA6E; --green-dim: rgba(61,170,110,0.10);
@@ -192,6 +192,197 @@
 
     /* EMPTY TABLE */
     .table-empty { padding: 48px; text-align: center; font-family: var(--serif); font-size: 20px; font-weight: 300; font-style: italic; color: var(--muted); }
+
+    /* LIGHT MODE */
+    body.light-mode {
+      --void: #FFFFFF;
+      --deep: #F5F5F5;
+      --surface: #FAF8F3;
+      --raised: #F0EDE6;
+      --gold: #B8860B;
+      --gold-light: #D4A017;
+      --gold-dim: rgba(184,134,11,0.10);
+      --gold-border: rgba(184,134,11,0.28);
+      --white: #1C1C1C;
+      --muted: rgba(28,28,28,0.55);
+      --faint: rgba(28,28,28,0.08);
+      background: #FAF8F3;
+      color: #1C1C1C;
+    }
+
+    body.light-mode .admin-topbar {
+      background: #FFFFFF;
+      border-bottom: 1px solid rgba(28,28,28,0.10);
+    }
+
+    body.light-mode .sidebar {
+      background: #F5F5F5;
+      border-right: 1px solid rgba(28,28,28,0.10);
+    }
+
+    body.light-mode .sidebar-link {
+      color: rgba(28,28,28,0.55);
+    }
+
+    body.light-mode .sidebar-link:hover,
+    body.light-mode .sidebar-link.active {
+      color: var(--gold);
+      background: rgba(184,134,11,0.08);
+    }
+
+    body.light-mode .admin-main {
+      background: #FAF8F3;
+    }
+
+    body.light-mode .admin-table th {
+      color: rgba(28,28,28,0.55);
+      border-bottom: 1px solid rgba(28,28,28,0.10);
+    }
+
+    body.light-mode .admin-table td {
+      color: #1C1C1C;
+      border-bottom: 1px solid rgba(28,28,28,0.06);
+    }
+
+    body.light-mode .admin-table tr:hover td {
+      background: rgba(28,28,28,0.03);
+    }
+
+    body.light-mode .stat-card {
+      background: #FFFFFF;
+      border: 1px solid rgba(28,28,28,0.10);
+    }
+
+    body.light-mode .stat-val {
+      color: var(--gold);
+    }
+
+    body.light-mode .stat-label {
+      color: rgba(28,28,28,0.55);
+    }
+
+    body.light-mode .page-title {
+      color: #1C1C1C;
+    }
+
+    body.light-mode .page-subtitle {
+      color: rgba(28,28,28,0.55);
+    }
+
+    body.light-mode .section-title {
+      color: #1C1C1C;
+    }
+
+    body.light-mode .modal {
+      background: #FFFFFF;
+    }
+
+    body.light-mode .form-input,
+    body.light-mode .form-select,
+    body.light-mode .form-textarea {
+      background: #F5F5F5;
+      border: 1px solid rgba(28,28,28,0.15);
+      color: #1C1C1C;
+    }
+
+    body.light-mode .form-label {
+      color: rgba(28,28,28,0.6);
+    }
+
+    body.light-mode .admin-brand {
+      color: #1C1C1C;
+    }
+
+    body.light-mode .logout-btn {
+      color: rgba(28,28,28,0.55);
+    }
+
+    body.light-mode .td-muted {
+      color: rgba(28,28,28,0.5);
+    }
+
+    body.light-mode .td-sector {
+      color: var(--gold);
+      border-color: var(--gold-border);
+    }
+
+    body.light-mode #login-screen {
+      background: #FAF8F3;
+    }
+
+    body.light-mode .login-box {
+      background: #FFFFFF;
+      border: 1px solid rgba(28,28,28,0.10);
+    }
+
+    body.light-mode .login-logo {
+      color: #1C1C1C;
+    }
+
+    body.light-mode .login-input {
+      background: #F5F5F5;
+      border: 1px solid rgba(28,28,28,0.15);
+      color: #1C1C1C;
+    }
+
+    body.light-mode .sidebar-label {
+      color: rgba(28,28,28,0.4);
+    }
+
+    body.light-mode .sidebar-divider {
+      background: rgba(28,28,28,0.08);
+    }
+
+    body.light-mode .modal-title {
+      color: #1C1C1C;
+    }
+
+    body.light-mode .modal-header {
+      border-bottom: 1px solid rgba(28,28,28,0.10);
+    }
+
+    body.light-mode .modal-footer {
+      border-top: 1px solid rgba(28,28,28,0.10);
+    }
+
+    body.light-mode .btn-cancel {
+      color: rgba(28,28,28,0.55);
+      border-color: rgba(28,28,28,0.15);
+    }
+
+    body.light-mode .table-empty {
+      color: rgba(28,28,28,0.4);
+    }
+
+    /* TOGGLE BUTTON */
+    .mode-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      padding: 6px 14px;
+      border: 1px solid var(--faint);
+      transition: all 0.2s;
+      user-select: none;
+    }
+
+    .mode-toggle:hover {
+      border-color: var(--gold-border);
+    }
+
+    .toggle-icon {
+      font-size: 14px;
+      line-height: 1;
+    }
+
+    .toggle-label {
+      font-size: 10px;
+      font-weight: 400;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
   </style>
 
   <!-- Supabase -->
@@ -211,7 +402,7 @@
     <input type="password" class="login-input" id="pwd" placeholder="Enter admin password" onkeydown="if(event.key==='Enter') doLogin()" />
     <button class="login-btn" onclick="doLogin()">Authenticate</button>
     <div class="login-error" id="login-error">Access denied. Incorrect password.</div>
-    <p style="font-size:10px;color:var(--muted);margin-top:20px;letter-spacing:1px;">Demo password: admin123</p>
+    
   </div>
 </div>
 
@@ -222,6 +413,10 @@
     <div class="admin-brand"><span>⬡</span> Invictus IMC</div>
     <div class="topbar-right">
       <div class="admin-badge">Admin Panel</div>
+      <div class="mode-toggle" onclick="toggleMode()" id="mode-toggle">
+        <span class="toggle-icon" id="toggle-icon">☀️</span>
+        <span class="toggle-label" id="toggle-label">Light Mode</span>
+      </div>
       <button class="logout-btn" onclick="doLogout()">Sign Out</button>
     </div>
   </div>
@@ -534,7 +729,7 @@
 </div>
 
 <script>
-  const ADMIN_PASS = 'admin123';
+  const ADMIN_PASS = 'Doofenshmirtz@56';
   const MI_KEY = 'imc_mi_data';
   const REQ_KEY = 'imc_req_data';
 
@@ -1046,6 +1241,36 @@
       }]);
     } catch(e) { console.error('Req save error:', e); }
   }
+
+
+  // DARK / LIGHT MODE TOGGLE
+  function toggleMode() {
+    const body = document.body;
+    const icon = document.getElementById('toggle-icon');
+    const label = document.getElementById('toggle-label');
+    body.classList.toggle('light-mode');
+    if (body.classList.contains('light-mode')) {
+      icon.textContent = '🌙';
+      label.textContent = 'Dark Mode';
+      localStorage.setItem('imc_admin_mode', 'light');
+    } else {
+      icon.textContent = '☀️';
+      label.textContent = 'Light Mode';
+      localStorage.setItem('imc_admin_mode', 'dark');
+    }
+  }
+
+  // Restore saved mode on load
+  window.addEventListener('DOMContentLoaded', () => {
+    const savedMode = localStorage.getItem('imc_admin_mode');
+    if (savedMode === 'light') {
+      document.body.classList.add('light-mode');
+      const icon = document.getElementById('toggle-icon');
+      const label = document.getElementById('toggle-label');
+      if (icon) icon.textContent = '🌙';
+      if (label) label.textContent = 'Dark Mode';
+    }
+  });
 
   document.getElementById('mi-modal').addEventListener('click', function(e) { if (e.target === this) closeMIModal(); });
   document.getElementById('req-modal').addEventListener('click', function(e) { if (e.target === this) closeReqModal(); });

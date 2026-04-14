@@ -14,8 +14,8 @@
     :root {
       --void: #0A0A0A;
       --deep: #111111;
-      --gold: #B8860B;
-      --gold-light: #D4A017;
+      --gold: #D4970D;
+      --gold-light: #F0B429;
       --gold-dim: rgba(184,134,11,0.10);
       --gold-border: rgba(184,134,11,0.28);
       --ink: #1C1C1C;
@@ -230,6 +230,169 @@
     /* ANIMATIONS */
     .reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.8s ease, transform 0.8s ease; }
     .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /* ── MOBILE HAMBURGER ── */
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      padding: 4px;
+      background: none;
+      border: none;
+    }
+    .hamburger span {
+      display: block;
+      width: 24px;
+      height: 2px;
+      background: var(--white);
+      transition: all 0.3s;
+    }
+    .nav-mobile-menu {
+      display: none;
+      position: fixed;
+      top: 76px;
+      left: 0; right: 0;
+      background: rgba(10,10,10,0.98);
+      border-bottom: 1px solid var(--faint);
+      padding: 24px 32px;
+      z-index: 199;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .nav-mobile-menu.open { display: flex; }
+    .nav-mobile-menu a {
+      font-size: 14px;
+      font-weight: 400;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-decoration: none;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--faint);
+      transition: color 0.2s;
+    }
+    .nav-mobile-menu a:last-child { border-bottom: none; }
+    .nav-mobile-menu a:hover { color: var(--gold); }
+    .nav-mobile-menu .btn-gold-mobile {
+      margin-top: 12px;
+      text-align: center;
+      background: var(--gold);
+      color: var(--void);
+      padding: 14px;
+      font-weight: 500;
+      letter-spacing: 2px;
+    }
+
+    @media (max-width: 1024px) {
+      nav { padding: 0 32px; }
+      .nav-center { display: none; }
+      .nav-right { display: none; }
+      .hamburger { display: flex; }
+    }
+
+    @media (max-width: 768px) {
+      nav { padding: 0 24px; height: 64px; }
+      .logo-name { font-size: 15px; letter-spacing: 2px; }
+      .logo-tagline { font-size: 7px; }
+      .logo-emblem { width: 34px; height: 34px; }
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 1024px) {
+      .hero { padding: 64px 32px; min-height: auto; }
+      .hero-inner { grid-template-columns: 1fr; gap: 48px; }
+      .hero h1 { font-size: 60px; }
+      .hero-stats { grid-template-columns: 1fr 1fr; }
+      .hero-right { grid-template-columns: 1fr 1fr; }
+      .manifesto { grid-template-columns: 1fr; gap: 40px; padding: 0 32px 64px; }
+      .process-inner { grid-template-columns: 1fr 1fr; }
+      .process-step { border-right: none; border-bottom: 1px solid var(--faint); }
+      .for-grid { grid-template-columns: 1fr 1fr; gap: 16px; }
+      .benefits-inner { grid-template-columns: 1fr; gap: 40px; }
+      .benefits-right { grid-template-columns: 1fr 1fr; }
+      .cta-banner { flex-direction: column; gap: 32px; padding: 48px 32px; margin: 0 32px 64px; }
+      .divider { padding: 48px 32px 32px; }
+      .industries { padding: 0 32px 64px; }
+      .stats-row { grid-template-columns: 1fr 1fr 1fr; }
+      .how-inner { grid-template-columns: 1fr; gap: 40px; }
+      .commitment-grid { grid-template-columns: 1fr 1fr; }
+      .form-section { padding: 0 32px 64px; }
+      .form-body { padding: 32px 32px 40px; }
+      .form-header { padding: 36px 32px 28px; }
+      .mi-grid { grid-template-columns: 1fr 1fr; }
+      .req-grid { grid-template-columns: 1fr 1fr; }
+      .page-header { grid-template-columns: 1fr; gap: 40px; padding: 64px 32px 48px; }
+      .for-section { padding: 0 32px 64px; }
+      .how-section { padding: 64px 32px; }
+      .commitment { padding: 0 32px 64px; }
+      footer { padding: 28px 32px; }
+    }
+
+    @media (max-width: 768px) {
+      .hero { padding: 48px 24px 40px; }
+      .hero h1 { font-size: 44px; letter-spacing: -1px; }
+      .hero-subtitle { font-size: 18px; }
+      .hero-sub { font-size: 14px; }
+      .hero-actions { flex-direction: column; width: 100%; }
+      .btn-primary, .btn-outline, .btn-primary-large, .btn-outline-large { width: 100%; text-align: center; justify-content: center; padding: 16px 24px; }
+      .hero-stats { grid-template-columns: 1fr 1fr; gap: 1px; }
+      .hero-stat { padding: 20px 16px; }
+      .hero-stat-val { font-size: 28px; }
+      .clubs { grid-template-columns: 1fr; }
+      .club-card { padding: 32px 28px; }
+      .club-title { font-size: 28px; }
+      .manifesto h2 { font-size: 36px; }
+      .process-inner { grid-template-columns: 1fr; }
+      .for-grid { grid-template-columns: 1fr; }
+      .benefits-right { grid-template-columns: 1fr; }
+      .cta-banner { margin: 0 24px 48px; padding: 36px 24px; }
+      .cta-left h2 { font-size: 36px; }
+      .cta-btns { width: 100%; }
+      .divider { padding: 40px 24px 28px; }
+      .industries { padding: 0 24px 48px; }
+      .manifesto { padding: 0 24px 48px; }
+      .stats-row { grid-template-columns: 1fr 1fr; }
+      .stat-val { font-size: 32px; }
+      .how-inner { padding: 0; }
+      .how-left h2 { font-size: 36px; }
+      .commitment-grid { grid-template-columns: 1fr; }
+      .form-section { padding: 0 16px 48px; }
+      .form-body { padding: 24px 20px 32px; }
+      .form-header { padding: 28px 20px 20px; }
+      .form-header h2 { font-size: 28px; }
+      .form-row-2 { grid-template-columns: 1fr; }
+      .form-row-3 { grid-template-columns: 1fr; }
+      .cap-grid { grid-template-columns: 1fr 1fr; }
+      .type-grid { grid-template-columns: 1fr; }
+      .buyer-type-grid { grid-template-columns: 1fr; }
+      .step-label { display: none; }
+      .mi-grid { grid-template-columns: 1fr; }
+      .req-grid { grid-template-columns: 1fr; }
+      .page-header { padding: 48px 24px 36px; }
+      .page-header h1 { font-size: 48px; }
+      .for-section { padding: 0 24px 48px; }
+      .for-grid { grid-template-columns: 1fr; }
+      .how-section { padding: 48px 24px; }
+      .commitment { padding: 0 24px 48px; }
+      .req-filters { flex-wrap: wrap; }
+      .hero-rule { height: 40px; }
+      footer { padding: 24px; flex-direction: column; gap: 16px; text-align: center; }
+      .stats-bar { gap: 32px; padding: 24px 32px; flex-wrap: wrap; justify-content: center; }
+      .promise { margin: 0 24px 48px; padding: 36px 28px; }
+      .process { margin: 0 24px 48px; }
+      .industries-section { padding: 0 24px 48px; }
+    }
+
+    @media (max-width: 480px) {
+      .hero h1 { font-size: 36px; }
+      .logo-name { font-size: 13px; letter-spacing: 1.5px; }
+      nav { padding: 0 16px; height: 60px; }
+      .cap-grid { grid-template-columns: 1fr; }
+      .step-indicator { gap: 0; }
+      .step-connector { margin: 0 8px; }
+    }
+
   </style>
 
   <!-- Supabase -->
@@ -730,7 +893,7 @@
 
 <!-- FOOTER -->
 <footer>
-  <span class="footer-copy">© 2025 Invictus IMC · All Rights Reserved</span>
+  <span class="footer-copy">© 2025 Invictus IMC · All Rights Reserved<a href="/admin" style="font-size:9px;color:rgba(28,28,28,0.2);text-decoration:none;letter-spacing:1px;margin-left:24px;transition:color 0.2s;" onmouseover="this.style.color='var(--gold)'" onmouseout="this.style.color='rgba(28,28,28,0.2)'">&#9679;</a></span>
   <div class="footer-mii"><div class="mii-sq"></div> Make In India Initiative</div>
 </footer>
 
@@ -958,6 +1121,18 @@
     entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
   }, { threshold: 0.08 });
   document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  function toggleMobileMenu() {
+    const menu = document.getElementById('nav-mobile-menu');
+    menu.classList.toggle('open');
+  }
+  // Close menu on link click
+  document.querySelectorAll('.nav-mobile-menu a').forEach(a => {
+    a.addEventListener('click', () => {
+      document.getElementById('nav-mobile-menu').classList.remove('open');
+    });
+  });
+
 </script>
 </body>
 </html>
