@@ -1111,6 +1111,45 @@
       localStorage.setItem('imc_buyer_apps', JSON.stringify(existing));
     }
 
+    // Send confirmation email via Resend
+    try {
+      await fetch('/api/send-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          to: application.poc_email,
+          subject: 'Your Buyers Club application has been received — Invictus IMC',
+          html: `
+            <div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;color:#1a1a1a;">
+              <div style="background:#0a0a0a;padding:28px 32px;">
+                <p style="color:#D4970D;font-size:13px;letter-spacing:2px;margin:0;">INVICTUS IMC</p>
+                <p style="color:#9a9585;font-size:11px;margin:6px 0 0;">India Manufacturing Company</p>
+              </div>
+              <div style="padding:36px 32px;background:#faf8f3;">
+                <p style="font-size:15px;line-height:1.7;">Dear ${application.poc_name},</p>
+                <p style="font-size:15px;line-height:1.7;">Thank you for applying to the <strong>Invictus IMC Buyers Club</strong>.</p>
+                <p style="font-size:15px;line-height:1.7;">We have received your sourcing interest from <strong>${application.company_name}</strong>. Our team will review your requirements within 2 business days and reach out to you directly if shortlisted.</p>
+                <p style="font-size:15px;line-height:1.7;">Welcome to Invictus IMC.</p>
+                <div style="margin:32px 0;padding:20px 24px;border-left:3px solid #D4970D;background:#fff;">
+                  <p style="margin:0;font-size:13px;color:#555;">Company: ${application.company_name}</p>
+                  <p style="margin:6px 0 0;font-size:13px;color:#555;">Buyer Type: ${application.buyer_type}</p>
+                  <p style="margin:6px 0 0;font-size:13px;color:#555;">Location: ${application.city}, ${application.state}</p>
+                </div>
+                <p style="font-size:14px;color:#555;line-height:1.7;">Warm regards,<br/><strong>Tejas Patil</strong><br/>Founder, Invictus IMC<br/><a href="mailto:connect@invictusimc.com" style="color:#D4970D;">connect@invictusimc.com</a></p>
+              </div>
+              <div style="background:#0a0a0a;padding:16px 32px;text-align:center;">
+                <p style="color:#555;font-size:11px;margin:0;"><a href="https://www.invictusimc.com" style="color:#D4970D;text-decoration:none;">www.invictusimc.com</a></p>
+              </div>
+            </div>
+          `
+        })
+      });
+    } catch(emailErr) {
+      console.error('Email error:', emailErr);
+    }
+
     document.getElementById('form-body').style.display = 'none';
     document.getElementById('success-screen').style.display = 'block';
     window.scrollTo({ top: 0, behavior: 'smooth' });
