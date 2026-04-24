@@ -1,4 +1,12 @@
 {
+  "headers": [
+    {
+      "source": "/(.*).html",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }
+      ]
+    }
+  ],
   "rewrites": [
     { "source": "/manufacturers-club", "destination": "/manufacturers-club.html" },
     { "source": "/buyers-club", "destination": "/buyers-club.html" },
