@@ -1,4 +1,9 @@
 {
+  "functions": {
+    "api/send-email.js": {
+      "runtime": "nodejs20.x"
+    }
+  },
   "rewrites": [
     { "source": "/manufacturers-club", "destination": "/manufacturers-club.html" },
     { "source": "/buyers-club", "destination": "/buyers-club.html" },
