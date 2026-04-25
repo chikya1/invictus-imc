@@ -11,6 +11,7 @@
     { "source": "/manufacturers-club", "destination": "/manufacturers-club.html" },
     { "source": "/buyers-club", "destination": "/buyers-club.html" },
     { "source": "/the-opportunity", "destination": "/the-opportunity.html" },
-    { "source": "/admin", "destination": "/admin.html" }
+    { "source": "/admin", "destination": "/admin.html" },
+    { "source": "/product-analyser", "destination": "/product-analyser.html" }
   ]
 }
