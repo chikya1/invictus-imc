@@ -10,1164 +10,395 @@
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
       --void: #0A0A0A;
-      --deep: #111111;
-      --surface: #FAF8F3;
-      --raised: #F2EEE6;
-      --gold: #D4970D;
-      --gold-light: #F0B429;
-      --gold-dim: rgba(184,134,11,0.10);
-      --gold-border: rgba(184,134,11,0.28);
-      --white: #F5F2EC;
-      --muted: rgba(245,242,236,0.45);
-      --faint: rgba(245,242,236,0.08);
-      --ink: #1C1C1C;
-      --ink-mid: rgba(28,28,28,0.55);
-      --ink-faint: rgba(28,28,28,0.08);
-      --ivory: #FAF8F3;
-      --ivory-border: rgba(28,28,28,0.10);
-      --ink: #1C1C1C;
-      --ink-mid: rgba(28,28,28,0.55);
-      --ink-faint: rgba(28,28,28,0.07);
-      --ivory: #FAF8F3;
-      --ivory-border: rgba(28,28,28,0.10);
+      --surface: #F7F6F3;
+      --gold: #C8860A;
+      --gold-light: #E09B12;
+      --gold-dim: rgba(200,134,10,0.08);
+      --gold-border: rgba(200,134,10,0.28);
+      --white: #FFFFFF;
+      --ink: #1A1A1A;
+      --ink-mid: #555555;
+      --ink-light: rgba(26,26,26,0.42);
+      --border: #E2E0DC;
+      --border-dark: #C5C3BF;
       --serif: 'Cormorant Garamond', Georgia, serif;
       --sans: 'Outfit', sans-serif;
+      --nav-h: 72px;
     }
-
     html { scroll-behavior: smooth; }
-
-    body {
-      font-family: var(--sans);
-      background: var(--ivory);
-      color: var(--ink);
-      overflow-x: hidden;
-    }
-
-    /* ── SCROLLBAR ── */
+    body { font-family: var(--sans); background: var(--white); color: var(--ink); overflow-x: hidden; }
     ::-webkit-scrollbar { width: 4px; }
-    ::-webkit-scrollbar-track { background: var(--ivory); }
+    ::-webkit-scrollbar-track { background: var(--surface); }
     ::-webkit-scrollbar-thumb { background: var(--gold-border); }
 
-    /* ── NAV ── */
+    /* NAV */
     nav {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 72px;
-      height: 76px;
-      border-bottom: 1px solid var(--faint);
-      position: sticky;
-      top: 0;
-      z-index: 200;
-      background: rgba(10,10,10,0.94);
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 64px; height: var(--nav-h);
+      border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; z-index: 200;
+      background: rgba(255,255,255,0.97);
+      backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
     }
-
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      text-decoration: none;
-    }
-
+    .logo { display: flex; align-items: center; gap: 12px; text-decoration: none; flex-shrink: 0; }
     .logo-emblem {
-      width: 42px;
-      height: 42px;
+      width: 36px; height: 36px;
       border: 1px solid var(--gold-border);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--gold-dim);
     }
-
-    .logo-emblem::before {
-      content: '';
-      position: absolute;
-      inset: 4px;
-      border: 1px solid var(--gold-border);
-    }
-
     .logo-wordmark { display: flex; flex-direction: column; gap: 2px; }
-
-    .logo-name {
-      font-family: var(--serif);
-      font-size: 18px;
-      font-weight: 600;
-      letter-spacing: 3px;
-      color: var(--white);
-      text-transform: uppercase;
-      line-height: 1;
-    }
-
-    .logo-tagline {
-      font-size: 8px;
-      font-weight: 400;
-      letter-spacing: 3.5px;
-      color: var(--gold);
-      text-transform: uppercase;
-      line-height: 1;
-    }
-
-    .nav-center {
-      display: flex;
-      align-items: center;
-      gap: 40px;
-    }
-
-    .nav-center a {
-      font-size: 11px;
-      font-weight: 400;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      color: var(--muted);
-      text-decoration: none;
-      transition: color 0.2s;
-    }
-
-    .nav-center a:hover { color: var(--gold); }
-
-    .nav-right { display: flex; align-items: center; gap: 14px; }
-
-    .btn-ghost {
-      font-family: var(--sans);
-      font-size: 13px;
-      font-weight: 400;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      color: var(--muted);
-      background: none;
-      border: none;
-      cursor: pointer;
-      padding: 10px 18px;
-      transition: color 0.2s;
-    }
-
-    .btn-ghost:hover { color: var(--white); }
-
-    .btn-gold {
-      font-family: var(--sans);
-      font-size: 13px;
-      font-weight: 500;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      color: var(--void);
-      background: var(--gold);
-      border: none;
-      cursor: pointer;
-      padding: 12px 26px;
-      transition: all 0.2s;
-    }
-
-    .btn-gold:hover { background: var(--gold-light); }
-
-    /* ── HERO ── */
-    .hero {
-      min-height: calc(100vh - 76px);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 80px 72px 80px;
-      position: relative;
-      overflow: hidden;
-      background: var(--void);
-    }
-
-    .hero-grid-bg {
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      background-image:
-        linear-gradient(var(--faint) 1px, transparent 1px),
-        linear-gradient(90deg, var(--faint) 1px, transparent 1px);
-      background-size: 80px 80px;
-      mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%);
-      -webkit-mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%);
-    }
-
-    .hero-orb {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 600px;
-      height: 600px;
-      border: 1px solid var(--gold-border);
-      border-radius: 50%;
-      pointer-events: none;
-    }
-
-    .hero-orb::before {
-      content: '';
-      position: absolute;
-      inset: 60px;
-      border: 1px solid var(--faint);
-      border-radius: 50%;
-    }
-
-    .hero-orb::after {
-      content: '';
-      position: absolute;
-      inset: -60px;
-      border: 1px solid var(--faint);
-      border-radius: 50%;
-    }
-
-    .hero-content {
-      position: relative;
-      z-index: 2;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      width: 100%;
-    }
-
-    .hero-rule {
-      width: 1px;
-      height: 72px;
-      background: linear-gradient(to bottom, transparent, var(--gold));
-      margin-bottom: 36px;
-      opacity: 0;
-      animation: fadeIn 1s 0.3s forwards;
-    }
-
-    .hero-eyebrow {
-      font-size: 10px;
-      font-weight: 400;
-      letter-spacing: 5px;
-      text-transform: uppercase;
-      color: var(--gold);
-      margin-bottom: 32px;
-      opacity: 0;
-      animation: fadeUp 0.8s 0.5s forwards;
-    }
-
-    .hero h1 {
-      font-family: var(--serif);
-      font-size: 96px;
-      font-weight: 300;
-      line-height: 1.0;
-      letter-spacing: -2px;
-      text-align: center;
-      color: var(--white);
-      max-width: 1000px;
-      margin-bottom: 12px;
-      opacity: 0;
-      animation: fadeUp 0.9s 0.65s forwards;
-    }
-
-    .hero h1 em {
-      font-style: italic;
-      color: var(--gold);
-    }
-
-    .hero-subtitle {
-      font-family: var(--serif);
-      font-size: 24px;
-      font-weight: 300;
-      font-style: italic;
-      color: var(--muted);
-      text-align: center;
-      margin-bottom: 52px;
-      letter-spacing: 0.5px;
-      opacity: 0;
-      animation: fadeUp 0.8s 0.8s forwards;
-    }
-
-    .hero-actions {
-      display: flex;
-      gap: 16px;
-      align-items: center;
-      margin-bottom: 80px;
-      opacity: 0;
-      animation: fadeUp 0.8s 0.95s forwards;
-    }
-
-    .btn-primary-large {
-      font-family: var(--sans);
-      font-size: 13px;
-      font-weight: 500;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      color: var(--void);
-      background: var(--gold);
-      border: none;
-      cursor: pointer;
-      padding: 18px 44px;
-      transition: all 0.25s;
-    }
-
-    .btn-primary-large:hover {
-      background: var(--gold-light);
-      transform: translateY(-2px);
-    }
-
-    .btn-outline-large {
-      font-family: var(--sans);
-      font-size: 13px;
-      font-weight: 400;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      color: var(--gold);
-      background: none;
-      border: 1px solid var(--gold-border);
-      cursor: pointer;
-      padding: 18px 44px;
-      transition: all 0.25s;
-    }
-
-    .btn-outline-large:hover {
-      border-color: var(--gold);
-      background: var(--gold-dim);
-    }
-
-    /* ── CLUB CARDS ── */
-    .clubs {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1px;
-      background: var(--faint);
-      width: 100%;
-      max-width: 1000px;
-      opacity: 0;
-      animation: fadeUp 0.8s 1.1s forwards;
-    }
-
-    .club-card {
-      background: var(--deep);
-      padding: 48px 52px;
-      cursor: pointer;
-      transition: background 0.3s;
-      position: relative;
-      overflow: hidden;
-      text-decoration: none;
-      color: inherit;
-      display: block;
-    }
-
-    .club-card::after {
-      content: '';
-      position: absolute;
-      bottom: 0; left: 0; right: 0;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, var(--gold), transparent);
-      transform: scaleX(0);
-      transition: transform 0.4s;
-    }
-
-    .club-card:hover { background: var(--surface); }
-    .club-card:hover .club-title { color: var(--ink); }
-    .club-card:hover .club-desc { color: var(--ink-mid); }
-    .club-card:hover .club-num { color: var(--gold); }
-    .club-card:hover .club-cta { color: var(--gold); }
-    .club-card:hover .cta-line { background: var(--gold); }
-    .club-card:hover .cta-line::after { border-color: var(--gold); }
-    .club-card:hover::after { transform: scaleX(1); }
-
-    .club-num {
-      font-size: 10px;
-      font-weight: 400;
-      letter-spacing: 3px;
-      color: var(--gold);
-      margin-bottom: 20px;
-      display: block;
-      text-transform: uppercase;
-    }
-
-    .club-title {
-      font-family: var(--serif);
-      font-size: 38px;
-      font-weight: 400;
-      letter-spacing: 0.5px;
-      color: var(--white);
-      margin-bottom: 16px;
-      line-height: 1.1;
-    }
-
-    .club-desc {
-      font-size: 14px;
-      font-weight: 300;
-      color: var(--muted);
-      line-height: 1.8;
-      margin-bottom: 28px;
-      max-width: 360px;
-    }
-
-    .club-tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 32px;
-    }
-
-    .club-tag {
-      font-size: 9px;
-      font-weight: 400;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      color: var(--gold);
-      border: 1px solid var(--gold-border);
-      padding: 5px 12px;
-    }
-
-    .club-cta {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font-size: 11px;
-      font-weight: 500;
-      letter-spacing: 2.5px;
-      text-transform: uppercase;
-      color: var(--gold);
-      transition: gap 0.25s;
-    }
-
-    .club-card:hover .club-cta { gap: 20px; }
-
-    .cta-line {
-      width: 32px;
-      height: 1px;
-      background: var(--gold);
-      position: relative;
-      transition: width 0.25s;
-    }
-
-    .club-card:hover .cta-line { width: 48px; }
-
-    .cta-line::after {
-      content: '';
-      position: absolute;
-      right: 0; top: -3px;
-      width: 7px; height: 7px;
-      border-right: 1px solid var(--gold);
-      border-top: 1px solid var(--gold);
-      transform: rotate(45deg);
-    }
-
-    /* ── SECTION DIVIDER ── */
-    .divider {
-      display: flex;
-      align-items: center;
-      gap: 24px;
-      padding: 88px 72px 56px;
-      background: var(--ivory);
-    }
-
-    .divider-line { flex: 1; height: 1px; background: var(--ivory-border); }
-
-    .divider-text {
-      font-size: 9px;
-      font-weight: 400;
-      letter-spacing: 4px;
-      text-transform: uppercase;
-      color: var(--gold);
-      white-space: nowrap;
-    }
-
-    /* ── MANIFESTO ── */
-    .manifesto {
-      padding: 0 72px 88px;
-      display: grid;
-      grid-template-columns: 420px 1fr;
-      gap: 96px;
-      align-items: start;
-      background: var(--ivory);
-    }
-
-    .manifesto-left {}
-
-    .manifesto-eyebrow {
-      font-family: var(--serif);
-      font-size: 14px;
-      font-weight: 400;
-      font-style: italic;
-      color: var(--gold);
-      margin-bottom: 24px;
-      letter-spacing: 0.5px;
-    }
-
-    .manifesto h2 {
-      font-family: var(--serif);
-      font-size: 52px;
-      font-weight: 300;
-      line-height: 1.15;
-      letter-spacing: -0.5px;
-      color: var(--ink);
-    }
-
-    .manifesto h2 em {
-      font-style: italic;
-      color: var(--gold);
-    }
-
-    .manifesto-right { padding-top: 4px; }
-
-    .manifesto-right p {
-      font-size: 16px;
-      font-weight: 300;
-      color: var(--ink-mid);
-      line-height: 1.9;
-      margin-bottom: 24px;
-    }
-
-    .manifesto-right p strong {
-      color: var(--ink);
-      font-weight: 500;
-    }
-
-    .stats-row {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1px;
-      background: var(--ivory-border);
-      margin-top: 48px;
-    }
-
-    .stat-box {
-      background: white;
-      border: 1px solid var(--ivory-border);
-      padding: 28px 32px;
-    }
-
-    .stat-val {
-      font-family: var(--serif);
-      font-size: 44px;
-      font-weight: 300;
-      color: var(--gold);
-      line-height: 1;
-      margin-bottom: 8px;
-    }
-
-    .stat-label {
-      font-size: 9px;
-      font-weight: 400;
-      letter-spacing: 2.5px;
-      text-transform: uppercase;
-      color: var(--ink-mid);
-    }
-
-    /* ── HOW IT WORKS ── */
-    .process {
-      margin: 0 72px 88px;
-      background: white;
-      border: 1px solid rgba(28,28,28,0.15);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .process::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 1px;
-      background: linear-gradient(90deg, transparent 5%, var(--gold) 30%, var(--gold) 70%, transparent 95%);
-    }
-
-    .process-inner {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 0;
-    }
-
-    .process-step {
-      padding: 48px 40px;
-      border-right: 1px solid rgba(28,28,28,0.10);
-      position: relative;
-    }
-
-    .process-step:last-child { border-right: none; }
-
-    .step-num {
-      font-family: var(--serif);
-      font-size: 56px;
-      font-weight: 300;
-      color: var(--gold);
-      opacity: 0.6;
-      line-height: 1;
-      margin-bottom: 20px;
-    }
-
-    .step-title {
-      font-family: var(--serif);
-      font-size: 20px;
-      font-weight: 500;
-      color: var(--ink);
-      margin-bottom: 12px;
-      letter-spacing: 0.3px;
-    }
-
-    .step-desc {
-      font-size: 13px;
-      font-weight: 400;
-      color: rgba(28,28,28,0.7);
-      line-height: 1.75;
-    }
-
-    /* ── INDUSTRIES ── */
-    .industries { padding: 0 72px 88px; background: var(--ivory); }
-
-    .industry-grid {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-
-    .ind-pill {
-      font-size: 10px;
-      font-weight: 400;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      color: var(--ink-mid);
-      border: 1px solid var(--ivory-border);
-      padding: 10px 18px;
-      cursor: default;
-      transition: all 0.2s;
-    }
-
-    .ind-pill:hover {
-      color: var(--gold);
-      border-color: var(--gold-border);
-      background: var(--gold-dim);
-    }
-
-    /* ── CTA BANNER ── */
-    .cta-banner {
-      margin: 0 72px 88px;
-      border: 1px solid var(--gold-border);
-      background: var(--void);
-      padding: 72px 80px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 60px;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .cta-banner::before {
-      content: '';
-      position: absolute;
-      top: -1px; left: 10%; right: 10%;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, var(--gold), transparent);
-    }
-
-    .cta-banner::after {
-      content: 'IMC';
-      position: absolute;
-      right: -20px;
-      top: 50%;
-      transform: translateY(-50%);
-      font-family: var(--serif);
-      font-size: 180px;
-      font-weight: 700;
-      color: var(--white);
-      opacity: 0.02;
-      pointer-events: none;
-      line-height: 1;
-      letter-spacing: -5px;
-    }
-
-    .cta-left {}
-
-    .cta-eyebrow {
-      font-size: 10px;
-      font-weight: 400;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      color: var(--gold);
-      margin-bottom: 16px;
-    }
-
-    .cta-left h2 {
-      font-family: var(--serif);
-      font-size: 52px;
-      font-weight: 300;
-      line-height: 1.1;
-      color: var(--white);
-      letter-spacing: -0.5px;
-    }
-
-    .cta-left h2 em {
-      font-style: italic;
-      color: var(--gold);
-    }
-
-    .cta-right {
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-      flex-shrink: 0;
-    }
-
-    /* ── FOOTER ── */
-    footer {
-      border-top: 1px solid var(--faint);
-      background: var(--void);
-      padding: 36px 72px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .footer-left { display: flex; align-items: center; gap: 32px; }
-
-    .footer-copy {
-      font-size: 10px;
-      font-weight: 300;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      color: var(--muted);
-    }
-
-    .footer-links { display: flex; gap: 24px; }
-
-    .footer-links a {
-      font-size: 10px;
-      font-weight: 300;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      color: var(--muted);
-      text-decoration: none;
-      transition: color 0.2s;
-    }
-
-    .footer-links a:hover { color: var(--gold); }
-
-    .footer-mii {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 9px;
-      font-weight: 400;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      color: var(--gold);
-    }
-
-    .mii-square { width: 8px; height: 8px; background: var(--gold); }
-
-    /* ── ANIMATIONS ── */
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(16px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    @keyframes fadeIn {
-      to { opacity: 1; }
-    }
-
-    /* ── SCROLL REVEAL ── */
-    .reveal {
-      opacity: 0;
-      transform: translateY(24px);
-      transition: opacity 0.8s ease, transform 0.8s ease;
-    }
-
-    .reveal.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    /* ── MOBILE HAMBURGER ── */
-    .hamburger {
-      display: none;
-      flex-direction: column;
-      gap: 5px;
-      cursor: pointer;
-      padding: 4px;
-      background: none;
-      border: none;
-    }
-    .hamburger span {
-      display: block;
-      width: 24px;
-      height: 2px;
-      background: var(--white);
-      transition: all 0.3s;
-      transform-origin: center;
-    }
-    .hamburger.active span:nth-child(1) {
-      transform: translateY(7px) rotate(45deg);
-    }
-    .hamburger.active span:nth-child(2) {
-      opacity: 0;
-    }
-    .hamburger.active span:nth-child(3) {
-      transform: translateY(-7px) rotate(-45deg);
-    }
-    .nav-mobile-menu {
-      display: none;
-      position: fixed;
-      top: 76px;
-      left: 0; right: 0;
-      background: rgba(10,10,10,0.98);
-      border-bottom: 1px solid var(--faint);
-      padding: 24px 32px;
-      z-index: 199;
-      flex-direction: column;
-      gap: 4px;
-    }
+    .logo-name { font-family: var(--serif); font-size: 17px; font-weight: 600; letter-spacing: 2.5px; color: var(--ink); text-transform: uppercase; line-height: 1; }
+    .logo-tagline { font-size: 8px; font-weight: 400; letter-spacing: 3px; color: var(--gold); text-transform: uppercase; line-height: 1; }
+    .nav-links { display: flex; align-items: center; gap: 36px; }
+    .nav-links a { font-size: 12px; font-weight: 400; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-mid); text-decoration: none; transition: color 0.2s; }
+    .nav-links a:hover { color: var(--gold); }
+    .nav-links a.hl { color: var(--gold); font-weight: 500; }
+    .nav-right { display: flex; align-items: center; gap: 12px; }
+    .btn-nav-ghost { font-family: var(--sans); font-size: 12px; font-weight: 400; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-mid); background: none; border: 1px solid var(--border-dark); cursor: pointer; padding: 9px 20px; transition: all 0.2s; text-decoration: none; display: inline-block; }
+    .btn-nav-ghost:hover { border-color: var(--gold); color: var(--gold); }
+    .btn-nav-gold { font-family: var(--sans); font-size: 12px; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase; color: var(--white); background: var(--gold); border: none; cursor: pointer; padding: 10px 24px; transition: background 0.2s; text-decoration: none; display: inline-block; }
+    .btn-nav-gold:hover { background: var(--gold-light); }
+    .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 4px; background: none; border: none; }
+    .hamburger span { display: block; width: 22px; height: 2px; background: var(--ink); transition: all 0.3s; transform-origin: center; }
+    .hamburger.active span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .hamburger.active span:nth-child(2) { opacity: 0; }
+    .hamburger.active span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+    .nav-mobile-menu { display: none; position: fixed; top: var(--nav-h); left: 0; right: 0; background: rgba(255,255,255,0.99); border-bottom: 1px solid var(--border); padding: 20px 32px; z-index: 199; flex-direction: column; gap: 0; }
     .nav-mobile-menu.open { display: flex; }
-    .nav-mobile-menu a {
-      font-size: 14px;
-      font-weight: 400;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      color: var(--muted);
-      text-decoration: none;
-      padding: 12px 0;
-      border-bottom: 1px solid var(--faint);
-      transition: color 0.2s;
-    }
+    .nav-mobile-menu a { font-size: 13px; font-weight: 400; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-mid); text-decoration: none; padding: 14px 0; border-bottom: 1px solid var(--border); transition: color 0.2s; }
     .nav-mobile-menu a:last-child { border-bottom: none; }
     .nav-mobile-menu a:hover { color: var(--gold); }
-    .nav-mobile-menu .btn-gold-mobile {
-      margin-top: 12px;
-      text-align: center;
-      background: var(--gold);
-      color: var(--void);
-      padding: 14px;
-      font-weight: 500;
-      letter-spacing: 2px;
-    }
+    .nav-mobile-menu .mob-gold { margin-top: 14px; text-align: center; background: var(--gold); color: var(--white); padding: 14px; font-weight: 500; letter-spacing: 1.5px; }
 
+    /* HERO */
+    .hero { position: relative; width: 100%; height: calc(100vh - var(--nav-h)); min-height: 540px; max-height: 820px; overflow: hidden; }
+    .hero-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; }
+    .hero-overlay { position: absolute; inset: 0; background: linear-gradient(105deg, rgba(6,4,2,0.84) 0%, rgba(6,4,2,0.58) 44%, rgba(6,4,2,0.18) 100%); }
+    .hero-content { position: relative; z-index: 2; height: 100%; display: flex; flex-direction: column; justify-content: center; padding: 0 80px 100px; max-width: 820px; }
+    .hero-eyebrow { font-size: 10px; font-weight: 400; letter-spacing: 5px; text-transform: uppercase; color: var(--gold); margin-bottom: 26px; opacity: 0; animation: fadeUp 0.7s 0.2s forwards; display: flex; align-items: center; gap: 14px; }
+    .hero-eyebrow::before { content: ''; display: inline-block; width: 28px; height: 1px; background: var(--gold); }
+    .hero h1 { font-family: var(--serif); font-size: 70px; font-weight: 400; line-height: 1.06; letter-spacing: -1px; color: #FFFFFF; margin-bottom: 22px; opacity: 0; animation: fadeUp 0.8s 0.35s forwards; }
+    .hero h1 em { font-style: italic; color: var(--gold); }
+    .hero-sub { font-size: 16px; font-weight: 300; color: rgba(255,255,255,0.68); line-height: 1.75; margin-bottom: 40px; max-width: 500px; opacity: 0; animation: fadeUp 0.8s 0.5s forwards; }
+    .hero-actions { display: flex; gap: 12px; align-items: center; opacity: 0; animation: fadeUp 0.8s 0.65s forwards; }
+    .btn-hp { font-family: var(--sans); font-size: 13px; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase; color: var(--void); background: var(--gold); border: none; cursor: pointer; padding: 15px 38px; transition: all 0.25s; text-decoration: none; display: inline-block; }
+    .btn-hp:hover { background: var(--gold-light); transform: translateY(-1px); }
+    .btn-ho { font-family: var(--sans); font-size: 13px; font-weight: 400; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,0.85); background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.28); cursor: pointer; padding: 15px 38px; transition: all 0.25s; text-decoration: none; display: inline-block; }
+    .btn-ho:hover { background: rgba(255,255,255,0.14); border-color: rgba(255,255,255,0.5); }
+    .hero-bar { position: absolute; bottom: 0; left: 0; right: 0; z-index: 3; background: rgba(8,6,4,0.74); backdrop-filter: blur(8px); border-top: 1px solid rgba(255,255,255,0.09); display: grid; grid-template-columns: repeat(3, 1fr); }
+    .hbar-item { padding: 20px 44px; border-right: 1px solid rgba(255,255,255,0.09); display: flex; align-items: center; gap: 16px; }
+    .hbar-item:last-child { border-right: none; }
+    .hbar-num { font-family: var(--serif); font-size: 34px; font-weight: 300; color: var(--gold); line-height: 1; flex-shrink: 0; }
+    .hbar-label { font-size: 11px; font-weight: 400; letter-spacing: 0.5px; color: rgba(255,255,255,0.48); line-height: 1.5; }
+
+    /* CLUBS */
+    .sec { padding: 80px 64px; background: var(--white); }
+    .sec-label { font-size: 10px; font-weight: 400; letter-spacing: 4px; text-transform: uppercase; color: var(--gold); margin-bottom: 10px; }
+    .sec-h2 { font-family: var(--serif); font-size: 46px; font-weight: 400; line-height: 1.12; color: var(--ink); margin-bottom: 44px; }
+    .sec-h2 em { font-style: italic; color: var(--gold); }
+    .clubs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .club-card { border: 1px solid var(--border); padding: 44px 40px; cursor: pointer; transition: all 0.25s; position: relative; overflow: hidden; text-decoration: none; color: inherit; display: block; background: var(--white); }
+    .club-card::before { content: ''; position: absolute; top: 0; left: 0; width: 3px; height: 100%; background: var(--gold); transform: scaleY(0); transform-origin: top; transition: transform 0.3s; }
+    .club-card:hover { border-color: var(--gold-border); background: #FFFCF7; box-shadow: 0 4px 24px rgba(200,134,10,0.07); }
+    .club-card:hover::before { transform: scaleY(1); }
+    .club-n { font-size: 10px; font-weight: 400; letter-spacing: 3px; color: var(--ink-light); margin-bottom: 14px; display: block; text-transform: uppercase; }
+    .club-title { font-family: var(--serif); font-size: 34px; font-weight: 500; color: var(--ink); margin-bottom: 12px; line-height: 1.1; }
+    .club-desc { font-size: 14px; font-weight: 300; color: var(--ink-mid); line-height: 1.85; margin-bottom: 20px; max-width: 380px; }
+    .club-tags { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 24px; }
+    .club-tag { font-size: 10px; font-weight: 400; letter-spacing: 1px; text-transform: uppercase; color: var(--ink-mid); border: 1px solid var(--border); padding: 5px 11px; background: var(--surface); transition: all 0.2s; }
+    .club-card:hover .club-tag { border-color: var(--gold-border); color: var(--gold); background: var(--gold-dim); }
+    .club-cta { display: flex; align-items: center; gap: 10px; font-size: 11px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); }
+    .cta-arr { width: 30px; height: 1px; background: var(--gold); position: relative; transition: width 0.25s; }
+    .cta-arr::after { content: ''; position: absolute; right: 0; top: -3px; width: 7px; height: 7px; border-right: 1.5px solid var(--gold); border-top: 1.5px solid var(--gold); transform: rotate(45deg); }
+    .club-card:hover .cta-arr { width: 44px; }
+
+    /* DIVIDER */
+    .div { display: flex; align-items: center; gap: 24px; padding: 0 64px 60px; }
+    .div-line { flex: 1; height: 1px; background: var(--border); }
+    .div-text { font-size: 9px; font-weight: 400; letter-spacing: 4px; text-transform: uppercase; color: var(--ink-light); white-space: nowrap; }
+
+    /* MANIFESTO */
+    .manifesto { padding: 0 64px 80px; display: grid; grid-template-columns: 380px 1fr; gap: 80px; align-items: start; }
+    .manifesto h2 { font-family: var(--serif); font-size: 46px; font-weight: 400; line-height: 1.15; color: var(--ink); }
+    .manifesto h2 em { font-style: italic; color: var(--gold); }
+    .mani-right p { font-size: 15px; font-weight: 300; color: var(--ink-mid); line-height: 1.9; margin-bottom: 18px; }
+    .mani-right p strong { color: var(--ink); font-weight: 500; }
+    .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); border: 1px solid var(--border); margin-top: 36px; }
+    .stat-box { padding: 22px 28px; border-right: 1px solid var(--border); }
+    .stat-box:last-child { border-right: none; }
+    .stat-val { font-family: var(--serif); font-size: 38px; font-weight: 400; color: var(--gold); line-height: 1; margin-bottom: 6px; }
+    .stat-label { font-size: 9px; font-weight: 400; letter-spacing: 2px; text-transform: uppercase; color: var(--ink-light); }
+
+    /* PROCESS */
+    .process-wrap { padding: 0 64px 80px; }
+    .process { border: 1px solid var(--border); position: relative; overflow: hidden; }
+    .process::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent 5%, var(--gold) 30%, var(--gold) 70%, transparent 95%); }
+    .process-inner { display: grid; grid-template-columns: repeat(4, 1fr); }
+    .process-step { padding: 40px 32px; border-right: 1px solid var(--border); }
+    .process-step:last-child { border-right: none; }
+    .step-num { font-family: var(--serif); font-size: 50px; font-weight: 300; color: var(--gold); opacity: 0.45; line-height: 1; margin-bottom: 16px; }
+    .step-title { font-family: var(--serif); font-size: 19px; font-weight: 500; color: var(--ink); margin-bottom: 10px; }
+    .step-desc { font-size: 13px; color: var(--ink-mid); line-height: 1.75; }
+
+    /* ANALYSER */
+    .analyser-sec { background: var(--void); padding: 80px 64px; }
+    .analyser-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; max-width: 1200px; margin: 0 auto; }
+    .ai-badge { display: inline-flex; align-items: center; gap: 8px; font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); border: 1px solid var(--gold-border); padding: 6px 14px; margin-bottom: 22px; }
+    .analyser-sec h2 { font-family: var(--serif); font-size: 42px; font-weight: 400; color: #F5F2EC; line-height: 1.15; margin-bottom: 18px; }
+    .analyser-sec h2 em { font-style: italic; color: var(--gold); }
+    .analyser-sec p { font-size: 14px; font-weight: 300; color: rgba(245,242,236,0.52); line-height: 1.8; margin-bottom: 26px; }
+    .ai-feats { display: flex; flex-direction: column; gap: 14px; margin-bottom: 32px; }
+    .ai-feat { display: flex; align-items: flex-start; gap: 12px; }
+    .feat-n { min-width: 24px; height: 24px; background: var(--gold); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: var(--void); flex-shrink: 0; margin-top: 1px; }
+    .feat-t strong { font-size: 13px; font-weight: 500; color: #F5F2EC; display: block; margin-bottom: 1px; }
+    .feat-t span { font-size: 12px; color: rgba(255,255,255,0.36); line-height: 1.6; }
+    .ai-card { background: #141414; border: 1px solid #282828; padding: 28px; }
+    .mock-prod { background: #1E1E1E; border: 1px solid #282828; padding: 16px; margin-bottom: 14px; }
+    .mock-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+    .mock-name { font-family: var(--serif); font-size: 16px; font-weight: 600; color: #F5F2EC; margin-bottom: 2px; }
+    .mock-sub { font-size: 11px; color: rgba(255,255,255,0.28); }
+    .mock-badge { background: rgba(46,125,50,0.2); color: #81C784; font-size: 9px; font-weight: 700; letter-spacing: 1px; padding: 3px 10px; text-transform: uppercase; white-space: nowrap; }
+    .mock-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 7px; }
+    .mock-cell { background: #0A0A0A; padding: 9px; }
+    .mc-l { font-size: 8px; letter-spacing: 2px; color: rgba(255,255,255,0.22); text-transform: uppercase; margin-bottom: 3px; }
+    .mc-v { font-size: 13px; font-weight: 600; color: #F5F2EC; }
+    .mock-stages { display: flex; flex-direction: column; gap: 6px; }
+    .ms-lbl { font-size: 8px; letter-spacing: 2px; color: rgba(255,255,255,0.22); text-transform: uppercase; margin-bottom: 5px; }
+    .ms { display: flex; align-items: center; gap: 10px; padding: 7px 11px; background: #1E1E1E; }
+    .ms.a { border-left: 2px solid var(--gold); }
+    .ms.i { border-left: 2px solid #282828; }
+    .ms-n { font-size: 10px; font-weight: 700; min-width: 18px; }
+    .ms.a .ms-n { color: var(--gold); }
+    .ms.i .ms-n { color: rgba(255,255,255,0.22); }
+    .ms-t { font-size: 11px; }
+    .ms.a .ms-t { color: rgba(255,255,255,0.6); }
+    .ms.i .ms-t { color: rgba(255,255,255,0.28); }
+
+    /* INDUSTRIES */
+    .ind-sec { padding: 0 64px 80px; }
+    .ind-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+    .ind-pill { font-size: 11px; font-weight: 400; letter-spacing: 1px; text-transform: uppercase; color: var(--ink-mid); border: 1px solid var(--border); padding: 9px 15px; cursor: default; transition: all 0.2s; }
+    .ind-pill:hover { color: var(--gold); border-color: var(--gold-border); background: var(--gold-dim); }
+
+    /* CTA */
+    .cta-banner { margin: 0 64px 80px; border: 1px solid var(--border); background: var(--surface); padding: 60px 68px; display: flex; align-items: center; justify-content: space-between; gap: 48px; position: relative; overflow: hidden; }
+    .cta-banner::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: var(--gold); }
+    .cta-ey { font-size: 10px; font-weight: 400; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); margin-bottom: 12px; }
+    .cta-left h2 { font-family: var(--serif); font-size: 42px; font-weight: 400; line-height: 1.15; color: var(--ink); }
+    .cta-left h2 em { font-style: italic; color: var(--gold); }
+    .cta-right { display: flex; flex-direction: column; gap: 12px; flex-shrink: 0; }
+    .btn-primary-large { font-family: var(--sans); font-size: 13px; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase; color: var(--white); background: var(--gold); border: none; cursor: pointer; padding: 15px 34px; transition: all 0.25s; text-align: center; }
+    .btn-primary-large:hover { background: var(--gold-light); transform: translateY(-1px); }
+    .btn-outline-large { font-family: var(--sans); font-size: 13px; font-weight: 400; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-mid); background: var(--white); border: 1px solid var(--border-dark); cursor: pointer; padding: 15px 34px; transition: all 0.25s; text-align: center; }
+    .btn-outline-large:hover { border-color: var(--gold); color: var(--gold); }
+
+    /* FOOTER */
+    footer { border-top: 1px solid #1E1C1A; background: var(--void); padding: 36px 64px; display: flex; align-items: center; justify-content: space-between; }
+    .foot-l { display: flex; align-items: center; gap: 28px; }
+    .foot-copy { font-size: 10px; font-weight: 300; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(245,242,236,0.3); }
+    .foot-links { display: flex; gap: 18px; }
+    .foot-links a { font-size: 10px; font-weight: 300; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(245,242,236,0.3); text-decoration: none; transition: color 0.2s; }
+    .foot-links a:hover { color: var(--gold); }
+    .foot-mii { display: flex; align-items: center; gap: 10px; font-size: 9px; font-weight: 400; letter-spacing: 3px; text-transform: uppercase; color: rgba(200,134,10,0.6); }
+    .mii-sq { width: 7px; height: 7px; background: var(--gold); opacity: 0.6; }
+
+    /* ANIMATIONS */
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+    .reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.7s ease, transform 0.7s ease; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /* RESPONSIVE */
     @media (max-width: 1024px) {
-      nav { padding: 0 32px; }
-      .nav-center { display: none; }
-      .nav-right { display: none; }
+      nav { padding: 0 28px; }
+      .nav-links, .nav-right { display: none; }
       .hamburger { display: flex; }
-    }
-
-    @media (max-width: 768px) {
-      nav { padding: 0 24px; height: 64px; }
-      .logo-name { font-size: 15px; letter-spacing: 2px; }
-      .logo-tagline { font-size: 7px; }
-      .logo-emblem { width: 34px; height: 34px; }
-    }
-
-    /* ── RESPONSIVE ── */
-    @media (max-width: 1024px) {
-      .hero { padding: 64px 32px; min-height: auto; }
-      .hero-inner { grid-template-columns: 1fr; gap: 48px; }
-      .hero h1 { font-size: 60px; }
-      .hero-stats { grid-template-columns: 1fr 1fr; }
-      .hero-right { grid-template-columns: 1fr 1fr; }
-      .manifesto { grid-template-columns: 1fr; gap: 40px; padding: 0 32px 64px; }
+      .hero-content { padding: 48px 36px 100px; max-width: 100%; }
+      .hero h1 { font-size: 52px; }
+      .hero-bar { display: none; }
+      .sec { padding: 60px 28px; }
+      .clubs-grid { grid-template-columns: 1fr; gap: 16px; }
+      .div { padding: 0 28px 48px; }
+      .manifesto { grid-template-columns: 1fr; gap: 36px; padding: 0 28px 60px; }
+      .process-wrap { padding: 0 28px 60px; }
       .process-inner { grid-template-columns: 1fr 1fr; }
-      .process-step { border-right: none; border-bottom: 1px solid var(--faint); }
-      .for-grid { grid-template-columns: 1fr 1fr; gap: 16px; }
-      .benefits-inner { grid-template-columns: 1fr; gap: 40px; }
-      .benefits-right { grid-template-columns: 1fr 1fr; }
-      .cta-banner { flex-direction: column; gap: 32px; padding: 48px 32px; margin: 0 32px 64px; }
-      .divider { padding: 48px 32px 32px; }
-      .industries { padding: 0 32px 64px; }
-      .stats-row { grid-template-columns: 1fr 1fr 1fr; }
-      .how-inner { grid-template-columns: 1fr; gap: 40px; }
-      .commitment-grid { grid-template-columns: 1fr 1fr; }
-      .form-section { padding: 0 32px 64px; }
-      .form-body { padding: 32px 32px 40px; }
-      .form-header { padding: 36px 32px 28px; }
-      .mi-grid { grid-template-columns: 1fr 1fr; }
-      .req-grid { grid-template-columns: 1fr 1fr; }
-      .page-header { grid-template-columns: 1fr; gap: 40px; padding: 64px 32px 48px; }
-      .for-section { padding: 0 32px 64px; }
-      .how-section { padding: 64px 32px; }
-      .commitment { padding: 0 32px 64px; }
-      footer { padding: 28px 32px; }
+      .process-step { border-right: none; border-bottom: 1px solid var(--border); }
+      .analyser-sec { padding: 60px 28px; }
+      .analyser-inner { grid-template-columns: 1fr; gap: 40px; }
+      .ind-sec { padding: 0 28px 60px; }
+      .cta-banner { flex-direction: column; gap: 28px; padding: 44px 32px; margin: 0 28px 60px; }
+      footer { padding: 28px 28px; }
     }
-
     @media (max-width: 768px) {
-      .hero { padding: 48px 24px 40px; }
-      .hero h1 { font-size: 44px; letter-spacing: -1px; }
-      .hero-subtitle { font-size: 18px; }
-      .hero-sub { font-size: 14px; }
+      nav { height: 60px; padding: 0 20px; }
+      .logo-name { font-size: 14px; letter-spacing: 2px; }
+      .hero-content { padding: 36px 22px 80px; }
+      .hero h1 { font-size: 38px; letter-spacing: -0.5px; }
+      .hero-sub { font-size: 14px; margin-bottom: 28px; }
       .hero-actions { flex-direction: column; width: 100%; }
-      .btn-primary, .btn-outline, .btn-primary-large, .btn-outline-large { width: 100%; text-align: center; justify-content: center; padding: 16px 24px; }
-      .hero-stats { grid-template-columns: 1fr 1fr; gap: 1px; }
-      .hero-stat { padding: 20px 16px; }
-      .hero-stat-val { font-size: 28px; }
-      .clubs { grid-template-columns: 1fr; }
-      .club-card { padding: 32px 28px; }
-      .club-title { font-size: 28px; }
-      .manifesto h2 { font-size: 36px; }
+      .btn-hp, .btn-ho { width: 100%; text-align: center; padding: 14px 24px; }
+      .sec { padding: 44px 20px; }
+      .sec-h2 { font-size: 34px; margin-bottom: 32px; }
+      .manifesto h2 { font-size: 34px; }
+      .analyser-sec h2 { font-size: 32px; }
       .process-inner { grid-template-columns: 1fr; }
-      .for-grid { grid-template-columns: 1fr; }
-      .benefits-right { grid-template-columns: 1fr; }
-      .cta-banner { margin: 0 24px 48px; padding: 36px 24px; }
-      .cta-left h2 { font-size: 36px; }
-      .cta-btns { width: 100%; }
-      .divider { padding: 40px 24px 28px; }
-      .industries { padding: 0 24px 48px; }
-      .manifesto { padding: 0 24px 48px; }
-      .stats-row { grid-template-columns: 1fr 1fr; }
-      .stat-val { font-size: 32px; }
-      .how-inner { padding: 0; }
-      .how-left h2 { font-size: 36px; }
-      .commitment-grid { grid-template-columns: 1fr; }
-      .form-section { padding: 0 16px 48px; }
-      .form-body { padding: 24px 20px 32px; }
-      .form-header { padding: 28px 20px 20px; }
-      .form-header h2 { font-size: 28px; }
-      .form-row-2 { grid-template-columns: 1fr; }
-      .form-row-3 { grid-template-columns: 1fr; }
-      .cap-grid { grid-template-columns: 1fr 1fr; }
-      .type-grid { grid-template-columns: 1fr; }
-      .buyer-type-grid { grid-template-columns: 1fr; }
-      .step-label { display: none; }
-      .mi-grid { grid-template-columns: 1fr; }
-      .req-grid { grid-template-columns: 1fr; }
-      .page-header { padding: 48px 24px 36px; }
-      .page-header h1 { font-size: 48px; }
-      .for-section { padding: 0 24px 48px; }
-      .for-grid { grid-template-columns: 1fr; }
-      .how-section { padding: 48px 24px; }
-      .commitment { padding: 0 24px 48px; }
-      .req-filters { flex-wrap: wrap; }
-      .hero-rule { height: 40px; }
-      footer { padding: 24px; flex-direction: column; gap: 16px; text-align: center; }
-      .stats-bar { gap: 32px; padding: 24px 32px; flex-wrap: wrap; justify-content: center; }
-      .promise { margin: 0 24px 48px; padding: 36px 28px; }
-      .process { margin: 0 24px 48px; }
-      .industries-section { padding: 0 24px 48px; }
+      .cta-left h2 { font-size: 32px; }
+      .cta-right { width: 100%; }
+      footer { flex-direction: column; gap: 16px; text-align: center; }
+      .foot-l { flex-direction: column; gap: 10px; }
     }
-
-    /* Product Analyser Promo Grid */
-    .analyser-promo-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 64px;
-      align-items: center;
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-
-    @media (max-width: 1024px) {
-      .analyser-promo-grid {
-        grid-template-columns: 1fr;
-        gap: 40px;
-      }
-      section.reveal[style*="padding: 80px 72px"] {
-        padding: 64px 32px !important;
-      }
-    }
-
-    @media (max-width: 768px) {
-      .analyser-promo-grid {
-        grid-template-columns: 1fr;
-        gap: 32px;
-      }
-      section.reveal[style*="padding: 80px 72px"] {
-        padding: 48px 24px !important;
-      }
-    }
-
     @media (max-width: 480px) {
-      .hero h1 { font-size: 36px; }
-      .logo-name { font-size: 13px; letter-spacing: 1.5px; }
-      nav { padding: 0 16px; height: 60px; }
-      .cap-grid { grid-template-columns: 1fr; }
-      .step-indicator { gap: 0; }
-      .step-connector { margin: 0 8px; }
+      .hero h1 { font-size: 32px; }
+      .stats-row { grid-template-columns: 1fr 1fr; }
     }
-
-
-    /* MODE TOGGLE */
-    .mode-toggle-btn {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      cursor: pointer;
-      padding: 8px 16px;
-      border: 1px solid var(--gold-border);
-      background: none;
-      font-family: var(--sans);
-      font-size: 11px;
-      font-weight: 400;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      color: var(--muted);
-      transition: all 0.2s;
-    }
-    .mode-toggle-btn:hover { color: var(--gold); border-color: var(--gold); }
-
-    /* LIGHT MODE FOR LANDING */
-    body.light-mode {
-      background: var(--ivory);
-      color: var(--ink);
-    }
-    body.light-mode .hero { background: var(--void); }
-    body.light-mode .benefits { background: var(--void); }
-    body.light-mode .cta-banner { background: var(--void); }
-    body.light-mode footer { background: var(--void); }
-    body.light-mode nav { background: rgba(10,10,10,0.96); }
-    body.light-mode .manifesto h2 { color: var(--ink); }
-    body.light-mode .manifesto-right p { color: var(--ink-mid); }
-    body.light-mode .manifesto-right p strong { color: var(--ink); }
-    body.light-mode .divider-line { background: var(--ivory-border); }
-    body.light-mode .process { background: white; border-color: var(--ivory-border); }
-    body.light-mode .process-step { border-color: var(--ivory-border); }
-    body.light-mode .step-title { color: var(--ink); }
-    body.light-mode .step-desc { color: var(--ink-mid); }
-    body.light-mode .step-num { color: var(--gold); opacity: 0.5; }
-    body.light-mode .stat-box { background: white; border-color: var(--ivory-border); }
-    body.light-mode .stat-val { color: var(--gold); }
-    body.light-mode .stat-label { color: var(--ink-mid); }
-    body.light-mode .ind-pill { color: var(--ink-mid); border-color: var(--ivory-border); }
-
   </style>
 </head>
 <body>
 
-  <!-- NAV -->
-  <nav>
-    <a href="#" class="logo">
-      <div class="logo-emblem">
-        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-          <circle cx="9" cy="9" r="7" stroke="#C9A84C" stroke-width="0.8"/>
-          <line x1="2" y1="9" x2="16" y2="9" stroke="#C9A84C" stroke-width="0.8"/>
-          <ellipse cx="9" cy="9" rx="3.5" ry="7" stroke="#C9A84C" stroke-width="0.8"/>
-        </svg>
-      </div>
-      <div class="logo-wordmark">
-        <span class="logo-name">Invictus IMC</span>
-        <span class="logo-tagline">India Manufacturing Company</span>
-      </div>
-    </a>
-
-    <div class="nav-center">
-      <a href="#clubs">The Clubs</a>
-      <a href="/the-opportunity">The Opportunity</a>
-      <a href="#process">Our Process</a>
-      <a href="/product-analyser" style="color:var(--gold);">Analyse Product</a>
-      <a href="#industries">Industries</a>
-      <a href="#about">About</a>
+<!-- NAV -->
+<nav>
+  <a href="#" class="logo">
+    <div class="logo-emblem">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+        <circle cx="9" cy="9" r="7" stroke="#C8860A" stroke-width="0.8"/>
+        <line x1="2" y1="9" x2="16" y2="9" stroke="#C8860A" stroke-width="0.8"/>
+        <ellipse cx="9" cy="9" rx="3.5" ry="7" stroke="#C8860A" stroke-width="0.8"/>
+      </svg>
     </div>
-
-    <div class="nav-right">
-      <button class="btn-gold" onclick="window.location.href='/manufacturers-club'">Request Membership</button>
+    <div class="logo-wordmark">
+      <span class="logo-name">Invictus IMC</span>
+      <span class="logo-tagline">India Manufacturing Company</span>
     </div>
+  </a>
 
-    <!-- Hamburger button — visible on mobile only -->
-    <button class="hamburger" id="hamburger-btn" onclick="toggleMobileMenu()" aria-label="Open menu">
-      <span></span>
-      <span></span>
-      <span></span>
-    </button>
-  </nav>
-
-  <!-- Mobile slide-out menu -->
-  <div class="nav-mobile-menu" id="mobile-menu">
-    <a href="#clubs" onclick="closeMobileMenu()">The Clubs</a>
+  <div class="nav-links">
+    <a href="#clubs">The Clubs</a>
     <a href="/the-opportunity">The Opportunity</a>
-    <a href="#process" onclick="closeMobileMenu()">Our Process</a>
-    <a href="/product-analyser" style="color:var(--gold);">✦ Analyse Product</a>
-    <a href="#industries" onclick="closeMobileMenu()">Industries</a>
-    <a href="#about" onclick="closeMobileMenu()">About</a>
-    <a href="/manufacturers-club" class="btn-gold-mobile">Request Membership →</a>
+    <a href="#process">Our Process</a>
+    <a href="/product-analyser" class="hl">✦ Analyse Product</a>
+    <a href="#industries">Industries</a>
+    <a href="#about">About</a>
   </div>
 
-  <!-- HERO -->
-  <section class="hero">
-    <div class="hero-grid-bg"></div>
-    <div class="hero-orb"></div>
-    <div class="hero-content">
-      <div class="hero-rule"></div>
-      <h1>Where <em>Serious</em> Manufacturers<br/>Meet <em>Serious</em> Buyers.</h1>
-      <p class="hero-subtitle">End-to-end project management. From purchase order to delivery.</p>
-      <div class="hero-actions">
-        <button class="btn-primary-large" onclick="window.location.href='/manufacturers-club'">Request Membership</button>
-        <button class="btn-outline-large" onclick="window.location.href='/the-opportunity'">Explore the Platform</button>
-      </div>
-
-      <div class="clubs" id="clubs">
-        <a href="/manufacturers-club" class="club-card">
-          <span class="club-num">01 · The</span>
-          <div class="club-title">Manufacturers<br/>Club</div>
-          <p class="club-desc">For factories of every scale — from a 5-machine CNC shop to a 500-line enterprise. If you manufacture seriously, you belong here.</p>
-          <div class="club-tags">
-            <span class="club-tag">Machine Tools</span>
-            <span class="club-tag">Plastics</span>
-            <span class="club-tag">Electronics</span>
-            <span class="club-tag">Automotive</span>
-            <span class="club-tag">Aerospace</span>
-            <span class="club-tag">Defence</span>
-            <span class="club-tag">+18 more</span>
-          </div>
-          <div class="club-cta">
-            Apply for Membership
-            <div class="cta-line"></div>
-          </div>
-        </a>
-
-        <a href="/buyers-club" class="club-card">
-          <span class="club-num">02 · The</span>
-          <div class="club-title">Buyers<br/>Club</div>
-          <p class="club-desc">For startups, brands, and importers sourcing from anywhere in the globe. If you want to source domestically, we will make it happen. Just place an order. We'll look after the rest.</p>
-          <div class="club-tags">
-            <span class="club-tag">EV Makers</span>
-            <span class="club-tag">Consumer Tech</span>
-            <span class="club-tag">Importers</span>
-            <span class="club-tag">OEMs</span>
-            <span class="club-tag">Startups</span>
-            <span class="club-tag">Defence</span>
-            <span class="club-tag">+more</span>
-          </div>
-          <div class="club-cta">
-            Apply for Membership
-            <div class="cta-line"></div>
-          </div>
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <!-- MANIFESTO -->
-  <div class="divider reveal" id="about">
-    <div class="divider-line"></div>
-    <div class="divider-text">Our Philosophy</div>
-    <div class="divider-line"></div>
+  <div class="nav-right">
+    <a href="/the-opportunity" class="btn-nav-ghost">The Opportunity</a>
+    <a href="/manufacturers-club" class="btn-nav-gold">Request Membership</a>
   </div>
 
-  <section class="manifesto reveal">
-    <div class="manifesto-left">
-      <div class="manifesto-eyebrow">Why Invictus IMC exists</div>
-      <h2>Not a directory.<br/>Not a marketplace.<br/><em>Your Business Partner.</em></h2>
-    </div>
-    <div class="manifesto-right">
-      <p>India manufactures at scale. The world wants to source from India. Yet the gap between a serious buyer and a capable manufacturer remains filled with middlemen, mistrust, and missed timelines.</p>
-      <p><strong>Invictus IMC closes that gap — permanently.</strong> We don't just introduce you. We manage the entire journey: design, tooling, production timelines, quality checks, and delivery. For manufacturers, we bring reliable orders and handle the business side. For buyers, we take ownership from purchase order to doorstep — so you never have to project manage again.</p>
-      <p>This is not for everyone. <strong>It is for those who are serious about building something real.</strong> Whether you've just started your machine shop or you're sourcing for a publicly listed company — seriousness of intent is the only criterion that matters.</p>
-      <div class="stats-row">
-        <div class="stat-box">
-          <div class="stat-val">PO</div>
-          <div class="stat-label">To Delivery</div>
-        </div>
-        <div class="stat-box">
-          <div class="stat-val">100%</div>
-          <div class="stat-label">Managed Process</div>
-        </div>
-        <div class="stat-box">
-          <div class="stat-val">0</div>
-          <div class="stat-label">Middlemen</div>
-        </div>
-      </div>
-    </div>
-  </section>
+  <button class="hamburger" id="hamburger-btn" onclick="toggleMobileMenu()" aria-label="Open menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
 
-  <!-- HOW IT WORKS -->
-  <div class="divider reveal" id="process">
-    <div class="divider-line"></div>
-    <div class="divider-text">How It Works</div>
-    <div class="divider-line"></div>
+<div class="nav-mobile-menu" id="mobile-menu">
+  <a href="#clubs" onclick="closeMobileMenu()">The Clubs</a>
+  <a href="/the-opportunity">The Opportunity</a>
+  <a href="#process" onclick="closeMobileMenu()">Our Process</a>
+  <a href="/product-analyser" style="color:var(--gold);">✦ Analyse Product</a>
+  <a href="#industries" onclick="closeMobileMenu()">Industries</a>
+  <a href="#about" onclick="closeMobileMenu()">About</a>
+  <a href="/manufacturers-club" class="mob-gold">Request Membership →</a>
+</div>
+
+<!-- HERO -->
+<section class="hero">
+  <img src="manufacturing-collage.png" alt="India Manufacturing" class="hero-img" />
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <div class="hero-eyebrow">India Manufacturing Company</div>
+    <h1>Where <em>Serious</em> Manufacturers<br/>Meet <em>Serious</em> Buyers.</h1>
+    <p class="hero-sub">End-to-end managed manufacturing. We take your purchase order and deliver — sourcing, production, quality, and logistics fully handled.</p>
+    <div class="hero-actions">
+      <a href="/manufacturers-club" class="btn-hp">Request Membership</a>
+      <a href="/the-opportunity" class="btn-ho">Explore the Platform</a>
+    </div>
   </div>
+  <div class="hero-bar">
+    <div class="hbar-item">
+      <div class="hbar-num">PO</div>
+      <div class="hbar-label">Purchase order to delivery — fully managed</div>
+    </div>
+    <div class="hbar-item">
+      <div class="hbar-num">15–25%</div>
+      <div class="hbar-label">Margin on white-label pricing</div>
+    </div>
+    <div class="hbar-item">
+      <div class="hbar-num">$300B+</div>
+      <div class="hbar-label">Value-added goods imported into India annually</div>
+    </div>
+  </div>
+</section>
 
-  <div class="process reveal">
+<!-- CLUBS -->
+<div id="clubs"></div>
+<div class="sec reveal">
+  <div class="sec-label">Membership</div>
+  <h2 class="sec-h2">Two clubs. <em>One mission.</em></h2>
+  <div class="clubs-grid">
+    <a href="/manufacturers-club" class="club-card">
+      <span class="club-n">01 · The</span>
+      <div class="club-title">Manufacturers Club</div>
+      <p class="club-desc">For factories of every scale — from a 5-machine CNC shop to a 500-line enterprise. If you manufacture seriously, you belong here.</p>
+      <div class="club-tags">
+        <span class="club-tag">Machine Tools</span>
+        <span class="club-tag">Plastics</span>
+        <span class="club-tag">Electronics</span>
+        <span class="club-tag">Automotive</span>
+        <span class="club-tag">Aerospace</span>
+        <span class="club-tag">Defence</span>
+        <span class="club-tag">+18 more</span>
+      </div>
+      <div class="club-cta">Apply for Membership <div class="cta-arr"></div></div>
+    </a>
+    <a href="/buyers-club" class="club-card">
+      <span class="club-n">02 · The</span>
+      <div class="club-title">Buyers Club</div>
+      <p class="club-desc">For startups, brands, and importers sourcing from anywhere in the globe. Place an order — we source the manufacturer, manage production, and deliver to spec.</p>
+      <div class="club-tags">
+        <span class="club-tag">EV Makers</span>
+        <span class="club-tag">Consumer Tech</span>
+        <span class="club-tag">Importers</span>
+        <span class="club-tag">OEMs</span>
+        <span class="club-tag">Startups</span>
+        <span class="club-tag">Defence</span>
+        <span class="club-tag">+more</span>
+      </div>
+      <div class="club-cta">Apply for Membership <div class="cta-arr"></div></div>
+    </a>
+  </div>
+</div>
+
+<!-- MANIFESTO -->
+<div class="div reveal" id="about">
+  <div class="div-line"></div><div class="div-text">Our Philosophy</div><div class="div-line"></div>
+</div>
+
+<section class="manifesto reveal">
+  <div>
+    <div class="sec-label">Why we exist</div>
+    <h2>Not a directory.<br/>Not a marketplace.<br/><em>Your Business Partner.</em></h2>
+  </div>
+  <div class="mani-right">
+    <p>India manufactures at scale. The world wants to source from India. Yet the gap between a serious buyer and a capable manufacturer remains filled with middlemen, mistrust, and missed timelines.</p>
+    <p><strong>Invictus IMC closes that gap — permanently.</strong> We don't just introduce you. We manage the entire journey: design, tooling, production timelines, quality checks, and delivery. For manufacturers, we bring reliable orders and handle the business side. For buyers, we take ownership from purchase order to doorstep.</p>
+    <p>This is not for everyone. <strong>It is for those who are serious about building something real.</strong></p>
+    <div class="stats-row">
+      <div class="stat-box"><div class="stat-val">PO</div><div class="stat-label">To Delivery</div></div>
+      <div class="stat-box"><div class="stat-val">100%</div><div class="stat-label">Managed Process</div></div>
+      <div class="stat-box"><div class="stat-val">0</div><div class="stat-label">Middlemen</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<div class="div reveal" id="process">
+  <div class="div-line"></div><div class="div-text">How It Works</div><div class="div-line"></div>
+</div>
+
+<div class="process-wrap reveal">
+  <div class="process">
     <div class="process-inner">
       <div class="process-step">
         <div class="step-num">01</div>
@@ -1191,222 +422,143 @@
       </div>
     </div>
   </div>
+</div>
 
-  <!-- PRODUCT ANALYSER PROMO -->
-  <section class="reveal" style="padding: 80px 72px; background: var(--void);">
-    <div class="analyser-promo-grid">
-
-
-
-
-      <!-- Left: Text -->
-      <div>
-        <p style="font-size:10px; font-weight:600; letter-spacing:4px; color:var(--gold); text-transform:uppercase; margin-bottom:16px;">AI-Powered Feature</p>
-        <h2 style="font-family:'Cormorant Garamond',serif; font-size:clamp(28px,3.5vw,44px); font-weight:700; color:#F5F2EC; line-height:1.15; margin-bottom:20px;">Upload a Product.<br/><em style="font-style:italic; color:var(--gold);">Find Out How to Make It in India.</em></h2>
-        <p style="font-size:15px; color:rgba(255,255,255,0.5); line-height:1.8; margin-bottom:32px; max-width:460px;">Upload any product photo — a finished good, a component, or an imported item — and our AI will break down the complete manufacturing process, machines required, raw materials, and where India can substitute imports.</p>
-
-        <div style="display:flex; flex-direction:column; gap:14px; margin-bottom:36px;">
-          <div style="display:flex; align-items:flex-start; gap:14px;">
-            <div style="min-width:28px; height:28px; background:var(--gold); display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; color:var(--void); flex-shrink:0; margin-top:2px;">01</div>
-            <div>
-              <strong style="font-size:13px; font-weight:600; color:#F5F2EC; display:block; margin-bottom:3px;">Raw Material Breakdown</strong>
-              <span style="font-size:13px; color:rgba(255,255,255,0.4); line-height:1.6;">Every material needed, with India availability status.</span>
-            </div>
-          </div>
-          <div style="display:flex; align-items:flex-start; gap:14px;">
-            <div style="min-width:28px; height:28px; background:var(--gold); display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; color:var(--void); flex-shrink:0; margin-top:2px;">02</div>
-            <div>
-              <strong style="font-size:13px; font-weight:600; color:#F5F2EC; display:block; margin-bottom:3px;">Stage-by-Stage Manufacturing Process</strong>
-              <span style="font-size:13px; color:rgba(255,255,255,0.4); line-height:1.6;">Every production stage, the machine required, and the best Indian cluster for it.</span>
-            </div>
-          </div>
-          <div style="display:flex; align-items:flex-start; gap:14px;">
-            <div style="min-width:28px; height:28px; background:var(--gold); display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; color:var(--void); flex-shrink:0; margin-top:2px;">03</div>
-            <div>
-              <strong style="font-size:13px; font-weight:600; color:#F5F2EC; display:block; margin-bottom:3px;">Localisation Entry Point</strong>
-              <span style="font-size:13px; color:rgba(255,255,255,0.4); line-height:1.6;">Exactly where India can substitute imports and what the cost saving looks like.</span>
-            </div>
-          </div>
+<!-- ANALYSER PROMO -->
+<section class="analyser-sec reveal">
+  <div class="analyser-inner">
+    <div>
+      <div class="ai-badge">✦ AI-Powered Tool</div>
+      <h2>Analyse any product.<br/><em>Instantly.</em></h2>
+      <p>Upload a product photo and get a complete India manufacturing breakdown — raw materials, production stages, Indian clusters, localisation entry points, and our sourcing recommendation.</p>
+      <div class="ai-feats">
+        <div class="ai-feat">
+          <div class="feat-n">01</div>
+          <div class="feat-t"><strong>Raw Materials Breakdown</strong><span>Every material needed, with India availability status.</span></div>
         </div>
-
-        <div style="display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
-          <a href="/product-analyser" style="display:inline-block; background:var(--gold); color:var(--void); padding:15px 36px; font-size:12px; font-weight:700; letter-spacing:2px; text-transform:uppercase; text-decoration:none; transition:background 0.2s;" onmouseover="this.style.background='#E8B020'" onmouseout="this.style.background='var(--gold)'">Try It Free →</a>
-          <span style="font-size:12px; color:rgba(255,255,255,0.3); letter-spacing:1px;">First analysis is free</span>
+        <div class="ai-feat">
+          <div class="feat-n">02</div>
+          <div class="feat-t"><strong>Stage-by-Stage Manufacturing Process</strong><span>Every production stage, the machine required, and the best Indian cluster.</span></div>
+        </div>
+        <div class="ai-feat">
+          <div class="feat-n">03</div>
+          <div class="feat-t"><strong>Localisation Entry Point</strong><span>Where India can substitute imports and the estimated cost saving.</span></div>
         </div>
       </div>
-
-      <!-- Right: Visual card -->
-      <div style="background:#141414; border:1px solid #2E2E2E; padding:36px;">
-        <!-- Mock product card -->
-        <div style="background:#1A1A1A; border:1px solid #2E2E2E; padding:20px; margin-bottom:16px;">
-          <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:16px;">
-            <div>
-              <p style="font-size:18px; font-family:'Cormorant Garamond',serif; font-weight:700; color:#F5F2EC; margin-bottom:4px;">Link Round 50 Padlock</p>
-              <p style="font-size:11px; color:rgba(255,255,255,0.3);">Chrome-plated brass padlock · 3 keys</p>
-            </div>
-            <span style="background:rgba(46,125,50,0.25); color:#81C784; font-size:10px; font-weight:700; letter-spacing:1px; padding:3px 10px; text-transform:uppercase;">High Potential</span>
+      <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+        <a href="/product-analyser" class="btn-hp">Try It Free →</a>
+        <span style="font-size:12px;color:rgba(255,255,255,0.26);letter-spacing:1px;">First analysis is free</span>
+      </div>
+    </div>
+    <div class="ai-card">
+      <div class="mock-prod">
+        <div class="mock-head">
+          <div>
+            <div class="mock-name">Link Round 50 Padlock</div>
+            <div class="mock-sub">Chrome-plated brass · 3 keys</div>
           </div>
-          <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px;">
-            <div style="background:#0A0A0A; padding:10px;">
-              <p style="font-size:9px; letter-spacing:2px; color:rgba(255,255,255,0.3); text-transform:uppercase; margin-bottom:4px;">HSN Code</p>
-              <p style="font-size:13px; font-weight:600; color:#F5F2EC;">8301</p>
-            </div>
-            <div style="background:#0A0A0A; padding:10px;">
-              <p style="font-size:9px; letter-spacing:2px; color:rgba(255,255,255,0.3); text-transform:uppercase; margin-bottom:4px;">Stages</p>
-              <p style="font-size:13px; font-weight:600; color:#F5F2EC;">13</p>
-            </div>
-            <div style="background:#0A0A0A; padding:10px;">
-              <p style="font-size:9px; letter-spacing:2px; color:rgba(255,255,255,0.3); text-transform:uppercase; margin-bottom:4px;">Cluster</p>
-              <p style="font-size:13px; font-weight:600; color:#F5F2EC;">Aligarh</p>
-            </div>
-          </div>
+          <div class="mock-badge">High Potential</div>
         </div>
-        <!-- Sample stages -->
-        <div style="display:flex; flex-direction:column; gap:8px;">
-          <p style="font-size:9px; letter-spacing:2px; color:rgba(255,255,255,0.3); text-transform:uppercase; margin-bottom:4px;">Manufacturing Stages</p>
-          <div style="display:flex; align-items:center; gap:10px; padding:8px 12px; background:#1A1A1A; border-left:2px solid var(--gold);">
-            <span style="font-size:10px; font-weight:700; color:var(--gold); min-width:20px;">01</span>
-            <span style="font-size:12px; color:rgba(255,255,255,0.6);">Brass billet casting — Induction furnace</span>
-          </div>
-          <div style="display:flex; align-items:center; gap:10px; padding:8px 12px; background:#1A1A1A; border-left:2px solid #2E2E2E;">
-            <span style="font-size:10px; font-weight:700; color:rgba(255,255,255,0.3); min-width:20px;">02</span>
-            <span style="font-size:12px; color:rgba(255,255,255,0.4);">Lock body forging — Power press</span>
-          </div>
-          <div style="display:flex; align-items:center; gap:10px; padding:8px 12px; background:#1A1A1A; border-left:2px solid #2E2E2E;">
-            <span style="font-size:10px; font-weight:700; color:rgba(255,255,255,0.3); min-width:20px;">03</span>
-            <span style="font-size:12px; color:rgba(255,255,255,0.4);">CNC machining — CNC lathe + milling</span>
-          </div>
-          <p style="font-size:11px; color:rgba(255,255,255,0.2); text-align:center; margin-top:4px;">+ 10 more stages →</p>
+        <div class="mock-grid">
+          <div class="mock-cell"><div class="mc-l">HSN Code</div><div class="mc-v">8301</div></div>
+          <div class="mock-cell"><div class="mc-l">Stages</div><div class="mc-v">13</div></div>
+          <div class="mock-cell"><div class="mc-l">Cluster</div><div class="mc-v">Aligarh</div></div>
         </div>
       </div>
-
-    </div>
-  </section>
-
-  <!-- INDUSTRIES -->
-  <div class="divider reveal" id="industries">
-    <div class="divider-line"></div>
-    <div class="divider-text">Industries We Serve</div>
-    <div class="divider-line"></div>
-  </div>
-
-  <section class="industries reveal">
-    <div class="industry-grid">
-      <div class="ind-pill">Automobiles</div>
-      <div class="ind-pill">Electronics &amp; ESDM</div>
-      <div class="ind-pill">Aerospace &amp; Aviation</div>
-      <div class="ind-pill">Railways</div>
-      <div class="ind-pill">Defence Manufacturing</div>
-      <div class="ind-pill">Renewable Energy</div>
-      <div class="ind-pill">Pharmaceuticals</div>
-      <div class="ind-pill">Engineering &amp; Capital Goods</div>
-      <div class="ind-pill">Metals &amp; Mining</div>
-      <div class="ind-pill">Consumer Durables</div>
-      <div class="ind-pill">Plastics &amp; Chemicals</div>
-      <div class="ind-pill">Textiles</div>
-      <div class="ind-pill">Oil &amp; Gas</div>
-      <div class="ind-pill">Steel</div>
-      <div class="ind-pill">Biotechnology</div>
-      <div class="ind-pill">FMCG</div>
-      <div class="ind-pill">Healthcare</div>
-      <div class="ind-pill">Construction &amp; Civil</div>
-      <div class="ind-pill">Packaging</div>
-      <div class="ind-pill">Agriculture &amp; Allied</div>
-      <div class="ind-pill">Telecommunications</div>
-      <div class="ind-pill">Science &amp; Technology</div>
-      <div class="ind-pill">Logistics &amp; Warehousing</div>
-      <div class="ind-pill">Raw Materials</div>
-      <div class="ind-pill">Mechanical</div>
-      <div class="ind-pill">Printing</div>
-      <div class="ind-pill">Real Estate &amp; Infrastructure</div>
-      <div class="ind-pill">Banking &amp; Finance</div>
-    </div>
-  </section>
-
-  <!-- CTA BANNER -->
-  <div class="cta-banner reveal">
-    <div class="cta-left">
-      <div class="cta-eyebrow">Ready to join?</div>
-      <h2>Serious about<br/><em>manufacturing</em><br/>or sourcing?</h2>
-    </div>
-    <div class="cta-right">
-      <button class="btn-primary-large" onclick="window.location.href='/manufacturers-club'">Join the Manufacturers Club</button>
-      <button class="btn-outline-large" onclick="window.location.href='/buyers-club'">Join the Buyers Club</button>
+      <div class="mock-stages">
+        <div class="ms-lbl">Manufacturing Stages</div>
+        <div class="ms a"><span class="ms-n">01</span><span class="ms-t">Brass billet casting — Induction furnace</span></div>
+        <div class="ms i"><span class="ms-n">02</span><span class="ms-t">Lock body forging — Power press</span></div>
+        <div class="ms i"><span class="ms-n">03</span><span class="ms-t">CNC machining — CNC lathe + milling</span></div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.18);text-align:center;padding-top:6px;">+ 10 more stages →</div>
+      </div>
     </div>
   </div>
+</section>
 
-  <!-- FOOTER -->
-  <footer>
-    <div class="footer-left">
-      <span class="footer-copy">© 2025 Invictus IMC</span>
-      <div class="footer-links">
-        <a href="#">Privacy Policy</a>
-        <a href="#">Terms of Use</a>
-        <a href="#">Contact</a>
-      </div>
-    </div>
+<!-- INDUSTRIES -->
+<div class="div reveal" id="industries">
+  <div class="div-line"></div><div class="div-text">Industries We Serve</div><div class="div-line"></div>
+</div>
 
-    <div style="display:flex;align-items:center;justify-content:center;opacity:0.25;flex:1;">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/Make_in_India.svg/320px-Make_in_India.svg.png"
-        alt="Make In India"
-        style="height:36px;filter:invert(1);opacity:0.6;"
-        onerror="this.style.display='none'"
-      />
-    </div>
-    <div style="display:flex;align-items:center;gap:24px;">
-      <div class="footer-mii">
-        <div class="mii-square"></div>
-        Make In India Initiative
-      </div>
-      <a href="/admin" style="font-size:10px;font-weight:400;letter-spacing:1.5px;text-transform:uppercase;color:rgba(245,242,236,0.5);text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='var(--gold)'" onmouseout="this.style.color='rgba(245,242,236,0.5)'">Sign In</a>
-    </div>
-  </footer>
+<section class="ind-sec reveal">
+  <div class="ind-grid">
+    <div class="ind-pill">Automobiles</div>
+    <div class="ind-pill">Electronics &amp; ESDM</div>
+    <div class="ind-pill">Aerospace &amp; Aviation</div>
+    <div class="ind-pill">Railways</div>
+    <div class="ind-pill">Defence Manufacturing</div>
+    <div class="ind-pill">Renewable Energy</div>
+    <div class="ind-pill">Pharmaceuticals</div>
+    <div class="ind-pill">Engineering &amp; Capital Goods</div>
+    <div class="ind-pill">Metals &amp; Mining</div>
+    <div class="ind-pill">Consumer Durables</div>
+    <div class="ind-pill">Plastics &amp; Chemicals</div>
+    <div class="ind-pill">Textiles</div>
+    <div class="ind-pill">Oil &amp; Gas</div>
+    <div class="ind-pill">Steel</div>
+    <div class="ind-pill">Biotechnology</div>
+    <div class="ind-pill">FMCG</div>
+    <div class="ind-pill">Healthcare</div>
+    <div class="ind-pill">Construction &amp; Civil</div>
+    <div class="ind-pill">Packaging</div>
+    <div class="ind-pill">Agriculture &amp; Allied</div>
+    <div class="ind-pill">Telecommunications</div>
+    <div class="ind-pill">Science &amp; Technology</div>
+    <div class="ind-pill">Logistics &amp; Warehousing</div>
+    <div class="ind-pill">Raw Materials</div>
+    <div class="ind-pill">Mechanical</div>
+    <div class="ind-pill">Printing</div>
+    <div class="ind-pill">Real Estate &amp; Infrastructure</div>
+  </div>
+</section>
 
-  <script>
-    // Scroll reveal
-    const reveals = document.querySelectorAll('.reveal');
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('visible');
-        }
-      });
-    }, { threshold: 0.1 });
-    reveals.forEach(el => observer.observe(el));
+<!-- CTA -->
+<div class="cta-banner reveal">
+  <div class="cta-left">
+    <div class="cta-ey">Ready to join?</div>
+    <h2>Serious about<br/><em>manufacturing</em><br/>or sourcing?</h2>
+  </div>
+  <div class="cta-right">
+    <button class="btn-primary-large" onclick="window.location.href='/manufacturers-club'">Join the Manufacturers Club</button>
+    <button class="btn-outline-large" onclick="window.location.href='/buyers-club'">Join the Buyers Club</button>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="foot-l">
+    <span class="foot-copy">© 2025 Invictus IMC</span>
+    <div class="foot-links">
+      <a href="#">Privacy Policy</a>
+      <a href="#">Terms of Use</a>
+      <a href="#">Contact</a>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;opacity:0.16;">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/Make_in_India.svg/320px-Make_in_India.svg.png" alt="Make In India" style="height:30px;filter:invert(1);" onerror="this.style.display='none'" />
+  </div>
+  <div style="display:flex;align-items:center;gap:24px;">
+    <div class="foot-mii"><div class="mii-sq"></div>Make In India Initiative</div>
+    <a href="/admin" style="font-size:10px;font-weight:400;letter-spacing:1.5px;text-transform:uppercase;color:rgba(245,242,236,0.22);text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='var(--gold)'" onmouseout="this.style.color='rgba(245,242,236,0.22)'">Sign In</a>
+  </div>
+</footer>
+
+<script>
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.07 });
+  reveals.forEach(el => observer.observe(el));
 
   function toggleMobileMenu() {
-    const menu = document.getElementById('mobile-menu');
-    const btn  = document.getElementById('hamburger-btn');
-    menu.classList.toggle('open');
-    btn.classList.toggle('active');
+    document.getElementById('mobile-menu').classList.toggle('open');
+    document.getElementById('hamburger-btn').classList.toggle('active');
   }
-
   function closeMobileMenu() {
-    const menu = document.getElementById('mobile-menu');
-    const btn  = document.getElementById('hamburger-btn');
-    menu.classList.remove('open');
-    btn.classList.remove('active');
+    document.getElementById('mobile-menu').classList.remove('open');
+    document.getElementById('hamburger-btn').classList.remove('active');
   }
-
-  function toggleLandingMode() {
-    document.body.classList.toggle('light-mode');
-    const btn = document.getElementById('landing-toggle');
-    if (document.body.classList.contains('light-mode')) {
-      btn.textContent = '🌙 Dark';
-      localStorage.setItem('imc_site_mode', 'light');
-    } else {
-      btn.textContent = '☀️ Light';
-      localStorage.setItem('imc_site_mode', 'dark');
-    }
-  }
-  window.addEventListener('DOMContentLoaded', () => {
-    if (localStorage.getItem('imc_site_mode') === 'light') {
-      document.body.classList.add('light-mode');
-      const btn = document.getElementById('landing-toggle');
-      if (btn) btn.textContent = '🌙 Dark';
-    }
-  });
-  </script>
-
+</script>
 </body>
 </html>
