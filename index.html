@@ -790,6 +790,16 @@
       height: 2px;
       background: var(--white);
       transition: all 0.3s;
+      transform-origin: center;
+    }
+    .hamburger.active span:nth-child(1) {
+      transform: translateY(7px) rotate(45deg);
+    }
+    .hamburger.active span:nth-child(2) {
+      opacity: 0;
+    }
+    .hamburger.active span:nth-child(3) {
+      transform: translateY(-7px) rotate(-45deg);
     }
     .nav-mobile-menu {
       display: none;
@@ -927,6 +937,36 @@
       .industries-section { padding: 0 24px 48px; }
     }
 
+    /* Product Analyser Promo Grid */
+    .analyser-promo-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 64px;
+      align-items: center;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    @media (max-width: 1024px) {
+      .analyser-promo-grid {
+        grid-template-columns: 1fr;
+        gap: 40px;
+      }
+      section.reveal[style*="padding: 80px 72px"] {
+        padding: 64px 32px !important;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .analyser-promo-grid {
+        grid-template-columns: 1fr;
+        gap: 32px;
+      }
+      section.reveal[style*="padding: 80px 72px"] {
+        padding: 48px 24px !important;
+      }
+    }
+
     @media (max-width: 480px) {
       .hero h1 { font-size: 36px; }
       .logo-name { font-size: 13px; letter-spacing: 1.5px; }
@@ -1013,7 +1053,25 @@
       <button class="mode-toggle-btn" onclick="toggleLandingMode()" id="landing-toggle">☀️ Light</button>
       <button class="btn-gold" onclick="window.location.href='/manufacturers-club'">Request Membership</button>
     </div>
+
+    <!-- Hamburger button — visible on mobile only -->
+    <button class="hamburger" id="hamburger-btn" onclick="toggleMobileMenu()" aria-label="Open menu">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
   </nav>
+
+  <!-- Mobile slide-out menu -->
+  <div class="nav-mobile-menu" id="mobile-menu">
+    <a href="#clubs" onclick="closeMobileMenu()">The Clubs</a>
+    <a href="/the-opportunity">The Opportunity</a>
+    <a href="#process" onclick="closeMobileMenu()">Our Process</a>
+    <a href="/product-analyser" style="color:var(--gold);">✦ Analyse Product</a>
+    <a href="#industries" onclick="closeMobileMenu()">Industries</a>
+    <a href="#about" onclick="closeMobileMenu()">About</a>
+    <a href="/manufacturers-club" class="btn-gold-mobile">Request Membership →</a>
+  </div>
 
   <!-- HERO -->
   <section class="hero">
@@ -1136,8 +1194,11 @@
   </div>
 
   <!-- PRODUCT ANALYSER PROMO -->
-  <section class="reveal" style="padding: 0 72px 88px; background: var(--void);">
-    <div style="display:grid; grid-template-columns:1fr 1fr; gap:64px; align-items:center; max-width:1200px; margin:0 auto;">
+  <section class="reveal" style="padding: 80px 72px; background: var(--void);">
+    <div class="analyser-promo-grid">
+
+
+
 
       <!-- Left: Text -->
       <div>
@@ -1313,6 +1374,20 @@
       });
     }, { threshold: 0.1 });
     reveals.forEach(el => observer.observe(el));
+
+  function toggleMobileMenu() {
+    const menu = document.getElementById('mobile-menu');
+    const btn  = document.getElementById('hamburger-btn');
+    menu.classList.toggle('open');
+    btn.classList.toggle('active');
+  }
+
+  function closeMobileMenu() {
+    const menu = document.getElementById('mobile-menu');
+    const btn  = document.getElementById('hamburger-btn');
+    menu.classList.remove('open');
+    btn.classList.remove('active');
+  }
 
   function toggleLandingMode() {
     document.body.classList.toggle('light-mode');
