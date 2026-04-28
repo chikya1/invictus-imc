@@ -131,6 +131,9 @@
     .stat-box:last-child { border-right: none; }
     .stat-val { font-family: var(--serif); font-size: 38px; font-weight: 400; color: var(--gold); line-height: 1; margin-bottom: 6px; }
     .stat-label { font-size: 9px; font-weight: 400; letter-spacing: 2px; text-transform: uppercase; color: var(--ink-light); }
+    .stat-box-eyebrow { font-size: 9px; font-weight: 500; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); margin-bottom: 10px; }
+    .stat-box-text { font-size: 13px; font-weight: 300; color: var(--ink-mid); line-height: 1.8; }
+    .stat-box-text strong { color: var(--ink); font-weight: 600; }
 
     /* PROCESS */
     .process-wrap { padding: 0 64px 80px; }
@@ -377,16 +380,21 @@
 <section class="manifesto reveal">
   <div>
     <div class="sec-label">Why we exist</div>
-    <h2>Not a directory.<br/>Not a marketplace.<br/><em>Your Business Partner.</em></h2>
+    <h2>Not a Discovery Platform.<br/><em>Your Business Partner.</em></h2>
   </div>
   <div class="mani-right">
     <p>India manufactures at scale. The world wants to source from India. Yet the gap between a serious buyer and a capable manufacturer remains filled with middlemen, mistrust, and missed timelines.</p>
-    <p><strong>Invictus IMC closes that gap — permanently.</strong> We don't just introduce you. We manage the entire journey: design, tooling, production timelines, quality checks, and delivery. For manufacturers, we bring reliable orders and handle the business side. For buyers, we take ownership from purchase order to doorstep.</p>
+    <p><strong>Invictus IMC closes that gap — permanently.</strong> We manage the entire journey: design, tooling, production timelines, quality checks, and delivery. For manufacturers, we bring reliable orders, timely payments and engineering expertise. For buyers, we take ownership from purchase order to doorstep.</p>
     <p>This is not for everyone. <strong>It is for those who are serious about building something real.</strong></p>
-    <div class="stats-row">
-      <div class="stat-box"><div class="stat-val">PO</div><div class="stat-label">To Delivery</div></div>
-      <div class="stat-box"><div class="stat-val">100%</div><div class="stat-label">Managed Process</div></div>
-      <div class="stat-box"><div class="stat-val">0</div><div class="stat-label">Middlemen</div></div>
+    <div class="stats-row" style="grid-template-columns: 1fr 1fr;">
+      <div class="stat-box">
+        <div class="stat-box-eyebrow">For Buyers</div>
+        <div class="stat-box-text">Tell us about the product and we will make it in better quality, best possible price and lower MOQ — saving you money and time.</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-box-eyebrow">For Manufacturers</div>
+        <div class="stat-box-text">We give you more business, supply chain assistance, engineering assistance and <strong>timely payments</strong> — so you can focus on what you do best.</div>
+      </div>
     </div>
   </div>
 </section>
