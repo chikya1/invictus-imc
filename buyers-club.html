@@ -397,6 +397,26 @@
       .step-connector { margin: 0 8px; }
     }
 
+    /* LOCALISATION CALLOUT */
+    .localise-callout { background: var(--ivory); border-top: 1px solid var(--ivory-border); border-bottom: 1px solid var(--ivory-border); padding: 72px; }
+    .lc-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 72px; align-items: start; }
+    .lc-badge { font-size: 9px; font-weight: 500; letter-spacing: 4px; text-transform: uppercase; color: var(--gold); margin-bottom: 14px; }
+    .lc-heading { font-family: var(--serif); font-size: 40px; font-weight: 400; line-height: 1.15; color: var(--ink); margin-bottom: 18px; }
+    .lc-heading em { font-style: italic; color: var(--gold); }
+    .lc-body { font-size: 14px; font-weight: 300; color: var(--ink-mid); line-height: 1.9; }
+    .lc-btn-primary { font-family: var(--sans); font-size: 12px; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase; color: #fff; background: var(--gold); border: none; cursor: pointer; padding: 13px 28px; text-decoration: none; display: inline-block; transition: all 0.2s; }
+    .lc-btn-primary:hover { background: #E09B12; }
+    .lc-btn-ghost { font-family: var(--sans); font-size: 12px; font-weight: 400; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-mid); background: #fff; border: 1px solid #C5C3BF; cursor: pointer; padding: 13px 28px; text-decoration: none; display: inline-block; transition: all 0.2s; }
+    .lc-btn-ghost:hover { border-color: var(--gold); color: var(--gold); }
+    .lc-flow { display: flex; flex-direction: column; gap: 0; }
+    .lc-flow-step { display: flex; gap: 16px; align-items: flex-start; padding: 18px 20px; background: #fff; border: 1px solid var(--ivory-border); }
+    .lc-flow-arrow { text-align: center; color: var(--gold); font-size: 16px; padding: 4px 0; }
+    .lc-step-num { font-family: var(--serif); font-size: 28px; font-weight: 300; color: var(--gold); opacity: 0.5; line-height: 1; flex-shrink: 0; width: 32px; }
+    .lc-step-title { font-size: 13px; font-weight: 500; color: var(--ink); margin-bottom: 4px; }
+    .lc-step-desc { font-size: 12px; font-weight: 300; color: var(--ink-mid); line-height: 1.65; }
+    @media (max-width: 1024px) { .localise-callout { padding: 48px 32px; } .lc-inner { grid-template-columns: 1fr; gap: 36px; } }
+    @media (max-width: 768px) { .localise-callout { padding: 44px 20px; } .lc-heading { font-size: 30px; } }
+
   </style>
 
   <!-- Supabase -->
@@ -491,7 +511,7 @@
         </div>
         <div>
           <div class="proof-title">Import Substitution Ready</div>
-          <p class="proof-desc">Currently importing? We help you find Indian manufacturers who can match or beat your current source.</p>
+          <p class="proof-desc">Currently importing? Upload your part to our AI Analyser — we'll confirm India can make it, spec it, and deliver it locally.</p>
         </div>
       </div>
     </div>
@@ -552,10 +572,73 @@
         </div>
       </div>
     </div>
+    <div class="for-card">
+      <div class="for-num">04</div>
+      <div class="for-title">Localisation Teams</div>
+      <p class="for-desc">Your organisation has engineers or procurement managers with a mandate to localise imported parts. We take the part, find the right Indian manufacturer, and deliver it locally — saving import duties, freight, and lead time.</p>
+      <div class="for-examples">
+        <div class="for-example-label">Examples</div>
+        <div class="for-example-tags">
+          <span class="for-tag">Supply Chain Teams</span>
+          <span class="for-tag">Engineering Procurement</span>
+          <span class="for-tag">MNCs with India ops</span>
+          <span class="for-tag">PLI Scheme Participants</span>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 
-<!-- HOW WE WORK -->
+<!-- LOCALISATION CALLOUT -->
+<section class="localise-callout reveal">
+  <div class="lc-inner">
+    <div class="lc-left">
+      <div class="lc-badge">✦ For Procurement &amp; Engineering Teams</div>
+      <h2 class="lc-heading">Importing parts or components?<br/><em>We'll manufacture them in India.</em></h2>
+      <p class="lc-body">If you have a localisation mandate — moving components from China, Germany, Taiwan, or anywhere else to Indian production — IMC is your fastest path. Tell us what you're importing. Our AI analyses the part, identifies the right manufacturing process and Indian cluster, and IMC delivers it locally.</p>
+      <p class="lc-body" style="margin-top:12px;"><strong>What this saves you:</strong> import duties eliminated, freight costs reduced, supply chain lead time cut, and full accountability from a single Indian partner.</p>
+      <div style="margin-top:28px;display:flex;gap:12px;flex-wrap:wrap;">
+        <a href="/product-analyser" class="lc-btn-primary">Analyse Your Part Free →</a>
+        <a href="#application" class="lc-btn-ghost">Start a Localisation Project</a>
+      </div>
+    </div>
+    <div class="lc-right">
+      <div class="lc-flow">
+        <div class="lc-flow-step">
+          <div class="lc-step-num">01</div>
+          <div class="lc-step-content">
+            <div class="lc-step-title">Upload Your Imported Part</div>
+            <div class="lc-step-desc">Use our free AI Analyser — upload a photo or describe the component. Instant results.</div>
+          </div>
+        </div>
+        <div class="lc-flow-arrow">↓</div>
+        <div class="lc-flow-step">
+          <div class="lc-step-num">02</div>
+          <div class="lc-step-content">
+            <div class="lc-step-title">AI Confirms India Can Make It</div>
+            <div class="lc-step-desc">Get the manufacturing process, Indian cluster, and estimated cost saving before you commit.</div>
+          </div>
+        </div>
+        <div class="lc-flow-arrow">↓</div>
+        <div class="lc-flow-step">
+          <div class="lc-step-num">03</div>
+          <div class="lc-step-content">
+            <div class="lc-step-title">Submit to IMC</div>
+            <div class="lc-step-desc">One click from analysis to project. Our account manager contacts you within 48 hours.</div>
+          </div>
+        </div>
+        <div class="lc-flow-arrow">↓</div>
+        <div class="lc-flow-step">
+          <div class="lc-step-num">04</div>
+          <div class="lc-step-content">
+            <div class="lc-step-title">IMC Delivers Locally</div>
+            <div class="lc-step-desc">We manufacture and deliver to spec. You've localised a component — without managing a single factory.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 <section class="how-section reveal">
   <div class="how-inner">
     <div class="how-left">
@@ -647,7 +730,7 @@
     <div class="form-header">
       <div class="form-header-eyebrow">Buyers Club · Application</div>
       <h2>Apply for Membership</h2>
-      <p>Tell us what you're looking to source. Our team reviews every application and responds within 2 business days.</p>
+      <p>Tell us what you need manufactured. Our AI analyses your requirement and our team delivers. We respond within 2 business days.</p>
     </div>
 
     <div class="form-body" id="form-body">
@@ -677,6 +760,9 @@
             </div>
             <div class="buyer-type-item" onclick="selectBuyerType(this, 'enterprise')">
               <div class="buyer-type-title">Enterprise / OEM</div>
+            </div>
+            <div class="buyer-type-item" onclick="selectBuyerType(this, 'localisation')">
+              <div class="buyer-type-title">Localise an Imported Part</div>
             </div>
           </div>
           <input type="hidden" id="buyer-type" />
@@ -742,7 +828,7 @@
       <!-- STEP 2: SOURCING -->
       <div class="form-panel" id="panel-2">
         <div class="form-section-title">What Are You Sourcing?</div>
-        <p style="font-size:13px;color:var(--ink-mid);margin-bottom:24px;line-height:1.7;">You can add up to 3 products or categories. Be as specific as possible — it helps us find the right manufacturer faster.</p>
+        <p style="font-size:13px;color:var(--ink-mid);margin-bottom:24px;line-height:1.7;">You can add up to 3 products or categories. Be as specific as possible — it helps our AI brief the team accurately so we can deliver faster.</p>
 
         <div class="product-entries" id="product-entries">
           <!-- Product 1 — always shown -->

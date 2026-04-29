@@ -208,6 +208,24 @@
     .foot-mii { display: flex; align-items: center; gap: 10px; font-size: 9px; font-weight: 400; letter-spacing: 3px; text-transform: uppercase; color: rgba(200,134,10,0.6); }
     .mii-sq { width: 7px; height: 7px; background: var(--gold); opacity: 0.6; }
 
+    /* LOCALISATION STRIP */
+    .localise-strip { background: var(--surface); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 64px; }
+    .localise-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 72px; align-items: start; }
+    .localise-eyebrow { font-size: 9px; font-weight: 500; letter-spacing: 4px; text-transform: uppercase; color: var(--gold); margin-bottom: 12px; }
+    .localise-heading { font-family: var(--serif); font-size: 38px; font-weight: 400; line-height: 1.15; color: var(--ink); margin-bottom: 18px; }
+    .localise-heading em { font-style: italic; color: var(--gold); }
+    .localise-body { font-size: 14px; font-weight: 300; color: var(--ink-mid); line-height: 1.9; }
+    .localise-step { display: flex; gap: 14px; align-items: flex-start; padding: 14px 0; border-bottom: 1px solid var(--border); }
+    .localise-step:first-child { padding-top: 0; }
+    .ls-num { font-family: var(--serif); font-size: 28px; font-weight: 300; color: var(--gold); opacity: 0.6; line-height: 1; flex-shrink: 0; width: 32px; }
+    .ls-text { font-size: 14px; font-weight: 300; color: var(--ink-mid); line-height: 1.7; padding-top: 4px; }
+    .btn-localise-primary { font-family: var(--sans); font-size: 12px; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase; color: var(--white); background: var(--gold); border: none; cursor: pointer; padding: 13px 28px; transition: all 0.25s; text-decoration: none; display: inline-block; }
+    .btn-localise-primary:hover { background: var(--gold-light); }
+    .btn-localise-ghost { font-family: var(--sans); font-size: 12px; font-weight: 400; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-mid); background: var(--white); border: 1px solid var(--border-dark); cursor: pointer; padding: 13px 28px; transition: all 0.25s; text-decoration: none; display: inline-block; }
+    .btn-localise-ghost:hover { border-color: var(--gold); color: var(--gold); }
+    @media (max-width: 1024px) { .localise-strip { padding: 48px 28px; } .localise-inner { grid-template-columns: 1fr; gap: 36px; } }
+    @media (max-width: 768px) { .localise-strip { padding: 44px 20px; } .localise-heading { font-size: 30px; } }
+
     /* ANIMATIONS */
     @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
     .reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.7s ease, transform 0.7s ease; }
@@ -310,25 +328,25 @@
   <div class="hero-overlay"></div>
   <div class="hero-content">
     <div class="hero-eyebrow">India Manufacturing Company</div>
-    <h1>Where <em>Serious</em> Manufacturers<br/>Meet <em>Serious</em> Buyers.</h1>
-    <p class="hero-sub">End-to-end managed manufacturing. We take your purchase order and deliver — sourcing, production, quality, and logistics fully handled.</p>
+    <h1>Tell us what you need.<br/><em>We deliver it.</em></h1>
+    <p class="hero-sub">AI-powered operations. Human accountability. One partner. From requirement to delivery — IMC owns the entire process.</p>
     <div class="hero-actions">
-      <a href="/manufacturers-club" class="btn-hp">Request Membership</a>
-      <a href="/the-opportunity" class="btn-ho">Explore the Platform</a>
+      <a href="/buyers-club" class="btn-hp">Start a Project</a>
+      <a href="/manufacturers-club" class="btn-ho">Join as Manufacturer</a>
     </div>
   </div>
   <div class="hero-bar">
     <div class="hbar-item">
-      <div class="hbar-num">PO</div>
-      <div class="hbar-label">Purchase order to delivery — fully managed</div>
+      <div class="hbar-num">PO→</div>
+      <div class="hbar-label">Requirement in. Product delivered. IMC handles everything in between.</div>
     </div>
     <div class="hbar-item">
-      <div class="hbar-num">15–25%</div>
-      <div class="hbar-label">Margin on white-label pricing</div>
+      <div class="hbar-num">AI+</div>
+      <div class="hbar-label">AI-powered operations with human accountability at every step</div>
     </div>
     <div class="hbar-item">
       <div class="hbar-num">$300B+</div>
-      <div class="hbar-label">Value-added goods imported into India annually</div>
+      <div class="hbar-label">In value-added goods imported into India annually — being localised</div>
     </div>
   </div>
 </section>
@@ -339,10 +357,25 @@
   <div class="sec-label">Membership</div>
   <h2 class="sec-h2">Two clubs. <em>One mission.</em></h2>
   <div class="clubs-grid">
-    <a href="/manufacturers-club" class="club-card">
+    <a href="/buyers-club" class="club-card">
       <span class="club-n">01 · The</span>
+      <div class="club-title">Buyers Club</div>
+      <p class="club-desc">Tell us what you need manufactured. IMC delivers it — to specification, on time. No supplier management. No quality chasing. No surprises. Importing parts? We'll make them in India.</p>
+      <div class="club-tags">
+        <span class="club-tag">EV Makers</span>
+        <span class="club-tag">Consumer Tech</span>
+        <span class="club-tag">Importers</span>
+        <span class="club-tag">OEMs</span>
+        <span class="club-tag">Startups</span>
+        <span class="club-tag">Localisation</span>
+        <span class="club-tag">+more</span>
+      </div>
+      <div class="club-cta">Start a Project <div class="cta-arr"></div></div>
+    </a>
+    <a href="/manufacturers-club" class="club-card">
+      <span class="club-n">02 · The</span>
       <div class="club-title">Manufacturers Club</div>
-      <p class="club-desc">For factories of every scale — from a 5-machine CNC shop to a 500-line enterprise. If you manufacture seriously, you belong here.</p>
+      <p class="club-desc">We bring you orders. You focus on manufacturing. IMC handles buyer relationships, engineering support, supply chain, and makes sure you get paid — reliably and on time.</p>
       <div class="club-tags">
         <span class="club-tag">Machine Tools</span>
         <span class="club-tag">Plastics</span>
@@ -352,23 +385,28 @@
         <span class="club-tag">Defence</span>
         <span class="club-tag">+18 more</span>
       </div>
-      <div class="club-cta">Apply for Membership <div class="cta-arr"></div></div>
+      <div class="club-cta">Join the Network <div class="cta-arr"></div></div>
     </a>
-    <a href="/buyers-club" class="club-card">
-      <span class="club-n">02 · The</span>
-      <div class="club-title">Buyers Club</div>
-      <p class="club-desc">For startups, brands, and importers sourcing from anywhere in the globe. Place an order — we source the manufacturer, manage production, and deliver to spec.</p>
-      <div class="club-tags">
-        <span class="club-tag">EV Makers</span>
-        <span class="club-tag">Consumer Tech</span>
-        <span class="club-tag">Importers</span>
-        <span class="club-tag">OEMs</span>
-        <span class="club-tag">Startups</span>
-        <span class="club-tag">Defence</span>
-        <span class="club-tag">+more</span>
+  </div>
+</div>
+
+<!-- LOCALISATION STRIP -->
+<div class="localise-strip reveal">
+  <div class="localise-inner">
+    <div class="localise-left">
+      <div class="localise-eyebrow">For Procurement &amp; Engineering Teams</div>
+      <div class="localise-heading">Importing parts or components?<br/><em>We'll make them in India.</em></div>
+      <p class="localise-body">If your organisation has localisation targets — moving imports to Indian production — IMC is your fastest path. Tell us what you're importing. Our AI analyses the part, identifies the right manufacturing process and Indian cluster, and IMC delivers it locally. Save import duties, freight costs, and supply chain lead time.</p>
+    </div>
+    <div class="localise-right">
+      <div class="localise-step"><span class="ls-num">01</span><span class="ls-text">Upload your imported part to the AI Analyser — free, instant results</span></div>
+      <div class="localise-step"><span class="ls-num">02</span><span class="ls-text">AI confirms India can make it and estimates your cost saving</span></div>
+      <div class="localise-step"><span class="ls-num">03</span><span class="ls-text">Submit to IMC — we manufacture and deliver it locally</span></div>
+      <div style="margin-top:24px;display:flex;gap:12px;flex-wrap:wrap;">
+        <a href="/product-analyser" class="btn-localise-primary">Analyse Your Import Free</a>
+        <a href="/buyers-club" class="btn-localise-ghost">Start a Localisation Project</a>
       </div>
-      <div class="club-cta">Apply for Membership <div class="cta-arr"></div></div>
-    </a>
+    </div>
   </div>
 </div>
 
@@ -383,9 +421,9 @@
     <h2>Not a Discovery Platform.<br/><em>Your Business Partner.</em></h2>
   </div>
   <div class="mani-right">
-    <p>India manufactures at scale. The world wants to source from India. Yet the gap between a serious buyer and a capable manufacturer remains filled with middlemen, mistrust, and missed timelines.</p>
-    <p><strong>Invictus IMC closes that gap — permanently.</strong> We manage the entire journey: design, tooling, production timelines, quality checks, and delivery. For manufacturers, we bring reliable orders, timely payments and engineering expertise. For buyers, we take ownership from purchase order to doorstep.</p>
-    <p>This is not for everyone. <strong>It is for those who are serious about building something real.</strong></p>
+    <p>India manufactures at scale. The world wants to source from India. Yet between capable manufacturers and serious buyers, the gap is still filled with missed timelines, payment delays, and zero accountability.</p>
+    <p><strong>Invictus IMC closes that gap — permanently.</strong> Our AI analyses every requirement, specs every product, and briefs every account manager before a human picks up the phone. The humans handle relationships and accountability. The AI handles scale.</p>
+    <p>Today that means managed production and delivery. Tomorrow it means logistics, warehousing, working capital, and financial services — for both buyers and manufacturers. <strong>All of it run on AI, delivered by people.</strong></p>
     <div class="stats-row" style="grid-template-columns: 1fr 1fr;">
       <div class="stat-box">
         <div class="stat-box-eyebrow">For Buyers</div>
@@ -409,23 +447,23 @@
     <div class="process-inner">
       <div class="process-step">
         <div class="step-num">01</div>
-        <div class="step-title">Get Onboarded</div>
-        <p class="step-desc">Register your profile. We review every application personally — no bots, no auto-approvals. Quality over quantity.</p>
+        <div class="step-title">Submit Your Requirement</div>
+        <p class="step-desc">Tell us what you need — product, volume, specs, delivery location. Our AI analyses the requirement and briefs our team instantly.</p>
       </div>
       <div class="process-step">
         <div class="step-num">02</div>
-        <div class="step-title">Share Product Details</div>
-        <p class="step-desc">Upload your product requirements or manufacturing capabilities. Our team gets to work finding the right match.</p>
+        <div class="step-title">IMC Specs &amp; Plans</div>
+        <p class="step-desc">We spec the product, plan the production process, and confirm timelines. You get a clear delivery commitment — no ambiguity.</p>
       </div>
       <div class="process-step">
         <div class="step-num">03</div>
-        <div class="step-title">We Manage the Project</div>
-        <p class="step-desc">Design, tooling, production timelines, quality audits — we own the process from end to end.</p>
+        <div class="step-title">IMC Manufactures</div>
+        <p class="step-desc">We produce your product and run quality checks at every stage. You don't manage any of this — that's the point.</p>
       </div>
       <div class="process-step">
         <div class="step-num">04</div>
-        <div class="step-title">We Deliver &amp; Scale</div>
-        <p class="step-desc">We deliver your product to specification and on time. Repeat orders become faster and more efficient with every cycle.</p>
+        <div class="step-title">Delivered to You</div>
+        <p class="step-desc">Your product arrives to specification, on time. Repeat orders are faster. Every cycle builds a sharper, more efficient operation.</p>
       </div>
     </div>
   </div>
@@ -435,25 +473,25 @@
 <section class="analyser-sec reveal">
   <div class="analyser-inner">
     <div>
-      <div class="ai-badge">✦ AI-Powered Tool</div>
-      <h2>Analyse any product.<br/><em>Instantly.</em></h2>
-      <p>Upload a product photo and get a complete India manufacturing breakdown — raw materials, production stages, Indian clusters, localisation entry points, and our sourcing recommendation.</p>
+      <div class="ai-badge">✦ AI-Powered Operations</div>
+      <h2>Importing parts?<br/><em>We'll make them in India.</em></h2>
+      <p>Upload a photo of any imported component or product. Our AI instantly tells you whether India can manufacture it, which cluster makes it best, and what localisation saves you. Then submit to IMC — we deliver it locally.</p>
       <div class="ai-feats">
         <div class="ai-feat">
           <div class="feat-n">01</div>
-          <div class="feat-t"><strong>Raw Materials Breakdown</strong><span>Every material needed, with India availability status.</span></div>
+          <div class="feat-t"><strong>Can India Make This?</strong><span>Upload your imported part. AI analyses manufacturability, process, and the best Indian cluster.</span></div>
         </div>
         <div class="ai-feat">
           <div class="feat-n">02</div>
-          <div class="feat-t"><strong>Stage-by-Stage Manufacturing Process</strong><span>Every production stage, the machine required, and the best Indian cluster.</span></div>
+          <div class="feat-t"><strong>What Does Localisation Save?</strong><span>Import duties, freight costs, lead time — the AI estimates your saving before you commit.</span></div>
         </div>
         <div class="ai-feat">
           <div class="feat-n">03</div>
-          <div class="feat-t"><strong>Localisation Entry Point</strong><span>Where India can substitute imports and the estimated cost saving.</span></div>
+          <div class="feat-t"><strong>Submit to IMC. We Deliver.</strong><span>One click from analysis to project submission. IMC handles everything from here.</span></div>
         </div>
       </div>
       <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
-        <a href="/product-analyser" class="btn-hp">Try It Free →</a>
+        <a href="/product-analyser" class="btn-hp">Analyse Your Part Free →</a>
         <span style="font-size:12px;color:rgba(255,255,255,0.26);letter-spacing:1px;">First analysis is free</span>
       </div>
     </div>
@@ -523,12 +561,12 @@
 <!-- CTA -->
 <div class="cta-banner reveal">
   <div class="cta-left">
-    <div class="cta-ey">Ready to join?</div>
-    <h2>Serious about<br/><em>manufacturing</em><br/>or sourcing?</h2>
+    <div class="cta-ey">AI-powered operations. Human accountability.</div>
+    <h2>Need something<br/>manufactured<br/>in <em>India?</em></h2>
   </div>
   <div class="cta-right">
-    <button class="btn-primary-large" onclick="window.location.href='/manufacturers-club'">Join the Manufacturers Club</button>
-    <button class="btn-outline-large" onclick="window.location.href='/buyers-club'">Join the Buyers Club</button>
+    <button class="btn-primary-large" onclick="window.location.href='/buyers-club'">Start a Manufacturing Project</button>
+    <button class="btn-outline-large" onclick="window.location.href='/manufacturers-club'">Join as a Manufacturer</button>
   </div>
 </div>
 
