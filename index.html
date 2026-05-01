@@ -594,6 +594,11 @@
     document.getElementById('mobile-menu').classList.remove('open');
     document.getElementById('hamburger-btn').classList.remove('active');
   }
+
+  // Catch Supabase invite/reset links that land on homepage
+  if (window.location.hash && window.location.hash.includes('access_token')) {
+    window.location.href = '/reset-password' + window.location.hash;
+  }
 </script>
 </body>
 </html>
