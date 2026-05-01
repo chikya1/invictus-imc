@@ -9,6 +9,7 @@
   ],
   "rewrites": [
     { "source": "/login", "destination": "/login.html" },
+    { "source": "/reset-password", "destination": "/reset-password.html" },
     { "source": "/buyer-portal", "destination": "/buyer-portal.html" },
     { "source": "/manufacturer-portal", "destination": "/manufacturer-portal.html" },
     { "source": "/buyers-club", "destination": "/buyers-club.html" },
