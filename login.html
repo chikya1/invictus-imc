@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/png" href="/INVICTUS_LOGO.png" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign In — Invictus IMC</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --void: #0A0A0A;
+      --gold: #C8860A;
+      --gold-light: #E09B12;
+      --gold-border: rgba(200,134,10,0.3);
+      --gold-dim: rgba(200,134,10,0.08);
+      --white: #FFFFFF;
+      --ink: #1A1A1A;
+      --ink-mid: #555555;
+      --border: rgba(255,255,255,0.1);
+      --serif: 'Cormorant Garamond', Georgia, serif;
+      --sans: 'Outfit', sans-serif;
+    }
+    body {
+      font-family: var(--sans);
+      background: var(--void);
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    /* LEFT PANEL */
+    .left-panel {
+      background: #0D0B09;
+      padding: 60px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      border-right: 1px solid rgba(255,255,255,0.06);
+    }
+    .panel-logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+    .panel-logo img { width: 36px; height: 36px; object-fit: contain; }
+    .panel-logo-name { font-family: var(--serif); font-size: 17px; font-weight: 600; letter-spacing: 2.5px; color: var(--white); text-transform: uppercase; line-height: 1; display: block; }
+    .panel-logo-tag { font-size: 8px; letter-spacing: 3px; color: var(--gold); text-transform: uppercase; line-height: 1; display: block; margin-top: 3px; }
+    .panel-body { }
+    .panel-eyebrow { font-size: 9px; letter-spacing: 4px; text-transform: uppercase; color: var(--gold); margin-bottom: 20px; display: flex; align-items: center; gap: 12px; }
+    .panel-eyebrow::before { content: ''; width: 24px; height: 1px; background: var(--gold); display: inline-block; }
+    .panel-h1 { font-family: var(--serif); font-size: 52px; font-weight: 400; color: var(--white); line-height: 1.1; margin-bottom: 24px; }
+    .panel-h1 em { font-style: italic; color: var(--gold); }
+    .panel-desc { font-size: 14px; font-weight: 300; color: rgba(255,255,255,0.45); line-height: 1.85; max-width: 380px; }
+    .panel-features { display: flex; flex-direction: column; gap: 16px; margin-top: 40px; }
+    .panel-feat { display: flex; align-items: flex-start; gap: 14px; }
+    .feat-dot { width: 6px; height: 6px; background: var(--gold); flex-shrink: 0; margin-top: 6px; }
+    .feat-text { font-size: 13px; font-weight: 300; color: rgba(255,255,255,0.4); line-height: 1.6; }
+    .feat-text strong { color: rgba(255,255,255,0.75); font-weight: 400; }
+    .panel-footer { font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,0.2); }
+
+    /* RIGHT PANEL */
+    .right-panel {
+      background: var(--void);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 60px 80px;
+    }
+    .login-box { width: 100%; max-width: 400px; }
+    .login-title { font-family: var(--serif); font-size: 32px; font-weight: 400; color: var(--white); margin-bottom: 6px; }
+    .login-sub { font-size: 13px; font-weight: 300; color: rgba(255,255,255,0.38); margin-bottom: 40px; line-height: 1.6; }
+
+    /* TABS */
+    .role-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 0; margin-bottom: 32px; border: 1px solid rgba(255,255,255,0.1); }
+    .role-tab { padding: 12px; text-align: center; font-size: 12px; font-weight: 400; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,0.35); cursor: pointer; transition: all 0.2s; border: none; background: none; font-family: var(--sans); }
+    .role-tab.active { background: var(--gold); color: var(--void); font-weight: 500; }
+    .role-tab:not(.active):hover { color: rgba(255,255,255,0.65); }
+
+    /* FORM */
+    .form-group { margin-bottom: 20px; }
+    .form-label { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.4); display: block; margin-bottom: 8px; }
+    .form-input {
+      width: 100%; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
+      color: var(--white); font-family: var(--sans); font-size: 14px; font-weight: 300;
+      padding: 14px 16px; transition: border-color 0.2s; outline: none;
+    }
+    .form-input:focus { border-color: var(--gold-border); }
+    .form-input::placeholder { color: rgba(255,255,255,0.2); }
+
+    .btn-login {
+      width: 100%; background: var(--gold); border: none; color: var(--void);
+      font-family: var(--sans); font-size: 13px; font-weight: 500; letter-spacing: 2px;
+      text-transform: uppercase; padding: 16px; cursor: pointer; transition: all 0.2s;
+      margin-top: 8px;
+    }
+    .btn-login:hover { background: var(--gold-light); }
+    .btn-login:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .form-divider { display: flex; align-items: center; gap: 16px; margin: 24px 0; }
+    .form-divider-line { flex: 1; height: 1px; background: rgba(255,255,255,0.08); }
+    .form-divider-text { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.2); }
+
+    .btn-forgot {
+      width: 100%; background: none; border: 1px solid rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.4); font-family: var(--sans); font-size: 12px;
+      font-weight: 300; letter-spacing: 1.5px; text-transform: uppercase;
+      padding: 13px; cursor: pointer; transition: all 0.2s;
+    }
+    .btn-forgot:hover { border-color: var(--gold-border); color: var(--gold); }
+
+    .msg-box { padding: 14px 16px; margin-bottom: 20px; font-size: 13px; font-weight: 300; display: none; line-height: 1.6; }
+    .msg-box.error { background: rgba(231,76,60,0.12); border: 1px solid rgba(231,76,60,0.3); color: #e74c3c; }
+    .msg-box.success { background: rgba(46,125,50,0.12); border: 1px solid rgba(46,125,50,0.3); color: #81C784; }
+    .msg-box.show { display: block; }
+
+    .login-footer { margin-top: 32px; text-align: center; font-size: 12px; font-weight: 300; color: rgba(255,255,255,0.25); line-height: 1.7; }
+    .login-footer a { color: var(--gold); text-decoration: none; }
+    .login-footer a:hover { text-decoration: underline; }
+
+    /* Forgot password view */
+    .view { display: none; }
+    .view.active { display: block; }
+
+    /* Loading spinner */
+    .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(0,0,0,0.3); border-top-color: var(--void); border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 8px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media (max-width: 900px) {
+      body { grid-template-columns: 1fr; }
+      .left-panel { display: none; }
+      .right-panel { padding: 40px 28px; min-height: 100vh; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- LEFT PANEL -->
+  <div class="left-panel">
+    <a href="/" class="panel-logo">
+      <img src="/INVICTUS_LOGO-NO_BG.png" alt="Invictus IMC" />
+      <div>
+        <span class="panel-logo-name">Invictus IMC</span>
+        <span class="panel-logo-tag">India Manufacturing Company</span>
+      </div>
+    </a>
+
+    <div class="panel-body">
+      <div class="panel-eyebrow">Member Portal</div>
+      <h1 class="panel-h1">Your manufacturing<br/>partner. <em>Online.</em></h1>
+      <p class="panel-desc">Access your IMC account to track projects, view your requirement status, and manage your manufacturing operations.</p>
+      <div class="panel-features">
+        <div class="panel-feat">
+          <div class="feat-dot"></div>
+          <div class="feat-text"><strong>Buyers</strong> — track your project from submission to delivery. One view. Full visibility.</div>
+        </div>
+        <div class="panel-feat">
+          <div class="feat-dot"></div>
+          <div class="feat-text"><strong>Manufacturers</strong> — see your assigned orders, timelines, and payment status in one place.</div>
+        </div>
+        <div class="panel-feat">
+          <div class="feat-dot"></div>
+          <div class="feat-text"><strong>AI-powered operations</strong> — every requirement is analysed and briefed before your account manager picks it up.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel-footer">© 2025 Invictus IMC · invictusimc.com</div>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div class="right-panel">
+    <div class="login-box">
+
+      <!-- LOGIN VIEW -->
+      <div class="view active" id="view-login">
+        <div class="login-title">Sign in</div>
+        <div class="login-sub">Access your IMC member portal. Don't have access yet? Apply via the <a href="/buyers-club">Buyers Club</a> or <a href="/manufacturers-club">Manufacturers Club</a>.</div>
+
+        <div class="role-tabs">
+          <button class="role-tab active" id="tab-buyer" onclick="setRole('buyer')">I'm a Buyer</button>
+          <button class="role-tab" id="tab-manufacturer" onclick="setRole('manufacturer')">I'm a Manufacturer</button>
+        </div>
+
+        <div class="msg-box" id="login-msg"></div>
+
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <input type="email" class="form-input" id="login-email" placeholder="you@company.com" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input type="password" class="form-input" id="login-password" placeholder="••••••••••" onkeydown="if(event.key==='Enter') doLogin()" />
+        </div>
+
+        <button class="btn-login" id="btn-login" onclick="doLogin()">Sign In</button>
+
+        <div class="form-divider">
+          <div class="form-divider-line"></div>
+          <div class="form-divider-text">or</div>
+          <div class="form-divider-line"></div>
+        </div>
+
+        <button class="btn-forgot" onclick="switchView('forgot')">Forgot Password?</button>
+
+        <div class="login-footer">
+          Not a member yet? <a href="/buyers-club">Apply as a Buyer</a> or <a href="/manufacturers-club">Apply as a Manufacturer</a>.<br/>
+          <span style="margin-top:8px;display:block;">Admin? <a href="/admin">Go to Admin Panel →</a></span>
+        </div>
+      </div>
+
+      <!-- FORGOT PASSWORD VIEW -->
+      <div class="view" id="view-forgot">
+        <div class="login-title">Reset Password</div>
+        <div class="login-sub">Enter your email address and we'll send you a link to reset your password.</div>
+
+        <div class="msg-box" id="forgot-msg"></div>
+
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <input type="email" class="form-input" id="forgot-email" placeholder="you@company.com" />
+        </div>
+
+        <button class="btn-login" id="btn-forgot" onclick="doForgot()">Send Reset Link</button>
+
+        <div class="form-divider">
+          <div class="form-divider-line"></div>
+          <div class="form-divider-line"></div>
+        </div>
+
+        <button class="btn-forgot" onclick="switchView('login')">← Back to Sign In</button>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const supa = window.supabase.createClient(
+      'https://nmjkzhquoxuuebzyotnx.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5tamt6aHF1b3h1dWVienlvdG54Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwNzY0MDEsImV4cCI6MjA5MTY1MjQwMX0.6uwyWMSLGhG259TY9x-vpUxNiENkYAXOqFEUI3aSv5M'
+    );
+
+    let selectedRole = 'buyer';
+
+    // If already logged in, redirect
+    supa.auth.getSession().then(({ data: { session } }) => {
+      if (session) redirectAfterLogin(session.user);
+    });
+
+    function setRole(role) {
+      selectedRole = role;
+      document.getElementById('tab-buyer').classList.toggle('active', role === 'buyer');
+      document.getElementById('tab-manufacturer').classList.toggle('active', role === 'manufacturer');
+    }
+
+    function switchView(view) {
+      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+      document.getElementById('view-' + view).classList.add('active');
+    }
+
+    function showMsg(id, type, text) {
+      const el = document.getElementById(id);
+      el.className = 'msg-box ' + type + ' show';
+      el.textContent = text;
+    }
+
+    function setLoading(btnId, loading) {
+      const btn = document.getElementById(btnId);
+      btn.disabled = loading;
+      btn.innerHTML = loading ? '<span class="spinner"></span>Signing in...' : 'Sign In';
+    }
+
+    async function doLogin() {
+      const email = document.getElementById('login-email').value.trim();
+      const password = document.getElementById('login-password').value;
+
+      if (!email || !password) {
+        showMsg('login-msg', 'error', 'Please enter your email and password.');
+        return;
+      }
+
+      setLoading('btn-login', true);
+
+      const { data, error } = await supa.auth.signInWithPassword({ email, password });
+
+      if (error) {
+        setLoading('btn-login', false);
+        if (error.message.includes('Email not confirmed')) {
+          showMsg('login-msg', 'error', 'Please confirm your email address first. Check your inbox.');
+        } else if (error.message.includes('Invalid login')) {
+          showMsg('login-msg', 'error', 'Incorrect email or password. Please try again.');
+        } else {
+          showMsg('login-msg', 'error', error.message);
+        }
+        return;
+      }
+
+      await redirectAfterLogin(data.user);
+    }
+
+    async function redirectAfterLogin(user) {
+      // Get their profile to determine role
+      const { data: profile } = await supa
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single();
+
+      const role = profile?.role || selectedRole;
+
+      if (role === 'manufacturer') {
+        window.location.href = '/manufacturer-portal';
+      } else {
+        window.location.href = '/buyer-portal';
+      }
+    }
+
+    async function doForgot() {
+      const email = document.getElementById('forgot-email').value.trim();
+      if (!email) {
+        showMsg('forgot-msg', 'error', 'Please enter your email address.');
+        return;
+      }
+
+      const btn = document.getElementById('btn-forgot');
+      btn.disabled = true;
+      btn.textContent = 'Sending...';
+
+      const { error } = await supa.auth.resetPasswordForEmail(email, {
+        redirectTo: 'https://invictusimc.com/reset-password'
+      });
+
+      btn.disabled = false;
+      btn.textContent = 'Send Reset Link';
+
+      if (error) {
+        showMsg('forgot-msg', 'error', error.message);
+      } else {
+        showMsg('forgot-msg', 'success', 'Reset link sent. Check your email inbox — including spam.');
+      }
+    }
+  </script>
+</body>
+</html>

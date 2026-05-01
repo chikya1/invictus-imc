@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/png" href="/INVICTUS_LOGO.png" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Buyer Portal — Invictus IMC</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --surface: #F7F6F3;
+      --white: #FFFFFF;
+      --gold: #C8860A;
+      --gold-light: #E09B12;
+      --gold-dim: rgba(200,134,10,0.08);
+      --gold-border: rgba(200,134,10,0.25);
+      --ink: #1A1A1A;
+      --ink-mid: #555555;
+      --ink-light: rgba(26,26,26,0.4);
+      --border: #E2E0DC;
+      --void: #0A0A0A;
+      --serif: 'Cormorant Garamond', Georgia, serif;
+      --sans: 'Outfit', sans-serif;
+      --sidebar-w: 240px;
+    }
+    body { font-family: var(--sans); background: var(--surface); color: var(--ink); min-height: 100vh; display: flex; }
+
+    /* SIDEBAR */
+    .sidebar {
+      width: var(--sidebar-w); background: var(--void); min-height: 100vh;
+      display: flex; flex-direction: column; position: fixed; top: 0; left: 0; z-index: 100;
+      border-right: 1px solid rgba(255,255,255,0.06);
+    }
+    .sidebar-logo { padding: 24px 24px 20px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .sidebar-logo a { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .sidebar-logo img { width: 28px; height: 28px; object-fit: contain; }
+    .sidebar-logo-name { font-family: var(--serif); font-size: 14px; font-weight: 600; letter-spacing: 2px; color: var(--white); text-transform: uppercase; line-height: 1; display: block; }
+    .sidebar-logo-tag { font-size: 7px; letter-spacing: 2.5px; color: var(--gold); text-transform: uppercase; line-height: 1; display: block; margin-top: 3px; }
+
+    .sidebar-user { padding: 16px 24px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .sidebar-user-label { font-size: 8px; letter-spacing: 3px; text-transform: uppercase; color: rgba(255,255,255,0.25); margin-bottom: 4px; }
+    .sidebar-user-name { font-size: 13px; font-weight: 400; color: rgba(255,255,255,0.7); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .sidebar-user-role { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); margin-top: 2px; }
+
+    .sidebar-nav { flex: 1; padding: 16px 0; }
+    .nav-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 24px; font-size: 12px; font-weight: 400;
+      letter-spacing: 1px; text-transform: uppercase;
+      color: rgba(255,255,255,0.38); text-decoration: none;
+      cursor: pointer; transition: all 0.2s; border: none; background: none;
+      width: 100%; text-align: left; font-family: var(--sans);
+    }
+    .nav-item:hover { color: rgba(255,255,255,0.75); background: rgba(255,255,255,0.04); }
+    .nav-item.active { color: var(--gold); background: rgba(200,134,10,0.08); border-left: 2px solid var(--gold); }
+    .nav-icon { font-size: 14px; width: 18px; flex-shrink: 0; }
+
+    .sidebar-bottom { padding: 16px 24px; border-top: 1px solid rgba(255,255,255,0.06); }
+    .btn-signout { width: 100%; background: none; border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.3); font-family: var(--sans); font-size: 10px; font-weight: 400; letter-spacing: 2px; text-transform: uppercase; padding: 10px; cursor: pointer; transition: all 0.2s; }
+    .btn-signout:hover { border-color: rgba(231,76,60,0.4); color: #e74c3c; }
+
+    /* MAIN */
+    .main { margin-left: var(--sidebar-w); flex: 1; padding: 40px 48px; min-height: 100vh; }
+
+    /* TOPBAR */
+    .topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 40px; }
+    .topbar-title { font-family: var(--serif); font-size: 32px; font-weight: 400; color: var(--ink); }
+    .topbar-title em { font-style: italic; color: var(--gold); }
+    .topbar-date { font-size: 11px; color: var(--ink-light); letter-spacing: 1px; }
+
+    /* STAT CARDS */
+    .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 32px; }
+    .stat-card { background: var(--white); border: 1px solid var(--border); padding: 24px 28px; }
+    .stat-card-label { font-size: 9px; font-weight: 400; letter-spacing: 3px; text-transform: uppercase; color: var(--ink-light); margin-bottom: 10px; }
+    .stat-card-val { font-family: var(--serif); font-size: 40px; font-weight: 400; color: var(--gold); line-height: 1; margin-bottom: 4px; }
+    .stat-card-sub { font-size: 12px; font-weight: 300; color: var(--ink-mid); }
+
+    /* SECTION */
+    .section { background: var(--white); border: 1px solid var(--border); margin-bottom: 24px; }
+    .section-header { padding: 20px 28px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+    .section-title { font-family: var(--serif); font-size: 20px; font-weight: 500; color: var(--ink); }
+    .section-count { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--ink-light); }
+    .section-body { padding: 28px; }
+
+    /* EMPTY STATE */
+    .empty-state { text-align: center; padding: 48px 24px; }
+    .empty-icon { font-size: 32px; margin-bottom: 16px; opacity: 0.3; }
+    .empty-title { font-family: var(--serif); font-size: 22px; font-weight: 400; color: var(--ink); margin-bottom: 8px; }
+    .empty-desc { font-size: 13px; font-weight: 300; color: var(--ink-mid); line-height: 1.7; max-width: 320px; margin: 0 auto 24px; }
+    .btn-gold { font-family: var(--sans); font-size: 12px; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase; color: var(--white); background: var(--gold); border: none; padding: 12px 28px; cursor: pointer; text-decoration: none; display: inline-block; transition: background 0.2s; }
+    .btn-gold:hover { background: var(--gold-light); }
+
+    /* REQUIREMENT CARD */
+    .req-card { border: 1px solid var(--border); padding: 24px; margin-bottom: 16px; position: relative; }
+    .req-card:last-child { margin-bottom: 0; }
+    .req-card-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 12px; }
+    .req-product { font-family: var(--serif); font-size: 20px; font-weight: 500; color: var(--ink); }
+    .req-date { font-size: 11px; color: var(--ink-light); }
+    .req-meta { display: flex; gap: 24px; margin-bottom: 14px; }
+    .req-meta-item { font-size: 12px; color: var(--ink-mid); }
+    .req-meta-item strong { color: var(--ink); font-weight: 500; }
+
+    /* STATUS BADGE */
+    .status-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 9px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; padding: 5px 12px; }
+    .status-badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; }
+    .status-received { background: rgba(21,101,192,0.1); color: #1565C0; }
+    .status-received::before { background: #1565C0; }
+    .status-in-progress { background: rgba(230,81,0,0.1); color: #E65100; }
+    .status-in-progress::before { background: #E65100; }
+    .status-quality-check { background: rgba(123,31,162,0.1); color: #7B1FA2; }
+    .status-quality-check::before { background: #7B1FA2; }
+    .status-delivered { background: rgba(46,125,50,0.1); color: #2E7D32; }
+    .status-delivered::before { background: #2E7D32; }
+
+    /* ACCOUNT MANAGER CARD */
+    .am-card { background: var(--surface); border: 1px solid var(--border); padding: 24px 28px; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+    .am-info { }
+    .am-label { font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: var(--ink-light); margin-bottom: 6px; }
+    .am-name { font-family: var(--serif); font-size: 22px; font-weight: 500; color: var(--ink); margin-bottom: 4px; }
+    .am-title { font-size: 12px; color: var(--ink-mid); }
+    .am-contact { display: flex; gap: 12px; }
+    .btn-am { font-family: var(--sans); font-size: 11px; font-weight: 400; letter-spacing: 1.5px; text-transform: uppercase; padding: 10px 20px; text-decoration: none; transition: all 0.2s; display: inline-block; }
+    .btn-am-primary { background: var(--gold); color: var(--white); border: none; }
+    .btn-am-primary:hover { background: var(--gold-light); }
+    .btn-am-ghost { background: var(--white); color: var(--ink-mid); border: 1px solid var(--border); }
+    .btn-am-ghost:hover { border-color: var(--gold); color: var(--gold); }
+
+    /* LOADING */
+    .loading { text-align: center; padding: 48px; color: var(--ink-light); font-size: 13px; }
+
+    @media (max-width: 900px) {
+      .sidebar { display: none; }
+      .main { margin-left: 0; padding: 24px 20px; }
+      .stat-grid { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <a href="/">
+        <img src="/INVICTUS_LOGO-NO_BG.png" alt="Invictus IMC" />
+        <div>
+          <span class="sidebar-logo-name">Invictus IMC</span>
+          <span class="sidebar-logo-tag">Buyer Portal</span>
+        </div>
+      </a>
+    </div>
+    <div class="sidebar-user">
+      <div class="sidebar-user-label">Signed in as</div>
+      <div class="sidebar-user-name" id="user-email">Loading...</div>
+      <div class="sidebar-user-role">Buyer Account</div>
+    </div>
+    <nav class="sidebar-nav">
+      <a class="nav-item active" onclick="showSection('dashboard')">
+        <span class="nav-icon">◈</span> Dashboard
+      </a>
+      <a class="nav-item" onclick="showSection('requirements')">
+        <span class="nav-icon">◎</span> My Requirements
+      </a>
+      <a class="nav-item" onclick="showSection('account')">
+        <span class="nav-icon">◇</span> Account Manager
+      </a>
+      <a class="nav-item" href="/product-analyser">
+        <span class="nav-icon">✦</span> Analyse a Product
+      </a>
+    </nav>
+    <div class="sidebar-bottom">
+      <button class="btn-signout" onclick="doSignOut()">Sign Out</button>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- DASHBOARD SECTION -->
+    <div id="section-dashboard">
+      <div class="topbar">
+        <div>
+          <div class="topbar-title">Good to see you, <em id="user-name">there</em>.</div>
+          <div class="topbar-date" id="today-date"></div>
+        </div>
+      </div>
+
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-card-label">Requirements Submitted</div>
+          <div class="stat-card-val" id="stat-total">—</div>
+          <div class="stat-card-sub">All time</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-label">In Progress</div>
+          <div class="stat-card-val" id="stat-active">—</div>
+          <div class="stat-card-sub">Currently being manufactured</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-label">Delivered</div>
+          <div class="stat-card-val" id="stat-delivered">—</div>
+          <div class="stat-card-sub">Completed projects</div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-header">
+          <div class="section-title">Recent Requirements</div>
+          <a href="/buyers-club" class="btn-gold" style="font-size:11px;padding:8px 18px;">+ New Requirement</a>
+        </div>
+        <div class="section-body" id="recent-reqs">
+          <div class="loading">Loading your requirements...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- REQUIREMENTS SECTION -->
+    <div id="section-requirements" style="display:none;">
+      <div class="topbar">
+        <div class="topbar-title">My <em>Requirements</em></div>
+      </div>
+      <div class="section">
+        <div class="section-header">
+          <div class="section-title">All Requirements</div>
+          <div class="section-count" id="req-count">—</div>
+        </div>
+        <div class="section-body" id="all-reqs">
+          <div class="loading">Loading...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ACCOUNT MANAGER SECTION -->
+    <div id="section-account" style="display:none;">
+      <div class="topbar">
+        <div class="topbar-title">Your <em>Account Manager</em></div>
+      </div>
+      <div class="section">
+        <div class="section-header">
+          <div class="section-title">IMC Point of Contact</div>
+        </div>
+        <div class="section-body">
+          <div class="am-card">
+            <div class="am-info">
+              <div class="am-label">Your Account Manager</div>
+              <div class="am-name">Tejas Patil</div>
+              <div class="am-title">Founder & Account Manager · Invictus IMC</div>
+            </div>
+            <div class="am-contact">
+              <a href="mailto:connect@invictusimc.com" class="btn-am btn-am-primary">Email Us</a>
+              <a href="https://wa.me/91XXXXXXXXXX" class="btn-am btn-am-ghost" target="_blank">WhatsApp</a>
+            </div>
+          </div>
+          <div style="margin-top:24px;padding:20px 24px;background:var(--surface);border:1px solid var(--border);">
+            <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--ink-light);margin-bottom:8px;">Response Time</div>
+            <div style="font-size:14px;font-weight:300;color:var(--ink-mid);line-height:1.7;">We respond to all queries within <strong style="color:var(--ink);">48 business hours</strong>. For urgent requirements, reach out directly via WhatsApp.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const supa = window.supabase.createClient(
+      'https://nmjkzhquoxuuebzyotnx.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5tamt6aHF1b3h1dWVienlvdG54Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwNzY0MDEsImV4cCI6MjA5MTY1MjQwMX0.6uwyWMSLGhG259TY9x-vpUxNiENkYAXOqFEUI3aSv5M'
+    );
+
+    let currentUser = null;
+    let buyerRecord = null;
+
+    // Auth guard — redirect to login if not authenticated
+    async function init() {
+      const { data: { session } } = await supa.auth.getSession();
+      if (!session) { window.location.href = '/login'; return; }
+
+      currentUser = session.user;
+
+      // Set date
+      document.getElementById('today-date').textContent = new Date().toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+      // Load profile
+      const { data: profile } = await supa.from('profiles').select('*').eq('id', currentUser.id).single();
+
+      // Check role — if manufacturer, redirect
+      if (profile?.role === 'manufacturer') { window.location.href = '/manufacturer-portal'; return; }
+
+      const name = profile?.company_name || profile?.full_name || currentUser.email.split('@')[0];
+      document.getElementById('user-email').textContent = currentUser.email;
+      document.getElementById('user-name').textContent = name;
+
+      // Load buyer record
+      const { data: buyer } = await supa.from('buyers').select('*').eq('auth_user_id', currentUser.id).single();
+      buyerRecord = buyer;
+
+      loadRequirements();
+    }
+
+    async function loadRequirements() {
+      if (!buyerRecord) {
+        renderEmptyState('recent-reqs');
+        renderEmptyState('all-reqs');
+        updateStats(0, 0, 0);
+        return;
+      }
+
+      // Load projects for this buyer (from projects table — Phase 2)
+      // For now, show the buyer's submitted requirements from the buyers table
+      const products = buyerRecord.products || [];
+      const total = products.length;
+      const active = 0; // Will come from projects table in Phase 2
+      const delivered = 0;
+
+      updateStats(total, active, delivered);
+
+      if (total === 0) {
+        renderEmptyState('recent-reqs');
+        renderEmptyState('all-reqs');
+      } else {
+        const html = products.map(p => renderReqCard(p, buyerRecord)).join('');
+        document.getElementById('recent-reqs').innerHTML = html;
+        document.getElementById('all-reqs').innerHTML = html;
+        document.getElementById('req-count').textContent = total + ' requirement' + (total !== 1 ? 's' : '');
+      }
+    }
+
+    function renderReqCard(product, buyer) {
+      const name = product.name || product.product_name || 'Unnamed Product';
+      const volume = product.volume || '—';
+      const freq = product.frequency || '—';
+      const hsn = product.hsn || '—';
+      const date = buyer.created_at ? new Date(buyer.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '—';
+      return `
+        <div class="req-card">
+          <div class="req-card-top">
+            <div class="req-product">${name}</div>
+            <div style="display:flex;align-items:center;gap:12px;">
+              <span class="status-badge status-received">Received</span>
+              <span class="req-date">${date}</span>
+            </div>
+          </div>
+          <div class="req-meta">
+            <div class="req-meta-item"><strong>HSN:</strong> ${hsn}</div>
+            <div class="req-meta-item"><strong>Volume:</strong> ${volume}</div>
+            <div class="req-meta-item"><strong>Frequency:</strong> ${freq}</div>
+          </div>
+          <div style="font-size:12px;color:var(--ink-light);">Your account manager will reach out within 48 hours to discuss this requirement.</div>
+        </div>`;
+    }
+
+    function renderEmptyState(containerId) {
+      document.getElementById(containerId).innerHTML = `
+        <div class="empty-state">
+          <div class="empty-icon">◎</div>
+          <div class="empty-title">No requirements yet</div>
+          <div class="empty-desc">Submit your first manufacturing requirement and your account manager will reach out within 48 hours.</div>
+          <a href="/buyers-club" class="btn-gold">Submit a Requirement</a>
+        </div>`;
+    }
+
+    function updateStats(total, active, delivered) {
+      document.getElementById('stat-total').textContent = total;
+      document.getElementById('stat-active').textContent = active;
+      document.getElementById('stat-delivered').textContent = delivered;
+    }
+
+    function showSection(name) {
+      ['dashboard', 'requirements', 'account'].forEach(s => {
+        document.getElementById('section-' + s).style.display = s === name ? 'block' : 'none';
+      });
+      document.querySelectorAll('.nav-item').forEach((el, i) => {
+        el.classList.toggle('active', ['dashboard', 'requirements', 'account'].indexOf(name) === i);
+      });
+    }
+
+    async function doSignOut() {
+      await supa.auth.signOut();
+      window.location.href = '/login';
+    }
+
+    init();
+  </script>
+</body>
+</html>

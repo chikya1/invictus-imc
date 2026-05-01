@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/png" href="/INVICTUS_LOGO.png" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manufacturer Portal — Invictus IMC</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --surface: #F7F6F3;
+      --white: #FFFFFF;
+      --gold: #C8860A;
+      --gold-light: #E09B12;
+      --gold-dim: rgba(200,134,10,0.08);
+      --gold-border: rgba(200,134,10,0.25);
+      --ink: #1A1A1A;
+      --ink-mid: #555555;
+      --ink-light: rgba(26,26,26,0.4);
+      --border: #E2E0DC;
+      --void: #0A0A0A;
+      --serif: 'Cormorant Garamond', Georgia, serif;
+      --sans: 'Outfit', sans-serif;
+      --sidebar-w: 240px;
+    }
+    body { font-family: var(--sans); background: var(--surface); color: var(--ink); min-height: 100vh; display: flex; }
+
+    /* SIDEBAR */
+    .sidebar { width: var(--sidebar-w); background: var(--void); min-height: 100vh; display: flex; flex-direction: column; position: fixed; top: 0; left: 0; z-index: 100; border-right: 1px solid rgba(255,255,255,0.06); }
+    .sidebar-logo { padding: 24px 24px 20px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .sidebar-logo a { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .sidebar-logo img { width: 28px; height: 28px; object-fit: contain; }
+    .sidebar-logo-name { font-family: var(--serif); font-size: 14px; font-weight: 600; letter-spacing: 2px; color: var(--white); text-transform: uppercase; line-height: 1; display: block; }
+    .sidebar-logo-tag { font-size: 7px; letter-spacing: 2.5px; color: var(--gold); text-transform: uppercase; line-height: 1; display: block; margin-top: 3px; }
+    .sidebar-user { padding: 16px 24px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .sidebar-user-label { font-size: 8px; letter-spacing: 3px; text-transform: uppercase; color: rgba(255,255,255,0.25); margin-bottom: 4px; }
+    .sidebar-user-name { font-size: 13px; font-weight: 400; color: rgba(255,255,255,0.7); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .sidebar-user-role { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); margin-top: 2px; }
+    .sidebar-nav { flex: 1; padding: 16px 0; }
+    .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 24px; font-size: 12px; font-weight: 400; letter-spacing: 1px; text-transform: uppercase; color: rgba(255,255,255,0.38); text-decoration: none; cursor: pointer; transition: all 0.2s; border: none; background: none; width: 100%; text-align: left; font-family: var(--sans); }
+    .nav-item:hover { color: rgba(255,255,255,0.75); background: rgba(255,255,255,0.04); }
+    .nav-item.active { color: var(--gold); background: rgba(200,134,10,0.08); border-left: 2px solid var(--gold); }
+    .nav-icon { font-size: 14px; width: 18px; flex-shrink: 0; }
+    .sidebar-bottom { padding: 16px 24px; border-top: 1px solid rgba(255,255,255,0.06); }
+    .btn-signout { width: 100%; background: none; border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.3); font-family: var(--sans); font-size: 10px; font-weight: 400; letter-spacing: 2px; text-transform: uppercase; padding: 10px; cursor: pointer; transition: all 0.2s; }
+    .btn-signout:hover { border-color: rgba(231,76,60,0.4); color: #e74c3c; }
+
+    /* MAIN */
+    .main { margin-left: var(--sidebar-w); flex: 1; padding: 40px 48px; }
+    .topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 40px; }
+    .topbar-title { font-family: var(--serif); font-size: 32px; font-weight: 400; color: var(--ink); }
+    .topbar-title em { font-style: italic; color: var(--gold); }
+    .topbar-date { font-size: 11px; color: var(--ink-light); letter-spacing: 1px; }
+
+    /* STAT CARDS */
+    .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 32px; }
+    .stat-card { background: var(--white); border: 1px solid var(--border); padding: 24px 28px; }
+    .stat-card-label { font-size: 9px; font-weight: 400; letter-spacing: 3px; text-transform: uppercase; color: var(--ink-light); margin-bottom: 10px; }
+    .stat-card-val { font-family: var(--serif); font-size: 40px; font-weight: 400; color: var(--gold); line-height: 1; margin-bottom: 4px; }
+    .stat-card-sub { font-size: 12px; font-weight: 300; color: var(--ink-mid); }
+
+    /* SECTION */
+    .section { background: var(--white); border: 1px solid var(--border); margin-bottom: 24px; }
+    .section-header { padding: 20px 28px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+    .section-title { font-family: var(--serif); font-size: 20px; font-weight: 500; color: var(--ink); }
+    .section-body { padding: 28px; }
+
+    /* PROFILE CARD */
+    .profile-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .profile-field { }
+    .pf-label { font-size: 9px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--ink-light); margin-bottom: 5px; }
+    .pf-val { font-size: 14px; font-weight: 400; color: var(--ink); }
+
+    /* STATUS */
+    .status-pill { display: inline-flex; align-items: center; gap: 6px; font-size: 9px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; padding: 5px 12px; }
+    .status-pill::before { content: ''; width: 6px; height: 6px; border-radius: 50%; }
+    .status-pending { background: rgba(230,81,0,0.1); color: #E65100; }
+    .status-pending::before { background: #E65100; }
+    .status-approved { background: rgba(46,125,50,0.1); color: #2E7D32; }
+    .status-approved::before { background: #2E7D32; }
+
+    /* EMPTY / COMING SOON */
+    .empty-state { text-align: center; padding: 48px 24px; }
+    .empty-icon { font-size: 32px; margin-bottom: 16px; opacity: 0.3; }
+    .empty-title { font-family: var(--serif); font-size: 22px; font-weight: 400; color: var(--ink); margin-bottom: 8px; }
+    .empty-desc { font-size: 13px; font-weight: 300; color: var(--ink-mid); line-height: 1.7; max-width: 340px; margin: 0 auto; }
+
+    /* PAYMENT PROMISE */
+    .payment-banner { background: var(--void); padding: 28px 32px; display: flex; align-items: flex-start; gap: 20px; }
+    .pb-icon { font-size: 28px; flex-shrink: 0; margin-top: 2px; }
+    .pb-title { font-family: var(--serif); font-size: 20px; font-weight: 500; color: var(--white); margin-bottom: 6px; }
+    .pb-desc { font-size: 13px; font-weight: 300; color: rgba(255,255,255,0.45); line-height: 1.75; }
+    .pb-desc strong { color: var(--gold); font-weight: 400; }
+
+    /* LOADING */
+    .loading { text-align: center; padding: 48px; color: var(--ink-light); font-size: 13px; }
+
+    @media (max-width: 900px) {
+      .sidebar { display: none; }
+      .main { margin-left: 0; padding: 24px 20px; }
+      .stat-grid { grid-template-columns: 1fr 1fr; }
+      .profile-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <a href="/">
+        <img src="/INVICTUS_LOGO-NO_BG.png" alt="Invictus IMC" />
+        <div>
+          <span class="sidebar-logo-name">Invictus IMC</span>
+          <span class="sidebar-logo-tag">Manufacturer Portal</span>
+        </div>
+      </a>
+    </div>
+    <div class="sidebar-user">
+      <div class="sidebar-user-label">Signed in as</div>
+      <div class="sidebar-user-name" id="user-email">Loading...</div>
+      <div class="sidebar-user-role">Manufacturer Account</div>
+    </div>
+    <nav class="sidebar-nav">
+      <a class="nav-item active" onclick="showSection('dashboard')">
+        <span class="nav-icon">◈</span> Dashboard
+      </a>
+      <a class="nav-item" onclick="showSection('orders')">
+        <span class="nav-icon">◎</span> My Orders
+      </a>
+      <a class="nav-item" onclick="showSection('profile')">
+        <span class="nav-icon">◇</span> My Profile
+      </a>
+      <a class="nav-item" onclick="showSection('contact')">
+        <span class="nav-icon">◉</span> IMC Contact
+      </a>
+    </nav>
+    <div class="sidebar-bottom">
+      <button class="btn-signout" onclick="doSignOut()">Sign Out</button>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- DASHBOARD -->
+    <div id="section-dashboard">
+      <div class="topbar">
+        <div>
+          <div class="topbar-title">Welcome, <em id="user-name">there</em>.</div>
+          <div class="topbar-date" id="today-date"></div>
+        </div>
+        <span class="status-pill status-pending" id="account-status">Pending Review</span>
+      </div>
+
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-card-label">Orders Assigned</div>
+          <div class="stat-card-val">—</div>
+          <div class="stat-card-sub">Active orders from IMC</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-label">Orders Completed</div>
+          <div class="stat-card-val">—</div>
+          <div class="stat-card-sub">Successfully delivered</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-label">Next Payment</div>
+          <div class="stat-card-val">—</div>
+          <div class="stat-card-sub">Estimated date</div>
+        </div>
+      </div>
+
+      <!-- Payment Promise Banner -->
+      <div class="payment-banner" style="margin-bottom:24px;">
+        <div class="pb-icon">◈</div>
+        <div>
+          <div class="pb-title">The IMC Payment Promise</div>
+          <div class="pb-desc">We know Indian manufacturing runs on credit cycles of <strong>60–90 days post delivery</strong>. That kills cash flow and stunts growth. IMC commits to paying you faster — reliably and on time — so your capacity stays free and your business stays healthy.</div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-header">
+          <div class="section-title">Assigned Orders</div>
+        </div>
+        <div class="section-body">
+          <div class="empty-state">
+            <div class="empty-icon">◎</div>
+            <div class="empty-title">No orders yet</div>
+            <div class="empty-desc">Once your profile is reviewed and approved by IMC, orders will appear here. Your account manager will reach out before the first order is assigned.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ORDERS -->
+    <div id="section-orders" style="display:none;">
+      <div class="topbar">
+        <div class="topbar-title">My <em>Orders</em></div>
+      </div>
+      <div class="section">
+        <div class="section-header">
+          <div class="section-title">All Assigned Orders</div>
+        </div>
+        <div class="section-body">
+          <div class="empty-state">
+            <div class="empty-icon">◎</div>
+            <div class="empty-title">Orders coming soon</div>
+            <div class="empty-desc">Your order book will appear here once IMC starts assigning projects to your facility. This is set up in Phase 2 of the platform.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROFILE -->
+    <div id="section-profile" style="display:none;">
+      <div class="topbar">
+        <div class="topbar-title">My <em>Profile</em></div>
+      </div>
+      <div class="section">
+        <div class="section-header">
+          <div class="section-title">Manufacturer Profile</div>
+          <span class="status-pill status-pending" id="profile-status">Pending Review</span>
+        </div>
+        <div class="section-body" id="profile-body">
+          <div class="loading">Loading your profile...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTACT -->
+    <div id="section-contact" style="display:none;">
+      <div class="topbar">
+        <div class="topbar-title">IMC <em>Contact</em></div>
+      </div>
+      <div class="section">
+        <div class="section-header">
+          <div class="section-title">Your IMC Partner</div>
+        </div>
+        <div class="section-body">
+          <div style="background:var(--surface);border:1px solid var(--border);padding:28px 32px;display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap;">
+            <div>
+              <div style="font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--ink-light);margin-bottom:6px;">Your IMC Partner</div>
+              <div style="font-family:var(--serif);font-size:24px;font-weight:500;color:var(--ink);margin-bottom:4px;">Tejas Patil</div>
+              <div style="font-size:13px;color:var(--ink-mid);">Founder · Invictus IMC</div>
+            </div>
+            <div style="display:flex;gap:12px;flex-wrap:wrap;">
+              <a href="mailto:connect@invictusimc.com" style="font-family:var(--sans);font-size:11px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:#fff;background:var(--gold);padding:12px 24px;text-decoration:none;transition:background 0.2s;">Email IMC</a>
+            </div>
+          </div>
+          <div style="margin-top:20px;padding:20px 24px;background:var(--surface);border:1px solid var(--border);">
+            <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--ink-light);margin-bottom:8px;">What to expect</div>
+            <div style="font-size:14px;font-weight:300;color:var(--ink-mid);line-height:1.8;">Once your profile is approved, IMC will reach out before assigning your first order. Every order comes with a clear brief — product spec, quantity, timeline, and quality requirements. You manufacture. IMC handles the buyer relationship, quality audit, and payment.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const supa = window.supabase.createClient(
+      'https://nmjkzhquoxuuebzyotnx.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5tamt6aHF1b3h1dWVienlvdG54Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwNzY0MDEsImV4cCI6MjA5MTY1MjQwMX0.6uwyWMSLGhG259TY9x-vpUxNiENkYAXOqFEUI3aSv5M'
+    );
+
+    let mfgRecord = null;
+
+    async function init() {
+      const { data: { session } } = await supa.auth.getSession();
+      if (!session) { window.location.href = '/login'; return; }
+
+      const user = session.user;
+      document.getElementById('today-date').textContent = new Date().toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+      const { data: profile } = await supa.from('profiles').select('*').eq('id', user.id).single();
+      if (profile?.role === 'buyer') { window.location.href = '/buyer-portal'; return; }
+
+      const name = profile?.company_name || profile?.full_name || user.email.split('@')[0];
+      document.getElementById('user-email').textContent = user.email;
+      document.getElementById('user-name').textContent = name;
+
+      // Load manufacturer record
+      const { data: mfg } = await supa.from('manufacturers').select('*').eq('auth_user_id', user.id).single();
+      mfgRecord = mfg;
+
+      if (mfg) {
+        const statusEl = document.getElementById('account-status');
+        const profileStatusEl = document.getElementById('profile-status');
+        if (mfg.status === 'approved') {
+          statusEl.className = 'status-pill status-approved';
+          statusEl.textContent = 'Approved';
+          if (profileStatusEl) { profileStatusEl.className = 'status-pill status-approved'; profileStatusEl.textContent = 'Approved'; }
+        }
+        renderProfile(mfg);
+      } else {
+        document.getElementById('profile-body').innerHTML = '<div class="empty-state"><div class="empty-icon">◇</div><div class="empty-title">Profile not linked</div><div class="empty-desc">Your manufacturer profile hasn\'t been linked yet. Contact IMC at connect@invictusimc.com.</div></div>';
+      }
+    }
+
+    function renderProfile(mfg) {
+      const caps = Array.isArray(mfg.capabilities) ? mfg.capabilities.join(', ') : (mfg.capabilities || '—');
+      document.getElementById('profile-body').innerHTML = `
+        <div class="profile-grid">
+          <div class="profile-field"><div class="pf-label">Company Name</div><div class="pf-val">${mfg.company_name || '—'}</div></div>
+          <div class="profile-field"><div class="pf-label">GST Number</div><div class="pf-val">${mfg.gst || '—'}</div></div>
+          <div class="profile-field"><div class="pf-label">City</div><div class="pf-val">${mfg.city || '—'}</div></div>
+          <div class="profile-field"><div class="pf-label">State</div><div class="pf-val">${mfg.state || '—'}</div></div>
+          <div class="profile-field"><div class="pf-label">Primary Sector</div><div class="pf-val">${mfg.primary_sector || '—'}</div></div>
+          <div class="profile-field"><div class="pf-label">POC Name</div><div class="pf-val">${mfg.poc_name || '—'}</div></div>
+          <div class="profile-field" style="grid-column:1/-1;"><div class="pf-label">Capabilities</div><div class="pf-val">${caps}</div></div>
+        </div>`;
+    }
+
+    function showSection(name) {
+      ['dashboard', 'orders', 'profile', 'contact'].forEach(s => {
+        document.getElementById('section-' + s).style.display = s === name ? 'block' : 'none';
+      });
+      document.querySelectorAll('.nav-item').forEach((el, i) => {
+        el.classList.toggle('active', ['dashboard', 'orders', 'profile', 'contact'].indexOf(name) === i);
+      });
+    }
+
+    async function doSignOut() {
+      await supa.auth.signOut();
+      window.location.href = '/login';
+    }
+
+    init();
+  </script>
+</body>
+</html>
