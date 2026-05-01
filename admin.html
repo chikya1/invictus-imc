@@ -1428,13 +1428,23 @@
 
   function loadBuyerProducts() {
     const buyerId = document.getElementById('proj-buyer-id').value;
-    const buyer = allBuyers.find(b => b.id === buyerId);
+    const buyer = allBuyers.find(b => b.id == buyerId);
     const prodSel = document.getElementById('proj-product-select');
-    if (!buyer || !buyer.products || buyer.products.length === 0) {
-      prodSel.innerHTML = '<option value="">No products found</option>';
+    if (!buyer) { prodSel.innerHTML = '<option value="">Select buyer first...</option>'; return; }
+
+    // Handle JSONB that may come back as string or array
+    let products = buyer.products;
+    if (typeof products === 'string') {
+      try { products = JSON.parse(products); } catch(e) { products = []; }
+    }
+    if (!Array.isArray(products)) products = [];
+    // Filter out empty entries
+    products = products.filter(p => p && (p.name || p.product_name));
+
+    if (products.length === 0) {
+      prodSel.innerHTML = '<option value="">No products found for this buyer</option>';
       return;
     }
-    const products = Array.isArray(buyer.products) ? buyer.products : [];
     prodSel.innerHTML = '<option value="">Select product...</option>' +
       products.map((p, i) => `<option value="${i}">${p.name || p.product_name || 'Product ' + (i+1)}</option>`).join('');
   }
@@ -1443,9 +1453,12 @@
     const buyerId = document.getElementById('proj-buyer-id').value;
     const idx = document.getElementById('proj-product-select').value;
     if (idx === '') return;
-    const buyer = allBuyers.find(b => b.id === buyerId);
-    if (!buyer || !buyer.products) return;
-    const p = buyer.products[parseInt(idx)];
+    const buyer = allBuyers.find(b => b.id == buyerId);
+    if (!buyer) return;
+    let products = buyer.products;
+    if (typeof products === 'string') { try { products = JSON.parse(products); } catch(e) { return; } }
+    if (!Array.isArray(products)) return;
+    const p = products[parseInt(idx)];
     if (p) document.getElementById('proj-product-name').value = p.name || p.product_name || '';
   }
 
