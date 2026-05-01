@@ -456,6 +456,10 @@
           <svg viewBox="0 0 14 14" fill="none"><circle cx="7" cy="4" r="3" stroke="currentColor" stroke-width="1"/><path d="M1 13C1 10.24 3.69 8 7 8C10.31 8 13 10.24 13 13" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
           Buyers
         </div>
+        <div class="sidebar-link" onclick="showTab('projects', this)">
+          <svg viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="12" height="12" rx="1" stroke="currentColor" stroke-width="1"/><line x1="4" y1="5" x2="10" y2="5" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="4" y1="7.5" x2="10" y2="7.5" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="4" y1="10" x2="7" y2="10" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
+          Projects
+        </div>
       </div>
       <div class="sidebar-divider"></div>
       <div class="sidebar-section">
@@ -587,7 +591,96 @@
         </table>
       </div>
 
+      <!-- PROJECTS TAB -->
+      <div class="tab-panel" id="tab-projects">
+        <div class="page-title">Projects</div>
+        <div class="page-subtitle">Each product from a buyer submission becomes a project. Assign manufacturers and update status here.</div>
+        <div class="section-header">
+          <div class="section-title">All Projects</div>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <select id="project-status-filter" onchange="loadProjects()" style="font-family:var(--sans);font-size:12px;background:var(--surface);border:1px solid var(--border-color);color:var(--white);padding:8px 12px;cursor:pointer;">
+              <option value="">All Statuses</option>
+              <option value="received">Received</option>
+              <option value="in_progress">In Progress</option>
+              <option value="quality_check">Quality Check</option>
+              <option value="delivered">Delivered</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+            <button class="btn-add" onclick="openCreateProjectModal()">+ Create Project</button>
+          </div>
+        </div>
+        <table class="admin-table" id="projects-table">
+          <thead>
+            <tr><th>Status</th><th>Product</th><th>Buyer</th><th>Manufacturer</th><th>Timeline</th><th>Updated</th><th>Actions</th></tr>
+          </thead>
+          <tbody id="projects-tbody">
+            <tr><td colspan="7" class="table-empty">Loading projects...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
     </main>
+  </div>
+</div>
+
+<!-- PROJECT MODAL -->
+<div class="modal-overlay" id="project-modal">
+  <div class="modal" style="max-width:600px;">
+    <div class="modal-header">
+      <div class="modal-title" id="project-modal-title">Create Project</div>
+      <button class="modal-close" onclick="closeProjectModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="project-edit-id" />
+      <div class="form-row-2" style="margin-bottom:16px;">
+        <div>
+          <label class="form-label">Buyer *</label>
+          <select class="form-select" id="proj-buyer-id" onchange="loadBuyerProducts()">
+            <option value="">Select buyer...</option>
+          </select>
+        </div>
+        <div>
+          <label class="form-label">Product (from buyer submission)</label>
+          <select class="form-select" id="proj-product-select" onchange="fillProductName()">
+            <option value="">Select product...</option>
+          </select>
+        </div>
+      </div>
+      <div style="margin-bottom:16px;">
+        <label class="form-label">Product Name *</label>
+        <input type="text" class="form-input" id="proj-product-name" placeholder="e.g. Plastic injection moulded enclosures" />
+      </div>
+      <div style="margin-bottom:16px;">
+        <label class="form-label">Assign Manufacturer</label>
+        <select class="form-select" id="proj-manufacturer-id">
+          <option value="">Not yet assigned</option>
+        </select>
+      </div>
+      <div class="form-row-2" style="margin-bottom:16px;">
+        <div>
+          <label class="form-label">Status *</label>
+          <select class="form-select" id="proj-status">
+            <option value="received">Received</option>
+            <option value="in_progress">In Progress</option>
+            <option value="quality_check">Quality Check</option>
+            <option value="delivered">Delivered</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+        </div>
+        <div>
+          <label class="form-label">Expected Timeline</label>
+          <input type="text" class="form-input" id="proj-timeline" placeholder="e.g. 6–8 weeks from confirmation" />
+        </div>
+      </div>
+      <div style="margin-bottom:16px;">
+        <label class="form-label">Admin Notes (internal only)</label>
+        <textarea class="form-input" id="proj-notes" rows="3" placeholder="Internal notes visible only to admin..." style="resize:vertical;"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeProjectModal()">Cancel</button>
+      <button class="btn-save" id="proj-save-btn" onclick="saveProject()">Save Project</button>
+    </div>
   </div>
 </div>
 
@@ -1275,6 +1368,158 @@
 
   document.getElementById('mi-modal').addEventListener('click', function(e) { if (e.target === this) closeMIModal(); });
   document.getElementById('req-modal').addEventListener('click', function(e) { if (e.target === this) closeReqModal(); });
+  document.getElementById('project-modal').addEventListener('click', function(e) { if (e.target === this) closeProjectModal(); });
+
+  // ── PROJECTS ──────────────────────────────────────────────
+
+  let allManufacturers = [];
+  let allBuyers = [];
+
+  async function loadProjects() {
+    const statusFilter = document.getElementById('project-status-filter').value;
+    let query = _supa.from('projects')
+      .select('*, buyers(company_name, poc_name), manufacturers(company_name)')
+      .order('updated_at', { ascending: false });
+    if (statusFilter) query = query.eq('status', statusFilter);
+    const { data, error } = await query;
+    const tbody = document.getElementById('projects-tbody');
+    if (error || !data || data.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="7" class="table-empty">No projects yet. Create one from a buyer\'s submitted requirement.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = data.map(p => {
+      const statusLabels = { received: 'Received', in_progress: 'In Progress', quality_check: 'Quality Check', delivered: 'Delivered', cancelled: 'Cancelled' };
+      const statusColors = { received: '#1565C0', in_progress: '#E65100', quality_check: '#7B1FA2', delivered: '#2E7D32', cancelled: '#888' };
+      const col = statusColors[p.status] || '#888';
+      const label = statusLabels[p.status] || p.status;
+      const buyer = p.buyers?.company_name || '—';
+      const mfg = p.manufacturers?.company_name || '<span style="color:#888;font-style:italic;">Not assigned</span>';
+      const updated = p.updated_at ? new Date(p.updated_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '—';
+      return `<tr>
+        <td><span style="display:inline-flex;align-items:center;gap:6px;font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;padding:4px 10px;background:${col}22;color:${col};"><span style="width:6px;height:6px;border-radius:50%;background:${col};flex-shrink:0;"></span>${label}</span></td>
+        <td style="font-weight:500;">${p.product_name}</td>
+        <td>${buyer}</td>
+        <td>${mfg}</td>
+        <td style="color:var(--muted);font-size:12px;">${p.timeline || '—'}</td>
+        <td style="color:var(--muted);font-size:12px;">${updated}</td>
+        <td>
+          <button class="btn-edit" onclick="openEditProjectModal('${p.id}')">Edit</button>
+          <button class="btn-delete" onclick="deleteProject('${p.id}')">Delete</button>
+        </td>
+      </tr>`;
+    }).join('');
+  }
+
+  async function loadBuyersAndManufacturers() {
+    const [{ data: buyers }, { data: mfgs }] = await Promise.all([
+      _supa.from('buyers').select('id, company_name, products').order('company_name'),
+      _supa.from('manufacturers').select('id, company_name').eq('status', 'approved').order('company_name')
+    ]);
+    allBuyers = buyers || [];
+    allManufacturers = mfgs || [];
+
+    const buyerSel = document.getElementById('proj-buyer-id');
+    const mfgSel = document.getElementById('proj-manufacturer-id');
+    buyerSel.innerHTML = '<option value="">Select buyer...</option>' +
+      allBuyers.map(b => `<option value="${b.id}">${b.company_name || 'Unnamed'}</option>`).join('');
+    mfgSel.innerHTML = '<option value="">Not yet assigned</option>' +
+      allManufacturers.map(m => `<option value="${m.id}">${m.company_name || 'Unnamed'}</option>`).join('');
+  }
+
+  function loadBuyerProducts() {
+    const buyerId = document.getElementById('proj-buyer-id').value;
+    const buyer = allBuyers.find(b => b.id === buyerId);
+    const prodSel = document.getElementById('proj-product-select');
+    if (!buyer || !buyer.products || buyer.products.length === 0) {
+      prodSel.innerHTML = '<option value="">No products found</option>';
+      return;
+    }
+    const products = Array.isArray(buyer.products) ? buyer.products : [];
+    prodSel.innerHTML = '<option value="">Select product...</option>' +
+      products.map((p, i) => `<option value="${i}">${p.name || p.product_name || 'Product ' + (i+1)}</option>`).join('');
+  }
+
+  function fillProductName() {
+    const buyerId = document.getElementById('proj-buyer-id').value;
+    const idx = document.getElementById('proj-product-select').value;
+    if (idx === '') return;
+    const buyer = allBuyers.find(b => b.id === buyerId);
+    if (!buyer || !buyer.products) return;
+    const p = buyer.products[parseInt(idx)];
+    if (p) document.getElementById('proj-product-name').value = p.name || p.product_name || '';
+  }
+
+  async function openCreateProjectModal() {
+    document.getElementById('project-modal-title').textContent = 'Create Project';
+    document.getElementById('project-edit-id').value = '';
+    document.getElementById('proj-product-name').value = '';
+    document.getElementById('proj-status').value = 'received';
+    document.getElementById('proj-timeline').value = '';
+    document.getElementById('proj-notes').value = '';
+    await loadBuyersAndManufacturers();
+    document.getElementById('project-modal').style.display = 'flex';
+  }
+
+  async function openEditProjectModal(id) {
+    const { data: p } = await _supa.from('projects').select('*').eq('id', id).single();
+    if (!p) return;
+    document.getElementById('project-modal-title').textContent = 'Edit Project';
+    document.getElementById('project-edit-id').value = p.id;
+    document.getElementById('proj-product-name').value = p.product_name || '';
+    document.getElementById('proj-status').value = p.status || 'received';
+    document.getElementById('proj-timeline').value = p.timeline || '';
+    document.getElementById('proj-notes').value = p.admin_notes || '';
+    await loadBuyersAndManufacturers();
+    if (p.buyer_id) document.getElementById('proj-buyer-id').value = p.buyer_id;
+    if (p.manufacturer_id) document.getElementById('proj-manufacturer-id').value = p.manufacturer_id;
+    document.getElementById('project-modal').style.display = 'flex';
+  }
+
+  function closeProjectModal() {
+    document.getElementById('project-modal').style.display = 'none';
+  }
+
+  async function saveProject() {
+    const id = document.getElementById('project-edit-id').value;
+    const productName = document.getElementById('proj-product-name').value.trim();
+    const buyerId = document.getElementById('proj-buyer-id').value || null;
+    const mfgId = document.getElementById('proj-manufacturer-id').value || null;
+    const status = document.getElementById('proj-status').value;
+    const timeline = document.getElementById('proj-timeline').value.trim();
+    const notes = document.getElementById('proj-notes').value.trim();
+
+    if (!productName) { alert('Product name is required.'); return; }
+
+    const btn = document.getElementById('proj-save-btn');
+    btn.disabled = true; btn.textContent = 'Saving...';
+
+    const payload = { product_name: productName, buyer_id: buyerId, manufacturer_id: mfgId, status, timeline: timeline || null, admin_notes: notes || null };
+
+    let error;
+    if (id) {
+      ({ error } = await _supa.from('projects').update(payload).eq('id', id));
+    } else {
+      ({ error } = await _supa.from('projects').insert(payload));
+    }
+
+    btn.disabled = false; btn.textContent = 'Save Project';
+    if (error) { alert('Error: ' + error.message); return; }
+    closeProjectModal();
+    loadProjects();
+  }
+
+  async function deleteProject(id) {
+    if (!confirm('Delete this project? This cannot be undone.')) return;
+    await _supa.from('projects').delete().eq('id', id);
+    loadProjects();
+  }
+
+  // Load projects when tab is clicked
+  const origShowTab = showTab;
+  showTab = function(name, el) {
+    origShowTab(name, el);
+    if (name === 'projects') loadProjects();
+  };
 </script>
 </body>
 </html>

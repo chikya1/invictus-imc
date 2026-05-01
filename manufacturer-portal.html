@@ -158,7 +158,7 @@
         <div class="stat-card">
           <div class="stat-card-label">Orders Assigned</div>
           <div class="stat-card-val">—</div>
-          <div class="stat-card-sub">Active orders from IMC</div>
+          <div class="stat-card-sub">All time from IMC</div>
         </div>
         <div class="stat-card">
           <div class="stat-card-label">Orders Completed</div>
@@ -183,14 +183,11 @@
 
       <div class="section">
         <div class="section-header">
-          <div class="section-title">Assigned Orders</div>
+          <div class="section-title">Recent Orders</div>
+          <a class="nav-item" onclick="showSection('orders')" style="font-size:11px;color:var(--gold);cursor:pointer;padding:0;background:none;border:none;letter-spacing:1px;text-transform:uppercase;">View All →</a>
         </div>
-        <div class="section-body">
-          <div class="empty-state">
-            <div class="empty-icon">◎</div>
-            <div class="empty-title">No orders yet</div>
-            <div class="empty-desc">Once your profile is reviewed and approved by IMC, orders will appear here. Your account manager will reach out before the first order is assigned.</div>
-          </div>
+        <div class="section-body" id="dash-orders-list">
+          <div class="loading">Loading orders...</div>
         </div>
       </div>
     </div>
@@ -204,12 +201,8 @@
         <div class="section-header">
           <div class="section-title">All Assigned Orders</div>
         </div>
-        <div class="section-body">
-          <div class="empty-state">
-            <div class="empty-icon">◎</div>
-            <div class="empty-title">Orders coming soon</div>
-            <div class="empty-desc">Your order book will appear here once IMC starts assigning projects to your facility. This is set up in Phase 2 of the platform.</div>
-          </div>
+        <div class="section-body" id="orders-list">
+          <div class="loading">Loading orders...</div>
         </div>
       </div>
     </div>
@@ -296,9 +289,66 @@
           if (profileStatusEl) { profileStatusEl.className = 'status-pill status-approved'; profileStatusEl.textContent = 'Approved'; }
         }
         renderProfile(mfg);
+        await loadOrders(mfg.id);
       } else {
         document.getElementById('profile-body').innerHTML = '<div class="empty-state"><div class="empty-icon">◇</div><div class="empty-title">Profile not linked</div><div class="empty-desc">Your manufacturer profile hasn\'t been linked yet. Contact IMC at connect@invictusimc.com.</div></div>';
       }
+    }
+
+    async function loadOrders(mfgId) {
+      const { data: projects } = await supa
+        .from('projects')
+        .select('*')
+        .eq('manufacturer_id', mfgId)
+        .order('updated_at', { ascending: false });
+
+      const all = projects || [];
+      const active = all.filter(p => ['received','in_progress','quality_check'].includes(p.status)).length;
+      const delivered = all.filter(p => p.status === 'delivered').length;
+
+      // Update stats
+      const statCards = document.querySelectorAll('.stat-card-val');
+      if (statCards[0]) statCards[0].textContent = all.length;
+      if (statCards[1]) statCards[1].textContent = delivered;
+
+      const ordersContainer = document.getElementById('orders-list');
+      const dashOrdersContainer = document.getElementById('dash-orders-list');
+
+      if (all.length === 0) {
+        const emptyHtml = `<div class="empty-state"><div class="empty-icon">◎</div><div class="empty-title">No orders yet</div><div class="empty-desc">Once your profile is approved, IMC will assign orders here. Your account manager will contact you before the first order.</div></div>`;
+        if (ordersContainer) ordersContainer.innerHTML = emptyHtml;
+        if (dashOrdersContainer) dashOrdersContainer.innerHTML = emptyHtml;
+        return;
+      }
+
+      const html = all.map(p => {
+        const statusLabels = { received: 'New Order', in_progress: 'In Progress', quality_check: 'Quality Check', delivered: 'Delivered', cancelled: 'Cancelled' };
+        const statusColors = { received: '#1565C0', in_progress: '#E65100', quality_check: '#7B1FA2', delivered: '#2E7D32', cancelled: '#888' };
+        const col = statusColors[p.status] || '#888';
+        const label = statusLabels[p.status] || p.status;
+        const updated = p.updated_at ? new Date(p.updated_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '—';
+        return `
+          <div class="req-card" style="border:1px solid var(--border);padding:20px 24px;margin-bottom:12px;">
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px;">
+              <div style="font-family:var(--serif);font-size:20px;font-weight:500;color:var(--ink);">${p.product_name}</div>
+              <span style="display:inline-flex;align-items:center;gap:6px;font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;padding:4px 10px;background:${col}18;color:${col};">
+                <span style="width:6px;height:6px;border-radius:50%;background:${col};flex-shrink:0;"></span>${label}
+              </span>
+            </div>
+            ${p.timeline ? `<div style="font-size:12px;color:var(--ink-mid);margin-bottom:8px;"><strong>Timeline:</strong> ${p.timeline}</div>` : ''}
+            <div style="font-size:11px;color:var(--ink-light);">Last updated ${updated}</div>
+          </div>`;
+      }).join('');
+
+      if (ordersContainer) ordersContainer.innerHTML = html;
+      if (dashOrdersContainer) dashOrdersContainer.innerHTML = all.slice(0,3).map(p => {
+        const statusColors = { received: '#1565C0', in_progress: '#E65100', quality_check: '#7B1FA2', delivered: '#2E7D32', cancelled: '#888' };
+        const statusLabels = { received: 'New Order', in_progress: 'In Progress', quality_check: 'Quality Check', delivered: 'Delivered', cancelled: 'Cancelled' };
+        return `<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border);">
+          <span style="font-size:14px;font-weight:400;color:var(--ink);">${p.product_name}</span>
+          <span style="font-size:9px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:${statusColors[p.status] || '#888'};">${statusLabels[p.status] || p.status}</span>
+        </div>`;
+      }).join('');
     }
 
     function renderProfile(mfg) {

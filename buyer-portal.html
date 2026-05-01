@@ -306,27 +306,69 @@
         return;
       }
 
-      // Load projects for this buyer (from projects table — Phase 2)
-      // For now, show the buyer's submitted requirements from the buyers table
-      const products = buyerRecord.products || [];
-      const total = products.length;
-      const active = 0; // Will come from projects table in Phase 2
-      const delivered = 0;
+      // Load projects for this buyer from projects table
+      const { data: projects } = await supa
+        .from('projects')
+        .select('*')
+        .eq('buyer_id', buyerRecord.id)
+        .order('updated_at', { ascending: false });
+
+      const all = projects || [];
+      const total = all.length;
+      const active = all.filter(p => ['in_progress','quality_check'].includes(p.status)).length;
+      const delivered = all.filter(p => p.status === 'delivered').length;
 
       updateStats(total, active, delivered);
 
       if (total === 0) {
-        renderEmptyState('recent-reqs');
-        renderEmptyState('all-reqs');
-      } else {
-        const html = products.map(p => renderReqCard(p, buyerRecord)).join('');
-        document.getElementById('recent-reqs').innerHTML = html;
-        document.getElementById('all-reqs').innerHTML = html;
-        document.getElementById('req-count').textContent = total + ' requirement' + (total !== 1 ? 's' : '');
+        // Fall back to showing raw submitted products if no projects yet
+        const products = buyerRecord.products || [];
+        if (products.length === 0) {
+          renderEmptyState('recent-reqs');
+          renderEmptyState('all-reqs');
+        } else {
+          const html = products.map(p => renderRawProduct(p, buyerRecord)).join('');
+          document.getElementById('recent-reqs').innerHTML = html;
+          document.getElementById('all-reqs').innerHTML = html;
+          document.getElementById('req-count').textContent = products.length + ' requirement' + (products.length !== 1 ? 's' : '');
+          updateStats(products.length, 0, 0);
+        }
+        return;
       }
+
+      const html = all.map(p => renderProjectCard(p)).join('');
+      document.getElementById('recent-reqs').innerHTML = all.slice(0,3).map(p => renderProjectCard(p)).join('');
+      document.getElementById('all-reqs').innerHTML = html;
+      document.getElementById('req-count').textContent = total + ' project' + (total !== 1 ? 's' : '');
     }
 
-    function renderReqCard(product, buyer) {
+    function renderProjectCard(project) {
+      const statusLabels = { received: 'Received', in_progress: 'In Progress', quality_check: 'Quality Check', delivered: 'Delivered', cancelled: 'Cancelled' };
+      const statusClass = { received: 'status-received', in_progress: 'status-in-progress', quality_check: 'status-quality-check', delivered: 'status-delivered', cancelled: '' };
+      const label = statusLabels[project.status] || project.status;
+      const cls = statusClass[project.status] || 'status-received';
+      const updated = project.updated_at ? new Date(project.updated_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '—';
+      const details = project.product_details || {};
+      return `
+        <div class="req-card">
+          <div class="req-card-top">
+            <div class="req-product">${project.product_name}</div>
+            <div style="display:flex;align-items:center;gap:12px;">
+              <span class="status-badge ${cls}">${label}</span>
+              <span class="req-date">Updated ${updated}</span>
+            </div>
+          </div>
+          ${project.timeline ? `<div class="req-meta"><div class="req-meta-item"><strong>Expected Timeline:</strong> ${project.timeline}</div></div>` : ''}
+          <div style="font-size:12px;color:var(--ink-light);">
+            ${project.status === 'received' ? 'Your account manager will reach out within 48 hours to discuss this requirement.' : ''}
+            ${project.status === 'in_progress' ? 'Your product is currently in production. Your account manager will keep you updated.' : ''}
+            ${project.status === 'quality_check' ? 'Production is complete. Quality checks are underway before delivery.' : ''}
+            ${project.status === 'delivered' ? 'Your product has been delivered. Thank you for working with IMC.' : ''}
+          </div>
+        </div>`;
+    }
+
+    function renderRawProduct(product, buyer) {
       const name = product.name || product.product_name || 'Unnamed Product';
       const volume = product.volume || '—';
       const freq = product.frequency || '—';
