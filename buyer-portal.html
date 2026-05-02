@@ -368,6 +368,8 @@
       document.getElementById('recent-reqs').innerHTML = all.slice(0,3).map(p => renderProjectCard(p)).join('');
       document.getElementById('all-reqs').innerHTML = html;
       document.getElementById('req-count').textContent = total + ' project' + (total !== 1 ? 's' : '');
+      // Load extra data (notes, denial notes) after rendering
+      setTimeout(() => loadProjectExtras(all), 100);
     }
 
     const STATUS_STEPS = ['received','accepted','in_production','qc','shipped','delivered','closed'];
@@ -393,16 +395,43 @@
 
     function renderProjectCard(project) {
       const updated = project.updated_at ? new Date(project.updated_at).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' }) : '—';
+
+      // Denial state
+      if (project.acceptance_status === 'denied') {
+        return `<div class="req-card" id="proj-${project.id}">
+          <div class="req-card-top">
+            <div class="req-product">${project.product_name}</div>
+            <span style="font-size:9px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;padding:4px 10px;background:rgba(231,76,60,0.1);color:#e74c3c;">Not Accepted</span>
+          </div>
+          <div style="font-size:13px;color:var(--ink-mid);line-height:1.7;margin-bottom:12px;">This project was not accepted by IMC. Please see the note below or contact your account manager.</div>
+          <div id="denial-note-${project.id}" style="background:rgba(231,76,60,0.05);border:1px solid rgba(231,76,60,0.2);padding:16px 20px;margin-top:4px;">
+            <div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#e74c3c;margin-bottom:8px;">Note from IMC</div>
+            <div style="font-size:13px;color:var(--ink-mid);line-height:1.75;" id="denial-text-${project.id}">Loading...</div>
+          </div>
+        </div>`;
+      }
+
       const statusMsg = {
-        received: 'Your requirement has been received. An account manager will reach out within 48 hours.',
-        accepted: 'Your project has been accepted. IMC is now planning the production.',
+        received: 'Your requirement has been received and is under review by IMC.',
+        accepted: 'Your project has been accepted. IMC is planning production.',
         in_production: 'Your product is currently in production.',
-        qc: 'Production complete. Quality checks are underway before dispatch.',
+        qc: 'Production complete. Quality checks are underway.',
         shipped: 'Your product has been shipped and is on its way.',
         delivered: 'Your product has been delivered.',
         closed: project.completion_note || 'This project has been completed and closed.',
         cancelled: 'This project has been cancelled. Please contact your account manager.'
       };
+
+      const needsInfoBanner = project.needs_info ? `
+        <div style="background:rgba(230,81,0,0.06);border:1px solid rgba(230,81,0,0.25);border-left:3px solid #E65100;padding:16px 20px;margin-bottom:16px;">
+          <div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#E65100;margin-bottom:8px;font-weight:600;">⚠ IMC needs more information</div>
+          <div id="info-note-${project.id}" style="font-size:13px;color:var(--ink-mid);line-height:1.75;margin-bottom:14px;">Loading note...</div>
+          <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink-light);margin-bottom:8px;">Your Reply</div>
+          <textarea id="reply-${project.id}" rows="4" placeholder="Type your reply here..." maxlength="14000" style="width:100%;font-family:var(--sans);font-size:13px;background:var(--white);border:1px solid var(--border);color:var(--ink);padding:12px;outline:none;resize:vertical;margin-bottom:10px;"></textarea>
+          <button onclick="submitBuyerReply('${project.id}')" style="font-family:var(--sans);font-size:11px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;background:var(--gold);color:var(--white);border:none;padding:10px 24px;cursor:pointer;">Send Reply</button>
+          <span id="reply-status-${project.id}" style="font-size:12px;color:var(--ink-light);margin-left:12px;"></span>
+        </div>` : '';
+
       return `
         <div class="req-card" id="proj-${project.id}">
           <div class="req-card-top">
@@ -410,6 +439,7 @@
             <span class="req-date">Updated ${updated}</span>
           </div>
           ${renderProgressBar(project.status)}
+          ${needsInfoBanner}
           ${project.timeline ? `<div style="font-size:12px;color:var(--ink-mid);margin-bottom:10px;"><strong>Expected Timeline:</strong> ${project.timeline}</div>` : ''}
           <div style="font-size:13px;color:var(--ink-mid);line-height:1.7;margin-bottom:16px;">${statusMsg[project.status] || ''}</div>
           <div id="milestones-${project.id}" style="display:none;margin-top:4px;border-top:1px solid var(--border);padding-top:16px;">
@@ -460,6 +490,43 @@
             <div class="doc-content">${d.content}</div>
           </div>`).join('');
       } else { el.style.display = 'none'; }
+    }
+
+    // Load info notes and denial notes after rendering
+    async function loadProjectExtras(projects) {
+      for (const p of projects) {
+        // Load denial note
+        if (p.acceptance_status === 'denied') {
+          const { data: notes } = await supa.from('project_notes').select('content').eq('project_id', p.id).eq('note_type', 'denial_note').order('created_at', { ascending: false }).limit(1);
+          const el = document.getElementById('denial-text-' + p.id);
+          if (el) el.textContent = notes?.[0]?.content || 'Please contact your account manager for details.';
+        }
+        // Load needs_info note
+        if (p.needs_info) {
+          const { data: notes } = await supa.from('project_notes').select('content').eq('project_id', p.id).eq('note_type', 'admin_query').order('created_at', { ascending: false }).limit(1);
+          const el = document.getElementById('info-note-' + p.id);
+          if (el) el.textContent = notes?.[0]?.content || 'IMC has requested additional information. Please reply below.';
+        }
+      }
+    }
+
+    async function submitBuyerReply(projectId) {
+      const textarea = document.getElementById('reply-' + projectId);
+      const statusEl = document.getElementById('reply-status-' + projectId);
+      const content = textarea?.value?.trim();
+      if (!content) { if (statusEl) statusEl.textContent = 'Please enter a reply.'; return; }
+      if (statusEl) statusEl.textContent = 'Sending...';
+      const { error } = await supa.from('project_notes').insert({
+        project_id: projectId,
+        note_type: 'buyer_reply',
+        content,
+        created_by: 'buyer'
+      });
+      // Mark needs_info as resolved
+      await supa.from('projects').update({ needs_info: false }).eq('id', projectId);
+      if (error) { if (statusEl) statusEl.textContent = 'Error sending. Try again.'; return; }
+      if (textarea) textarea.value = '';
+      if (statusEl) { statusEl.textContent = 'Reply sent ✓'; statusEl.style.color = '#2E7D32'; }
     }
 
     function renderRawProduct(product, buyer) {

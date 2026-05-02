@@ -458,7 +458,15 @@
         </div>
         <div class="sidebar-link" onclick="showTab('projects', this)">
           <svg viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="12" height="12" rx="1" stroke="currentColor" stroke-width="1"/><line x1="4" y1="5" x2="10" y2="5" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="4" y1="7.5" x2="10" y2="7.5" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="4" y1="10" x2="7" y2="10" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
-          Projects
+          Project Acceptance
+        </div>
+        <div class="sidebar-link" onclick="showTab('project-mgmt', this)">
+          <svg viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1"/><polyline points="4,7 6,9 10,5" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Project Management
+        </div>
+        <div class="sidebar-link" onclick="showTab('archived', this)">
+          <svg viewBox="0 0 14 14" fill="none"><rect x="1" y="4" width="12" height="9" rx="1" stroke="currentColor" stroke-width="1"/><path d="M1 4l2-3h8l2 3" stroke="currentColor" stroke-width="1"/><line x1="5" y1="7" x2="9" y2="7" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
+          Archived Projects
         </div>
       </div>
       <div class="sidebar-divider"></div>
@@ -591,33 +599,65 @@
         </table>
       </div>
 
-      <!-- PROJECTS TAB -->
+      <!-- PROJECT ACCEPTANCE TAB -->
       <div class="tab-panel" id="tab-projects">
-        <div class="page-title">Projects</div>
-        <div class="page-subtitle">Each approved buyer product becomes a project. Manage status, payment milestones, and documents here.</div>
+        <div class="page-title">Project <em>Acceptance</em></div>
+        <div class="page-subtitle">All products from approved buyers awaiting your decision. Accept, deny, or ask for more details.</div>
         <div class="section-header">
-          <div class="section-title">All Projects</div>
+          <div class="section-title">Awaiting Decision</div>
+          <div id="acceptance-count" style="font-size:11px;color:var(--muted);letter-spacing:1px;"></div>
+        </div>
+        <table class="admin-table">
+          <thead>
+            <tr><th>Product</th><th>Buyer</th><th>Details</th><th>Submitted</th><th>Actions</th></tr>
+          </thead>
+          <tbody id="acceptance-tbody">
+            <tr><td colspan="5" class="table-empty">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- PROJECT MANAGEMENT TAB -->
+      <div class="tab-panel" id="tab-project-mgmt">
+        <div class="page-title">Project <em>Management</em></div>
+        <div class="page-subtitle">Accepted projects. Update status, manage milestones, documents, and communicate with buyers.</div>
+        <div class="section-header">
+          <div class="section-title">Active Projects</div>
           <div style="display:flex;gap:8px;align-items:center;">
-            <select id="project-status-filter" onchange="loadProjects()" style="font-family:var(--sans);font-size:12px;background:var(--surface);border:1px solid var(--border-color);color:var(--white);padding:8px 12px;cursor:pointer;">
+            <select id="mgmt-status-filter" onchange="loadMgmtProjects()" style="font-family:var(--sans);font-size:12px;background:var(--surface);border:1px solid var(--border-color);color:var(--white);padding:8px 12px;cursor:pointer;">
               <option value="">All Statuses</option>
-              <option value="received">Received</option>
               <option value="accepted">Accepted</option>
               <option value="in_production">In Production</option>
               <option value="qc">QC</option>
               <option value="shipped">Shipped</option>
               <option value="delivered">Delivered</option>
               <option value="closed">Closed</option>
-              <option value="cancelled">Cancelled</option>
             </select>
-            <button class="btn-add" onclick="openCreateProjectModal()">+ Create Project</button>
           </div>
         </div>
-        <table class="admin-table" id="projects-table">
+        <table class="admin-table">
           <thead>
-            <tr><th>Status</th><th>Product</th><th>Buyer</th><th>Manufacturer</th><th>Timeline</th><th>Updated</th><th>Actions</th></tr>
+            <tr><th>Status</th><th>Product</th><th>Buyer</th><th>Manufacturer</th><th>Info?</th><th>Updated</th><th>Actions</th></tr>
           </thead>
-          <tbody id="projects-tbody">
-            <tr><td colspan="7" class="table-empty">Loading projects...</td></tr>
+          <tbody id="mgmt-tbody">
+            <tr><td colspan="7" class="table-empty">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ARCHIVED PROJECTS TAB -->
+      <div class="tab-panel" id="tab-archived">
+        <div class="page-title">Archived <em>Projects</em></div>
+        <div class="page-subtitle">Denied projects. Review denial notes and restore to Project Management if needed.</div>
+        <div class="section-header">
+          <div class="section-title">Denied Projects</div>
+        </div>
+        <table class="admin-table">
+          <thead>
+            <tr><th>Product</th><th>Buyer</th><th>Denial Note</th><th>Denied On</th><th>Actions</th></tr>
+          </thead>
+          <tbody id="archived-tbody">
+            <tr><td colspan="5" class="table-empty">Loading...</td></tr>
           </tbody>
         </table>
       </div>
@@ -626,7 +666,58 @@
   </div>
 </div>
 
-<!-- PROJECT MODAL -->
+<!-- DENIAL MODAL -->
+<div class="modal-overlay" id="denial-modal">
+  <div class="modal" style="max-width:560px;">
+    <div class="modal-header">
+      <div class="modal-title">Deny Project</div>
+      <button class="modal-close" onclick="closeDenialModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:13px;color:var(--muted);margin-bottom:16px;line-height:1.7;">This project will be moved to Archived Projects. The buyer will see a denial message. Provide a note explaining the reason.</p>
+      <input type="hidden" id="denial-project-id" />
+      <label class="form-label">Denial Note (shown to buyer, up to 2,000 words)</label>
+      <textarea class="form-input" id="denial-note-text" rows="6" placeholder="Explain why this project cannot be accepted at this time..." style="resize:vertical;" maxlength="14000"></textarea>
+      <div style="font-size:11px;color:var(--muted);margin-top:6px;text-align:right;" id="denial-char-count">0 / 14,000 chars</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeDenialModal()">Cancel</button>
+      <button class="btn-save" style="background:#e74c3c;" onclick="confirmDeny()">Deny Project</button>
+    </div>
+  </div>
+</div>
+
+<!-- ASK FOR MORE DETAILS MODAL -->
+<div class="modal-overlay" id="query-modal">
+  <div class="modal" style="max-width:560px;">
+    <div class="modal-header">
+      <div class="modal-title">Ask for More Details</div>
+      <button class="modal-close" onclick="closeQueryModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:13px;color:var(--muted);margin-bottom:16px;line-height:1.7;">The project stays at its current stage. The buyer will see your note and can reply directly from their portal.</p>
+      <input type="hidden" id="query-project-id" />
+      <label class="form-label">Your Note to Buyer (up to 2,000 words)</label>
+      <textarea class="form-input" id="query-note-text" rows="6" placeholder="What additional information do you need from the buyer?" style="resize:vertical;" maxlength="14000"></textarea>
+      <div style="font-size:11px;color:var(--muted);margin-top:6px;text-align:right;" id="query-char-count">0 / 14,000 chars</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeQueryModal()">Cancel</button>
+      <button class="btn-save" onclick="submitQuery()">Send to Buyer</button>
+    </div>
+  </div>
+</div>
+
+<!-- VIEW NOTES MODAL -->
+<div class="modal-overlay" id="notes-modal">
+  <div class="modal" style="max-width:600px;max-height:85vh;overflow-y:auto;">
+    <div class="modal-header">
+      <div class="modal-title">Project Notes</div>
+      <button class="modal-close" onclick="closeNotesModal()">✕</button>
+    </div>
+    <div class="modal-body" id="notes-modal-body">Loading...</div>
+  </div>
+</div>
 <div class="modal-overlay" id="project-modal">
   <div class="modal" style="max-width:680px;max-height:90vh;overflow-y:auto;">
     <div class="modal-header">
@@ -1479,102 +1570,214 @@
   document.getElementById('mi-modal').addEventListener('click', function(e) { if (e.target === this) closeMIModal(); });
   document.getElementById('req-modal').addEventListener('click', function(e) { if (e.target === this) closeReqModal(); });
   document.getElementById('project-modal').addEventListener('click', function(e) { if (e.target === this) closeProjectModal(); });
+  document.getElementById('denial-modal').addEventListener('click', function(e) { if (e.target === this) closeDenialModal(); });
+  document.getElementById('query-modal').addEventListener('click', function(e) { if (e.target === this) closeQueryModal(); });
+  document.getElementById('notes-modal').addEventListener('click', function(e) { if (e.target === this) closeNotesModal(); });
 
-  // ── PROJECTS PHASE 3 ──────────────────────────────────────
+  document.getElementById('denial-note-text').addEventListener('input', function() {
+    document.getElementById('denial-char-count').textContent = this.value.length.toLocaleString() + ' / 14,000 chars';
+  });
+  document.getElementById('query-note-text').addEventListener('input', function() {
+    document.getElementById('query-char-count').textContent = this.value.length.toLocaleString() + ' / 14,000 chars';
+  });
 
-  const STATUS_LABELS = { received:'Received', accepted:'Accepted', in_production:'In Production', qc:'QC', shipped:'Shipped', delivered:'Delivered', closed:'Closed', cancelled:'Cancelled' };
-  const STATUS_COLORS = { received:'#1565C0', accepted:'#C8860A', in_production:'#E65100', qc:'#7B1FA2', shipped:'#00838F', delivered:'#2E7D32', closed:'#388E3C', cancelled:'#888' };
-  const STATUS_STEPS = ['received','accepted','in_production','qc','shipped','delivered','closed'];
+  const STATUS_LABELS = { received:'Received', accepted:'Accepted', in_production:'In Production', qc:'QC', shipped:'Shipped', delivered:'Delivered', closed:'Closed', cancelled:'Cancelled', denied:'Denied' };
+  const STATUS_COLORS = { received:'#1565C0', accepted:'#C8860A', in_production:'#E65100', qc:'#7B1FA2', shipped:'#00838F', delivered:'#2E7D32', closed:'#388E3C', cancelled:'#888', denied:'#e74c3c' };
 
-  let allManufacturers = [];
-  let allBuyers = [];
-  let buyerMilestones = []; // local state while editing
-  let mfgMilestones = [];
-  let currentProjectId = null;
+  let allManufacturers = [], allBuyers = [], buyerMilestones = [], mfgMilestones = [], currentProjectId = null;
 
-  async function loadProjects() {
-    const statusFilter = document.getElementById('project-status-filter').value;
-    let query = _supa.from('projects')
-      .select('*, buyers(company_name, poc_name), manufacturers(company_name)')
-      .order('updated_at', { ascending: false });
-    if (statusFilter) query = query.eq('status', statusFilter);
-    const { data, error } = await query;
-    const tbody = document.getElementById('projects-tbody');
-    if (error || !data || data.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="7" class="table-empty">No projects yet. Approve a buyer to auto-create projects, or create manually.</td></tr>';
-      return;
-    }
+  function statusBadge(status) {
+    const col = STATUS_COLORS[status] || '#888';
+    const label = STATUS_LABELS[status] || status;
+    return `<span style="display:inline-flex;align-items:center;gap:5px;font-size:9px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;padding:4px 10px;background:${col}22;color:${col};"><span style="width:5px;height:5px;border-radius:50%;background:${col};flex-shrink:0;"></span>${label}</span>`;
+  }
+
+  async function loadAcceptanceProjects() {
+    const { data } = await _supa.from('projects').select('*, buyers(company_name)').eq('acceptance_status','received').order('created_at',{ascending:false});
+    const tbody = document.getElementById('acceptance-tbody');
+    const count = document.getElementById('acceptance-count');
+    if (!data || data.length === 0) { tbody.innerHTML='<tr><td colspan="5" class="table-empty">No projects awaiting decision.</td></tr>'; if(count) count.textContent=''; return; }
+    if (count) count.textContent = data.length + ' awaiting decision';
     tbody.innerHTML = data.map(p => {
-      const col = STATUS_COLORS[p.status] || '#888';
-      const label = STATUS_LABELS[p.status] || p.status;
       const buyer = p.buyers?.company_name || '—';
-      const mfg = p.manufacturers?.company_name || '<span style="color:#888;font-style:italic;">Unassigned</span>';
-      const updated = p.updated_at ? new Date(p.updated_at).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' }) : '—';
+      const details = p.product_details ? Object.entries(p.product_details).filter(([k,v])=>v&&k!=='name').map(([k,v])=>`${k}: ${v}`).join(' · ') : '—';
+      const date = p.created_at ? new Date(p.created_at).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : '—';
       return `<tr>
-        <td><span style="display:inline-flex;align-items:center;gap:5px;font-size:9px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;padding:4px 10px;background:${col}22;color:${col};"><span style="width:5px;height:5px;border-radius:50%;background:${col};flex-shrink:0;"></span>${label}</span></td>
-        <td style="font-weight:500;">${p.product_name}</td>
-        <td>${buyer}</td>
-        <td>${mfg}</td>
-        <td style="color:var(--muted);font-size:12px;">${p.timeline || '—'}</td>
-        <td style="color:var(--muted);font-size:12px;">${updated}</td>
+        <td style="font-weight:500;">${p.product_name}</td><td>${buyer}</td>
+        <td style="font-size:12px;color:var(--muted);max-width:200px;">${details}</td>
+        <td style="font-size:12px;color:var(--muted);">${date}</td>
+        <td>
+          <button class="btn-edit" style="color:#2E7D32;background:rgba(46,125,50,0.1);border-color:rgba(46,125,50,0.3);" onclick="acceptProject('${p.id}')">Accept</button>
+          <button class="btn-edit" onclick="openQueryModal('${p.id}')">Ask for Info</button>
+          <button class="btn-del" onclick="openDenialModal('${p.id}')">Deny</button>
+        </td></tr>`;
+    }).join('');
+  }
+
+  async function acceptProject(id) {
+    if (!confirm('Accept this project and move to Project Management?')) return;
+    await _supa.from('projects').update({acceptance_status:'accepted',status:'accepted',status_updated_at:new Date().toISOString()}).eq('id',id);
+    loadAcceptanceProjects();
+  }
+
+  function openDenialModal(id) {
+    document.getElementById('denial-project-id').value = id;
+    document.getElementById('denial-note-text').value = '';
+    document.getElementById('denial-char-count').textContent = '0 / 14,000 chars';
+    document.getElementById('denial-modal').style.display = 'flex';
+  }
+  function closeDenialModal() { document.getElementById('denial-modal').style.display='none'; }
+
+  async function confirmDeny() {
+    const id = document.getElementById('denial-project-id').value;
+    const note = document.getElementById('denial-note-text').value.trim();
+    if (!note) { alert('Please provide a denial note.'); return; }
+    await _supa.from('projects').update({acceptance_status:'denied',denial_note:note,status_updated_at:new Date().toISOString()}).eq('id',id);
+    await _supa.from('project_notes').insert({project_id:id,note_type:'denial_note',content:note,created_by:'admin'});
+    closeDenialModal(); loadAcceptanceProjects();
+  }
+
+  function openQueryModal(id) {
+    document.getElementById('query-project-id').value = id;
+    document.getElementById('query-note-text').value = '';
+    document.getElementById('query-char-count').textContent = '0 / 14,000 chars';
+    document.getElementById('query-modal').style.display = 'flex';
+  }
+  function closeQueryModal() { document.getElementById('query-modal').style.display='none'; }
+
+  async function submitQuery() {
+    const id = document.getElementById('query-project-id').value;
+    const note = document.getElementById('query-note-text').value.trim();
+    if (!note) { alert('Please enter your note.'); return; }
+    const btn = document.querySelector('#query-modal .btn-save');
+    btn.disabled=true; btn.textContent='Sending...';
+    await Promise.all([
+      _supa.from('projects').update({needs_info:true}).eq('id',id),
+      _supa.from('project_notes').insert({project_id:id,note_type:'admin_query',content:note,created_by:'admin'})
+    ]);
+    btn.disabled=false; btn.textContent='Send to Buyer';
+    closeQueryModal(); loadAcceptanceProjects(); loadMgmtProjects();
+  }
+
+  async function loadMgmtProjects() {
+    const statusFilter = document.getElementById('mgmt-status-filter').value;
+    let query = _supa.from('projects').select('*, buyers(company_name), manufacturers(company_name)').eq('acceptance_status','accepted').order('updated_at',{ascending:false});
+    if (statusFilter) query = query.eq('status',statusFilter);
+    const { data } = await query;
+    const tbody = document.getElementById('mgmt-tbody');
+    if (!data || data.length===0) { tbody.innerHTML='<tr><td colspan="7" class="table-empty">No active projects.</td></tr>'; return; }
+    tbody.innerHTML = data.map(p => {
+      const buyer=p.buyers?.company_name||'—', mfg=p.manufacturers?.company_name||'<span style="color:#888;font-style:italic;">Unassigned</span>';
+      const updated=p.updated_at?new Date(p.updated_at).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}):'—';
+      const infoFlag=p.needs_info?`<span style="font-size:9px;font-weight:600;letter-spacing:1px;text-transform:uppercase;padding:3px 8px;background:rgba(230,81,0,0.15);color:#E65100;">Awaiting Info</span>`:'—';
+      return `<tr>
+        <td>${statusBadge(p.status)}</td><td style="font-weight:500;">${p.product_name}</td>
+        <td>${buyer}</td><td>${mfg}</td><td>${infoFlag}</td>
+        <td style="font-size:12px;color:var(--muted);">${updated}</td>
         <td>
           <button class="btn-edit" onclick="openEditProjectModal('${p.id}')">Manage</button>
-          <button class="btn-del" onclick="deleteProject('${p.id}')">Delete</button>
-        </td>
+          <button class="btn-edit" onclick="openQueryModal('${p.id}')" style="background:rgba(230,81,0,0.08);color:#E65100;border-color:rgba(230,81,0,0.3);">Ask Info</button>
+          <button class="btn-edit" onclick="openNotesModal('${p.id}')" style="background:rgba(123,156,204,0.1);color:#7B9CCC;border-color:rgba(123,156,204,0.3);">Notes</button>
+        </td></tr>`;
+    }).join('');
+  }
+
+  async function loadArchivedProjects() {
+    const { data } = await _supa.from('projects').select('*, buyers(company_name)').eq('acceptance_status','denied').order('updated_at',{ascending:false});
+    const tbody = document.getElementById('archived-tbody');
+    if (!data || data.length===0) { tbody.innerHTML='<tr><td colspan="5" class="table-empty">No archived projects.</td></tr>'; return; }
+    tbody.innerHTML = data.map(p => {
+      const buyer=p.buyers?.company_name||'—';
+      const note=p.denial_note?(p.denial_note.length>120?p.denial_note.substring(0,120)+'...':p.denial_note):'—';
+      const date=p.updated_at?new Date(p.updated_at).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}):'—';
+      return `<tr>
+        <td style="font-weight:500;">${p.product_name}</td><td>${buyer}</td>
+        <td style="font-size:12px;color:var(--muted);max-width:240px;">${note}</td>
+        <td style="font-size:12px;color:var(--muted);">${date}</td>
+        <td><button class="btn-edit" style="color:#2E7D32;background:rgba(46,125,50,0.1);border-color:rgba(46,125,50,0.3);" onclick="restoreProject('${p.id}')">Restore to Management</button></td>
       </tr>`;
     }).join('');
   }
 
-  async function loadBuyersAndManufacturers() {
-    const [{ data: buyers, error: be }, { data: mfgs, error: me }] = await Promise.all([
-      _supa.from('buyers').select('id, company_name, products').order('company_name'),
-      _supa.from('manufacturers').select('id, company_name').order('company_name')
-    ]);
-    allBuyers = buyers || [];
-    allManufacturers = mfgs || [];
+  async function restoreProject(id) {
+    if (!confirm('Restore this project to Project Management?')) return;
+    await _supa.from('projects').update({acceptance_status:'accepted',denial_note:null,status:'accepted',status_updated_at:new Date().toISOString()}).eq('id',id);
+    loadArchivedProjects();
+  }
 
-    document.getElementById('proj-buyer-id').innerHTML = '<option value="">Select buyer...</option>' +
-      allBuyers.map(b => `<option value="${b.id}">${b.company_name || 'Unnamed'}</option>`).join('');
-    document.getElementById('proj-manufacturer-id').innerHTML = '<option value="">Not yet assigned</option>' +
-      allManufacturers.map(m => `<option value="${m.id}">${m.company_name || 'Unnamed'}</option>`).join('');
+  async function openNotesModal(id) {
+    currentProjectId=id;
+    document.getElementById('notes-modal').style.display='flex';
+    document.getElementById('notes-modal-body').innerHTML='<div style="text-align:center;padding:32px;color:var(--muted);">Loading...</div>';
+    const { data:notes } = await _supa.from('project_notes').select('*').eq('project_id',id).order('created_at',{ascending:true});
+    const typeLabels={admin_query:'IMC Note to Buyer',buyer_reply:'Buyer Reply',denial_note:'Denial Note'};
+    const typeColors={admin_query:'var(--gold)',buyer_reply:'#7B9CCC',denial_note:'#e74c3c'};
+    const html=!notes||notes.length===0
+      ?'<div style="font-size:13px;color:var(--muted);padding:16px 0;">No notes yet.</div>'
+      :notes.map(n=>{
+        const date=new Date(n.created_at).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+        const col=typeColors[n.note_type]||'var(--gold)';
+        return `<div style="margin-bottom:16px;padding:14px 16px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.02);">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <span style="font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:${col};">${typeLabels[n.note_type]||n.note_type}</span>
+            <span style="font-size:11px;color:var(--muted);">${date}</span>
+          </div>
+          <div style="font-size:13px;color:rgba(255,255,255,0.7);line-height:1.75;white-space:pre-wrap;">${n.content}</div>
+        </div>`;
+      }).join('');
+    document.getElementById('notes-modal-body').innerHTML=html;
+  }
+  function closeNotesModal() { document.getElementById('notes-modal').style.display='none'; currentProjectId=null; }
+
+  const origShowTab = showTab;
+  showTab = function(name, el) {
+    origShowTab(name, el);
+    if (name==='projects') loadAcceptanceProjects();
+    if (name==='project-mgmt') loadMgmtProjects();
+    if (name==='archived') loadArchivedProjects();
+  };
+
+  async function loadBuyersAndManufacturers() {
+    const [{data:buyers},{data:mfgs}] = await Promise.all([
+      _supa.from('buyers').select('id,company_name,products').order('company_name'),
+      _supa.from('manufacturers').select('id,company_name').order('company_name')
+    ]);
+    allBuyers=buyers||[]; allManufacturers=mfgs||[];
+    document.getElementById('proj-buyer-id').innerHTML='<option value="">Select buyer...</option>'+allBuyers.map(b=>`<option value="${b.id}">${b.company_name||'Unnamed'}</option>`).join('');
+    document.getElementById('proj-manufacturer-id').innerHTML='<option value="">Not yet assigned</option>'+allManufacturers.map(m=>`<option value="${m.id}">${m.company_name||'Unnamed'}</option>`).join('');
   }
 
   function loadBuyerProducts() {
-    const buyerId = document.getElementById('proj-buyer-id').value;
-    const buyer = allBuyers.find(b => b.id == buyerId);
-    const prodSel = document.getElementById('proj-product-select');
-    if (!buyer) { prodSel.innerHTML = '<option value="">Select buyer first...</option>'; return; }
-    let products = buyer.products;
-    if (typeof products === 'string') { try { products = JSON.parse(products); } catch(e) { products = []; } }
-    if (!Array.isArray(products)) products = [];
-    products = products.filter(p => p && (p.name || p.product_name));
-    if (products.length === 0) { prodSel.innerHTML = '<option value="">No products found</option>'; return; }
-    prodSel.innerHTML = '<option value="">Select product...</option>' +
-      products.map((p, i) => `<option value="${i}">${p.name || p.product_name || 'Product ' + (i+1)}</option>`).join('');
+    const buyerId=document.getElementById('proj-buyer-id').value;
+    const buyer=allBuyers.find(b=>b.id==buyerId);
+    const prodSel=document.getElementById('proj-product-select');
+    if (!buyer) { prodSel.innerHTML='<option value="">Select buyer first...</option>'; return; }
+    let products=buyer.products;
+    if (typeof products==='string'){try{products=JSON.parse(products);}catch(e){products=[];}}
+    if (!Array.isArray(products)) products=[];
+    products=products.filter(p=>p&&(p.name||p.product_name));
+    if (!products.length) { prodSel.innerHTML='<option value="">No products found</option>'; return; }
+    prodSel.innerHTML='<option value="">Select product...</option>'+products.map((p,i)=>`<option value="${i}">${p.name||p.product_name||'Product '+(i+1)}</option>`).join('');
   }
 
   function fillProductName() {
-    const buyerId = document.getElementById('proj-buyer-id').value;
-    const idx = document.getElementById('proj-product-select').value;
-    if (idx === '') return;
-    const buyer = allBuyers.find(b => b.id == buyerId);
-    if (!buyer) return;
-    let products = buyer.products;
-    if (typeof products === 'string') { try { products = JSON.parse(products); } catch(e) { return; } }
+    const buyerId=document.getElementById('proj-buyer-id').value, idx=document.getElementById('proj-product-select').value;
+    if (idx==='') return;
+    const buyer=allBuyers.find(b=>b.id==buyerId); if (!buyer) return;
+    let products=buyer.products;
+    if (typeof products==='string'){try{products=JSON.parse(products);}catch(e){return;}}
     if (!Array.isArray(products)) return;
-    const p = products[parseInt(idx)];
-    if (p) document.getElementById('proj-product-name').value = p.name || p.product_name || '';
+    const p=products[parseInt(idx)]; if (p) document.getElementById('proj-product-name').value=p.name||p.product_name||'';
   }
 
-  // ── MILESTONES ──
-  function renderMilestone(m, idx, side) {
-    const color = side === 'buyer' ? 'var(--gold)' : '#7B9CCC';
+  function renderMilestone(m,idx,side) {
+    const color=side==='buyer'?'var(--gold)':'#7B9CCC';
     return `<div style="display:grid;grid-template-columns:28px 1fr 1fr 1fr 1fr auto;gap:8px;align-items:center;margin-bottom:8px;padding:10px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);">
       <div style="font-family:var(--serif);font-size:18px;color:${color};opacity:0.6;">${idx+1}</div>
-      <input type="text" placeholder="Description" value="${m.description||''}" oninput="updateMilestone('${side}',${idx},'description',this.value)" style="font-family:var(--sans);font-size:12px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:var(--white);padding:8px;outline:none;" />
-      <input type="number" placeholder="%" value="${m.percentage||''}" oninput="updateMilestone('${side}',${idx},'percentage',this.value)" style="font-family:var(--sans);font-size:12px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:var(--white);padding:8px;outline:none;" />
-      <input type="number" placeholder="Amount ₹" value="${m.amount||''}" oninput="updateMilestone('${side}',${idx},'amount',this.value)" style="font-family:var(--sans);font-size:12px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:var(--white);padding:8px;outline:none;" />
-      <select oninput="updateMilestone('${side}',${idx},'status',this.value)" style="font-family:var(--sans);font-size:12px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:var(--white);padding:8px;outline:none;">
+      <input type="text" placeholder="Description" value="${m.description||''}" oninput="updateMilestone('${side}',${idx},'description',this.value)" style="font-family:var(--sans);font-size:12px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:var(--white);padding:8px;outline:none;"/>
+      <input type="number" placeholder="%" value="${m.percentage||''}" oninput="updateMilestone('${side}',${idx},'percentage',this.value)" style="font-family:var(--sans);font-size:12px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:var(--white);padding:8px;outline:none;"/>
+      <input type="number" placeholder="₹ Amount" value="${m.amount||''}" oninput="updateMilestone('${side}',${idx},'amount',this.value)" style="font-family:var(--sans);font-size:12px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:var(--white);padding:8px;outline:none;"/>
+      <select onchange="updateMilestone('${side}',${idx},'status',this.value)" style="font-family:var(--sans);font-size:12px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:var(--white);padding:8px;outline:none;">
         <option value="pending" ${m.status==='pending'?'selected':''}>Pending</option>
         <option value="invoiced" ${m.status==='invoiced'?'selected':''}>Invoiced</option>
         <option value="paid" ${m.status==='paid'?'selected':''}>Paid</option>
@@ -1584,189 +1787,117 @@
   }
 
   function renderMilestones() {
-    document.getElementById('buyer-milestones-list').innerHTML = buyerMilestones.length === 0
-      ? '<div style="font-size:12px;color:rgba(255,255,255,0.25);padding:8px 0;">No milestones yet. Add at least 3.</div>'
-      : buyerMilestones.map((m,i) => renderMilestone(m,i,'buyer')).join('');
-    document.getElementById('mfg-milestones-list').innerHTML = mfgMilestones.length === 0
-      ? '<div style="font-size:12px;color:rgba(255,255,255,0.25);padding:8px 0;">No milestones yet. Add at least 3.</div>'
-      : mfgMilestones.map((m,i) => renderMilestone(m,i,'manufacturer')).join('');
+    document.getElementById('buyer-milestones-list').innerHTML=buyerMilestones.length===0?'<div style="font-size:12px;color:rgba(255,255,255,0.25);padding:8px 0;">No milestones. Add at least 3.</div>':buyerMilestones.map((m,i)=>renderMilestone(m,i,'buyer')).join('');
+    document.getElementById('mfg-milestones-list').innerHTML=mfgMilestones.length===0?'<div style="font-size:12px;color:rgba(255,255,255,0.25);padding:8px 0;">No milestones. Add at least 3.</div>':mfgMilestones.map((m,i)=>renderMilestone(m,i,'manufacturer')).join('');
   }
 
-  function addMilestone(side) {
-    const arr = side === 'buyer' ? buyerMilestones : mfgMilestones;
-    arr.push({ description:'', percentage:'', amount:'', status:'pending', notes:'' });
-    renderMilestones();
-  }
-
-  function removeMilestone(side, idx) {
-    if (side === 'buyer') buyerMilestones.splice(idx, 1);
-    else mfgMilestones.splice(idx, 1);
-    renderMilestones();
-  }
-
-  function updateMilestone(side, idx, field, val) {
-    const arr = side === 'buyer' ? buyerMilestones : mfgMilestones;
-    if (arr[idx]) arr[idx][field] = val;
-  }
-
-  // ── OPEN MODALS ──
-  async function openCreateProjectModal() {
-    currentProjectId = null;
-    buyerMilestones = [{description:'',percentage:'',amount:'',status:'pending'},{description:'',percentage:'',amount:'',status:'pending'},{description:'',percentage:'',amount:'',status:'pending'}];
-    mfgMilestones = [{description:'',percentage:'',amount:'',status:'pending'},{description:'',percentage:'',amount:'',status:'pending'},{description:'',percentage:'',amount:'',status:'pending'}];
-    document.getElementById('project-modal-title').textContent = 'Create Project';
-    document.getElementById('project-edit-id').value = '';
-    document.getElementById('proj-product-name').value = '';
-    document.getElementById('proj-status').value = 'received';
-    document.getElementById('proj-timeline').value = '';
-    document.getElementById('proj-notes').value = '';
-    document.getElementById('proj-completion-note').value = '';
-    document.getElementById('doc-buyer-po').value = '';
-    document.getElementById('doc-buyer-po-ref').value = '';
-    document.getElementById('doc-mfg-po').value = '';
-    document.getElementById('doc-mfg-po-ref').value = '';
-    document.getElementById('doc-buyer-qc').value = '';
-    document.getElementById('doc-mfg-qc').value = '';
-    renderMilestones();
-    await loadBuyersAndManufacturers();
-    document.getElementById('project-modal').style.display = 'flex';
-  }
+  function addMilestone(side) { (side==='buyer'?buyerMilestones:mfgMilestones).push({description:'',percentage:'',amount:'',status:'pending'}); renderMilestones(); }
+  function removeMilestone(side,idx) { if(side==='buyer')buyerMilestones.splice(idx,1);else mfgMilestones.splice(idx,1); renderMilestones(); }
+  function updateMilestone(side,idx,field,val) { const arr=side==='buyer'?buyerMilestones:mfgMilestones; if(arr[idx])arr[idx][field]=val; }
 
   async function openEditProjectModal(id) {
-    currentProjectId = id;
-    const { data: p } = await _supa.from('projects').select('*').eq('id', id).single();
+    currentProjectId=id;
+    const {data:p}=await _supa.from('projects').select('*').eq('id',id).single();
     if (!p) return;
-
-    document.getElementById('project-modal-title').textContent = 'Manage Project';
-    document.getElementById('project-edit-id').value = p.id;
-    document.getElementById('proj-product-name').value = p.product_name || '';
-    document.getElementById('proj-status').value = p.status || 'received';
-    document.getElementById('proj-timeline').value = p.timeline || '';
-    document.getElementById('proj-notes').value = p.admin_notes || '';
-    document.getElementById('proj-completion-note').value = p.completion_note || '';
-
+    document.getElementById('project-modal-title').textContent='Manage Project';
+    document.getElementById('project-edit-id').value=p.id;
+    document.getElementById('proj-product-name').value=p.product_name||'';
+    document.getElementById('proj-status').value=p.status||'accepted';
+    document.getElementById('proj-timeline').value=p.timeline||'';
+    document.getElementById('proj-notes').value=p.admin_notes||'';
+    document.getElementById('proj-completion-note').value=p.completion_note||'';
     await loadBuyersAndManufacturers();
-    if (p.buyer_id) document.getElementById('proj-buyer-id').value = p.buyer_id;
-    if (p.manufacturer_id) document.getElementById('proj-manufacturer-id').value = p.manufacturer_id;
-
-    // Load milestones
-    const [{ data: bm }, { data: mm }] = await Promise.all([
-      _supa.from('buyer_milestones').select('*').eq('project_id', id).order('milestone_number'),
-      _supa.from('manufacturer_milestones').select('*').eq('project_id', id).order('milestone_number')
+    if (p.buyer_id) document.getElementById('proj-buyer-id').value=p.buyer_id;
+    if (p.manufacturer_id) document.getElementById('proj-manufacturer-id').value=p.manufacturer_id;
+    const [{data:bm},{data:mm}]=await Promise.all([
+      _supa.from('buyer_milestones').select('*').eq('project_id',id).order('milestone_number'),
+      _supa.from('manufacturer_milestones').select('*').eq('project_id',id).order('milestone_number')
     ]);
-    buyerMilestones = bm || [];
-    mfgMilestones = mm || [];
-    if (buyerMilestones.length === 0) buyerMilestones = [{description:'',percentage:'',amount:'',status:'pending'},{description:'',percentage:'',amount:'',status:'pending'},{description:'',percentage:'',amount:'',status:'pending'}];
-    if (mfgMilestones.length === 0) mfgMilestones = [{description:'',percentage:'',amount:'',status:'pending'},{description:'',percentage:'',amount:'',status:'pending'},{description:'',percentage:'',amount:'',status:'pending'}];
+    buyerMilestones=bm?.length?bm:[{description:'',percentage:'',amount:'',status:'pending'},{description:'',percentage:'',amount:'',status:'pending'},{description:'',percentage:'',amount:'',status:'pending'}];
+    mfgMilestones=mm?.length?mm:[{description:'',percentage:'',amount:'',status:'pending'},{description:'',percentage:'',amount:'',status:'pending'},{description:'',percentage:'',amount:'',status:'pending'}];
     renderMilestones();
-
-    // Load documents
-    const { data: docs } = await _supa.from('project_documents').select('*').eq('project_id', id);
-    const getDoc = (type) => (docs || []).find(d => d.doc_type === type);
-    const bpo = getDoc('buyer_po'); const mpo = getDoc('admin_to_mfg_po');
-    const bqc = getDoc('buyer_qc'); const mqc = getDoc('mfg_qc');
-    document.getElementById('doc-buyer-po').value = bpo?.content || '';
-    document.getElementById('doc-buyer-po-ref').value = bpo?.reference_number || '';
-    document.getElementById('doc-mfg-po').value = mpo?.content || '';
-    document.getElementById('doc-mfg-po-ref').value = mpo?.reference_number || '';
-    document.getElementById('doc-buyer-qc').value = bqc?.content || '';
-    document.getElementById('doc-mfg-qc').value = mqc?.content || '';
-
-    document.getElementById('project-modal').style.display = 'flex';
+    const {data:docs}=await _supa.from('project_documents').select('*').eq('project_id',id);
+    const getDoc=type=>(docs||[]).find(d=>d.doc_type===type);
+    const bpo=getDoc('buyer_po'),mpo=getDoc('admin_to_mfg_po'),bqc=getDoc('buyer_qc'),mqc=getDoc('mfg_qc');
+    document.getElementById('doc-buyer-po').value=bpo?.content||'';
+    document.getElementById('doc-buyer-po-ref').value=bpo?.reference_number||'';
+    document.getElementById('doc-mfg-po').value=mpo?.content||'';
+    document.getElementById('doc-mfg-po-ref').value=mpo?.reference_number||'';
+    document.getElementById('doc-buyer-qc').value=bqc?.content||'';
+    document.getElementById('doc-mfg-qc').value=mqc?.content||'';
+    document.getElementById('project-modal').style.display='flex';
   }
 
-  function closeProjectModal() {
-    document.getElementById('project-modal').style.display = 'none';
-    currentProjectId = null;
-  }
+  function closeProjectModal() { document.getElementById('project-modal').style.display='none'; currentProjectId=null; }
 
   async function saveProject() {
-    const id = document.getElementById('project-edit-id').value;
-    const productName = document.getElementById('proj-product-name').value.trim();
-    const buyerId = document.getElementById('proj-buyer-id').value || null;
-    const mfgId = document.getElementById('proj-manufacturer-id').value || null;
-    const status = document.getElementById('proj-status').value;
-    const timeline = document.getElementById('proj-timeline').value.trim();
-    const notes = document.getElementById('proj-notes').value.trim();
-    const completionNote = document.getElementById('proj-completion-note').value.trim();
-
+    const id=document.getElementById('project-edit-id').value;
+    const productName=document.getElementById('proj-product-name').value.trim();
+    const buyerId=document.getElementById('proj-buyer-id').value||null;
+    const mfgId=document.getElementById('proj-manufacturer-id').value||null;
+    const status=document.getElementById('proj-status').value;
+    const timeline=document.getElementById('proj-timeline').value.trim();
+    const notes=document.getElementById('proj-notes').value.trim();
+    const completionNote=document.getElementById('proj-completion-note').value.trim();
     if (!productName) { alert('Product name is required.'); return; }
-
-    const btn = document.getElementById('proj-save-btn');
-    btn.disabled = true; btn.textContent = 'Saving...';
-
-    const payload = {
-      product_name: productName,
-      buyer_id: buyerId ? parseInt(buyerId) : null,
-      manufacturer_id: mfgId ? parseInt(mfgId) : null,
-      status,
-      timeline: timeline || null,
-      admin_notes: notes || null,
-      completion_note: completionNote || null,
-      status_updated_at: new Date().toISOString()
-    };
-
-    let projectId = id;
-    let error;
+    const btn=document.getElementById('proj-save-btn');
+    btn.disabled=true; btn.textContent='Saving...';
+    const payload={product_name:productName,buyer_id:buyerId?parseInt(buyerId):null,manufacturer_id:mfgId?parseInt(mfgId):null,status,timeline:timeline||null,admin_notes:notes||null,completion_note:completionNote||null,status_updated_at:new Date().toISOString()};
+    let projectId=id,error;
     if (id) {
-      ({ error } = await _supa.from('projects').update(payload).eq('id', id));
+      ({error}=await _supa.from('projects').update(payload).eq('id',id));
     } else {
-      const { data: newP, error: ie } = await _supa.from('projects').insert(payload).select().single();
-      error = ie;
-      if (newP) projectId = newP.id;
+      const {data:newP,error:ie}=await _supa.from('projects').insert({...payload,acceptance_status:'accepted'}).select().single();
+      error=ie; if(newP) projectId=newP.id;
     }
-
-    if (error) { btn.disabled = false; btn.textContent = 'Save Project'; alert('Error: ' + error.message); return; }
-
-    // Save milestones — delete old, insert new
+    if (error){btn.disabled=false;btn.textContent='Save Project';alert('Error: '+error.message);return;}
     if (projectId) {
       await Promise.all([
-        _supa.from('buyer_milestones').delete().eq('project_id', projectId),
-        _supa.from('manufacturer_milestones').delete().eq('project_id', projectId)
+        _supa.from('buyer_milestones').delete().eq('project_id',projectId),
+        _supa.from('manufacturer_milestones').delete().eq('project_id',projectId)
       ]);
-      const bInsert = buyerMilestones.filter(m => m.description).map((m,i) => ({ project_id: projectId, milestone_number: i+1, description: m.description, percentage: m.percentage ? parseFloat(m.percentage) : null, amount: m.amount ? parseFloat(m.amount) : null, status: m.status || 'pending' }));
-      const mInsert = mfgMilestones.filter(m => m.description).map((m,i) => ({ project_id: projectId, milestone_number: i+1, description: m.description, percentage: m.percentage ? parseFloat(m.percentage) : null, amount: m.amount ? parseFloat(m.amount) : null, status: m.status || 'pending' }));
-      if (bInsert.length) await _supa.from('buyer_milestones').insert(bInsert);
-      if (mInsert.length) await _supa.from('manufacturer_milestones').insert(mInsert);
-
-      // Save documents — upsert each
-      const docTypes = [
-        { id: 'doc-buyer-po', ref: 'doc-buyer-po-ref', type: 'buyer_po', raised_by: 'buyer' },
-        { id: 'doc-mfg-po', ref: 'doc-mfg-po-ref', type: 'admin_to_mfg_po', raised_by: 'admin' },
-        { id: 'doc-buyer-qc', ref: null, type: 'buyer_qc', raised_by: 'admin' },
-        { id: 'doc-mfg-qc', ref: null, type: 'mfg_qc', raised_by: 'manufacturer' }
+      const bInsert=buyerMilestones.filter(m=>m.description).map((m,i)=>({project_id:projectId,milestone_number:i+1,description:m.description,percentage:m.percentage?parseFloat(m.percentage):null,amount:m.amount?parseFloat(m.amount):null,status:m.status||'pending'}));
+      const mInsert=mfgMilestones.filter(m=>m.description).map((m,i)=>({project_id:projectId,milestone_number:i+1,description:m.description,percentage:m.percentage?parseFloat(m.percentage):null,amount:m.amount?parseFloat(m.amount):null,status:m.status||'pending'}));
+      if(bInsert.length) await _supa.from('buyer_milestones').insert(bInsert);
+      if(mInsert.length) await _supa.from('manufacturer_milestones').insert(mInsert);
+      const docTypes=[
+        {id:'doc-buyer-po',ref:'doc-buyer-po-ref',type:'buyer_po',raised_by:'buyer'},
+        {id:'doc-mfg-po',ref:'doc-mfg-po-ref',type:'admin_to_mfg_po',raised_by:'admin'},
+        {id:'doc-buyer-qc',ref:null,type:'buyer_qc',raised_by:'admin'},
+        {id:'doc-mfg-qc',ref:null,type:'mfg_qc',raised_by:'manufacturer'}
       ];
       for (const dt of docTypes) {
-        const content = document.getElementById(dt.id).value.trim();
-        if (!content) continue;
-        const ref = dt.ref ? document.getElementById(dt.ref).value.trim() : null;
-        // Check if exists
-        const { data: existing } = await _supa.from('project_documents').select('id').eq('project_id', projectId).eq('doc_type', dt.type);
-        if (existing && existing.length > 0) {
-          await _supa.from('project_documents').update({ content, reference_number: ref || null }).eq('id', existing[0].id);
-        } else {
-          await _supa.from('project_documents').insert({ project_id: projectId, doc_type: dt.type, content, reference_number: ref || null, raised_by: dt.raised_by });
-        }
+        const content=document.getElementById(dt.id).value.trim();
+        if(!content) continue;
+        const ref=dt.ref?document.getElementById(dt.ref).value.trim():null;
+        const {data:existing}=await _supa.from('project_documents').select('id').eq('project_id',projectId).eq('doc_type',dt.type);
+        if(existing?.length>0){await _supa.from('project_documents').update({content,reference_number:ref||null}).eq('id',existing[0].id);}
+        else{await _supa.from('project_documents').insert({project_id:projectId,doc_type:dt.type,content,reference_number:ref||null,raised_by:dt.raised_by});}
       }
     }
-
-    btn.disabled = false; btn.textContent = 'Save Project';
-    closeProjectModal();
-    loadProjects();
+    btn.disabled=false; btn.textContent='Save Project';
+    closeProjectModal(); loadMgmtProjects();
   }
 
-  async function deleteProject(id) {
-    if (!confirm('Delete this project? This cannot be undone.')) return;
-    await _supa.from('projects').delete().eq('id', id);
-    loadProjects();
+  async function autoCreateProjectsForBuyer(buyerApp) {
+    const email=buyerApp.pocEmail||buyerApp.email||'';
+    const companyName=buyerApp.companyName||buyerApp.company_name||'';
+    let buyers=null;
+    if(email){const{data}=await _supa.from('buyers').select('id,products,company_name').eq('poc_email',email);buyers=data;}
+    if(!buyers?.length&&companyName){const{data}=await _supa.from('buyers').select('id,products,company_name').ilike('company_name',companyName);buyers=data;}
+    if(!buyers?.length) return;
+    const buyer=buyers[0];
+    let products=buyer.products;
+    if(typeof products==='string'){try{products=JSON.parse(products);}catch(e){return;}}
+    if(!Array.isArray(products)) return;
+    const{data:existing}=await _supa.from('projects').select('product_name').eq('buyer_id',buyer.id);
+    const existingNames=(existing||[]).map(p=>p.product_name);
+    for(const product of products){
+      const name=product.name||product.product_name||'';
+      if(!name||existingNames.includes(name)) continue;
+      await _supa.from('projects').insert({buyer_id:buyer.id,product_name:name,product_details:product,status:'received',acceptance_status:'received'});
+    }
   }
-
-  // Load projects when tab is clicked
-  const origShowTab = showTab;
-  showTab = function(name, el) {
-    origShowTab(name, el);
-    if (name === 'projects') loadProjects();
-  };
 </script>
 </body>
 </html>
