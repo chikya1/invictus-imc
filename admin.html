@@ -594,16 +594,19 @@
       <!-- PROJECTS TAB -->
       <div class="tab-panel" id="tab-projects">
         <div class="page-title">Projects</div>
-        <div class="page-subtitle">Each product from a buyer submission becomes a project. Assign manufacturers and update status here.</div>
+        <div class="page-subtitle">Each approved buyer product becomes a project. Manage status, payment milestones, and documents here.</div>
         <div class="section-header">
           <div class="section-title">All Projects</div>
           <div style="display:flex;gap:8px;align-items:center;">
             <select id="project-status-filter" onchange="loadProjects()" style="font-family:var(--sans);font-size:12px;background:var(--surface);border:1px solid var(--border-color);color:var(--white);padding:8px 12px;cursor:pointer;">
               <option value="">All Statuses</option>
               <option value="received">Received</option>
-              <option value="in_progress">In Progress</option>
-              <option value="quality_check">Quality Check</option>
+              <option value="accepted">Accepted</option>
+              <option value="in_production">In Production</option>
+              <option value="qc">QC</option>
+              <option value="shipped">Shipped</option>
               <option value="delivered">Delivered</option>
+              <option value="closed">Closed</option>
               <option value="cancelled">Cancelled</option>
             </select>
             <button class="btn-add" onclick="openCreateProjectModal()">+ Create Project</button>
@@ -625,14 +628,17 @@
 
 <!-- PROJECT MODAL -->
 <div class="modal-overlay" id="project-modal">
-  <div class="modal" style="max-width:600px;">
+  <div class="modal" style="max-width:680px;max-height:90vh;overflow-y:auto;">
     <div class="modal-header">
       <div class="modal-title" id="project-modal-title">Create Project</div>
       <button class="modal-close" onclick="closeProjectModal()">✕</button>
     </div>
     <div class="modal-body">
       <input type="hidden" id="project-edit-id" />
-      <div class="form-row-2" style="margin-bottom:16px;">
+
+      <!-- BASIC INFO -->
+      <div style="font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:14px;">Project Details</div>
+      <div class="form-row-2" style="margin-bottom:14px;">
         <div>
           <label class="form-label">Buyer *</label>
           <select class="form-select" id="proj-buyer-id" onchange="loadBuyerProducts()">
@@ -640,41 +646,95 @@
           </select>
         </div>
         <div>
-          <label class="form-label">Product (from buyer submission)</label>
+          <label class="form-label">Product (from submission)</label>
           <select class="form-select" id="proj-product-select" onchange="fillProductName()">
             <option value="">Select product...</option>
           </select>
         </div>
       </div>
-      <div style="margin-bottom:16px;">
+      <div style="margin-bottom:14px;">
         <label class="form-label">Product Name *</label>
         <input type="text" class="form-input" id="proj-product-name" placeholder="e.g. Plastic injection moulded enclosures" />
       </div>
-      <div style="margin-bottom:16px;">
-        <label class="form-label">Assign Manufacturer</label>
-        <select class="form-select" id="proj-manufacturer-id">
-          <option value="">Not yet assigned</option>
-        </select>
-      </div>
-      <div class="form-row-2" style="margin-bottom:16px;">
+      <div class="form-row-2" style="margin-bottom:14px;">
         <div>
-          <label class="form-label">Status *</label>
-          <select class="form-select" id="proj-status">
-            <option value="received">Received</option>
-            <option value="in_progress">In Progress</option>
-            <option value="quality_check">Quality Check</option>
-            <option value="delivered">Delivered</option>
-            <option value="cancelled">Cancelled</option>
+          <label class="form-label">Assign Manufacturer</label>
+          <select class="form-select" id="proj-manufacturer-id">
+            <option value="">Not yet assigned</option>
           </select>
         </div>
         <div>
           <label class="form-label">Expected Timeline</label>
-          <input type="text" class="form-input" id="proj-timeline" placeholder="e.g. 6–8 weeks from confirmation" />
+          <input type="text" class="form-input" id="proj-timeline" placeholder="e.g. 6–8 weeks from acceptance" />
         </div>
       </div>
-      <div style="margin-bottom:16px;">
-        <label class="form-label">Admin Notes (internal only)</label>
-        <textarea class="form-input" id="proj-notes" rows="3" placeholder="Internal notes visible only to admin..." style="resize:vertical;"></textarea>
+      <div class="form-row-2" style="margin-bottom:14px;">
+        <div>
+          <label class="form-label">Status *</label>
+          <select class="form-select" id="proj-status">
+            <option value="received">Received</option>
+            <option value="accepted">Accepted</option>
+            <option value="in_production">In Production</option>
+            <option value="qc">QC</option>
+            <option value="shipped">Shipped</option>
+            <option value="delivered">Delivered</option>
+            <option value="closed">Closed</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+        </div>
+        <div>
+          <label class="form-label">Admin Notes (internal)</label>
+          <input type="text" class="form-input" id="proj-notes" placeholder="Internal notes..." />
+        </div>
+      </div>
+      <div style="margin-bottom:20px;" id="completion-note-row">
+        <label class="form-label">Completion Note (shown to both parties on closure)</label>
+        <textarea class="form-input" id="proj-completion-note" rows="2" placeholder="e.g. Order completed successfully. All items delivered and accepted." style="resize:vertical;"></textarea>
+      </div>
+
+      <!-- BUYER PAYMENT MILESTONES -->
+      <div style="border-top:1px solid rgba(255,255,255,0.08);padding-top:18px;margin-bottom:14px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+          <div style="font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);">Buyer Payment Milestones</div>
+          <button onclick="addMilestone('buyer')" style="font-size:10px;letter-spacing:1px;text-transform:uppercase;background:none;border:1px solid var(--gold-border);color:var(--gold);padding:5px 12px;cursor:pointer;font-family:var(--sans);">+ Add Milestone</button>
+        </div>
+        <div id="buyer-milestones-list"></div>
+      </div>
+
+      <!-- MANUFACTURER PAYMENT MILESTONES -->
+      <div style="border-top:1px solid rgba(255,255,255,0.08);padding-top:18px;margin-bottom:14px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+          <div style="font-size:9px;letter-spacing:3px;text-transform:uppercase;color:#7B9CCC;">Manufacturer Payment Milestones</div>
+          <button onclick="addMilestone('manufacturer')" style="font-size:10px;letter-spacing:1px;text-transform:uppercase;background:none;border:1px solid rgba(123,156,204,0.3);color:#7B9CCC;padding:5px 12px;cursor:pointer;font-family:var(--sans);">+ Add Milestone</button>
+        </div>
+        <div id="mfg-milestones-list"></div>
+      </div>
+
+      <!-- DOCUMENTS -->
+      <div style="border-top:1px solid rgba(255,255,255,0.08);padding-top:18px;margin-bottom:6px;">
+        <div style="font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:14px;">Documents</div>
+        <div class="form-row-2" style="margin-bottom:14px;">
+          <div>
+            <label class="form-label">Buyer PO to IMC</label>
+            <textarea class="form-input" id="doc-buyer-po" rows="3" placeholder="Paste or type buyer's purchase order details..." style="resize:vertical;font-size:12px;"></textarea>
+            <input type="text" class="form-input" id="doc-buyer-po-ref" placeholder="Reference / PO number" style="margin-top:6px;font-size:12px;" />
+          </div>
+          <div>
+            <label class="form-label">IMC PO to Manufacturer</label>
+            <textarea class="form-input" id="doc-mfg-po" rows="3" placeholder="Paste or type IMC's PO to manufacturer..." style="resize:vertical;font-size:12px;"></textarea>
+            <input type="text" class="form-input" id="doc-mfg-po-ref" placeholder="Reference / PO number" style="margin-top:6px;font-size:12px;" />
+          </div>
+        </div>
+        <div class="form-row-2">
+          <div>
+            <label class="form-label">QC Certificate (for Buyer)</label>
+            <textarea class="form-input" id="doc-buyer-qc" rows="3" placeholder="Quality certificate details shown to buyer..." style="resize:vertical;font-size:12px;"></textarea>
+          </div>
+          <div>
+            <label class="form-label">QC Certificate (from Manufacturer)</label>
+            <textarea class="form-input" id="doc-mfg-qc" rows="3" placeholder="Quality certificate from manufacturer (internal)..." style="resize:vertical;font-size:12px;"></textarea>
+          </div>
+        </div>
       </div>
     </div>
     <div class="modal-footer">
@@ -1128,7 +1188,57 @@
     apps[idx].status = status;
     localStorage.setItem(key, JSON.stringify(apps));
     if (type === 'manufacturer') renderMfgApps();
-    else renderBuyerApps();
+    else {
+      renderBuyerApps();
+      // Auto-create projects when buyer is approved
+      if (status === 'approved') {
+        autoCreateProjectsForBuyer(apps[idx]);
+      }
+    }
+  }
+
+  async function autoCreateProjectsForBuyer(buyerApp) {
+    // Find the buyer record in Supabase by email
+    const { data: buyers } = await _supa
+      .from('buyers')
+      .select('id, products, company_name')
+      .eq('poc_email', buyerApp.pocEmail || buyerApp.email || '');
+
+    if (!buyers || buyers.length === 0) {
+      // Try by company name
+      const { data: byName } = await _supa
+        .from('buyers')
+        .select('id, products, company_name')
+        .ilike('company_name', buyerApp.companyName || buyerApp.company_name || '');
+      if (!byName || byName.length === 0) return;
+      buyers = byName;
+    }
+
+    const buyer = buyers[0];
+    let products = buyer.products;
+    if (typeof products === 'string') { try { products = JSON.parse(products); } catch(e) { return; } }
+    if (!Array.isArray(products)) return;
+
+    // Check which products already have projects
+    const { data: existing } = await _supa
+      .from('projects')
+      .select('product_name')
+      .eq('buyer_id', buyer.id);
+
+    const existingNames = (existing || []).map(p => p.product_name);
+
+    // Create a project for each product not already created
+    for (const product of products) {
+      const name = product.name || product.product_name || '';
+      if (!name || existingNames.includes(name)) continue;
+      await _supa.from('projects').insert({
+        buyer_id: buyer.id,
+        product_name: name,
+        product_details: product,
+        status: 'received'
+      });
+    }
+    console.log('Projects auto-created for buyer:', buyer.company_name);
   }
 
   function exportApps(type) {
@@ -1370,10 +1480,17 @@
   document.getElementById('req-modal').addEventListener('click', function(e) { if (e.target === this) closeReqModal(); });
   document.getElementById('project-modal').addEventListener('click', function(e) { if (e.target === this) closeProjectModal(); });
 
-  // ── PROJECTS ──────────────────────────────────────────────
+  // ── PROJECTS PHASE 3 ──────────────────────────────────────
+
+  const STATUS_LABELS = { received:'Received', accepted:'Accepted', in_production:'In Production', qc:'QC', shipped:'Shipped', delivered:'Delivered', closed:'Closed', cancelled:'Cancelled' };
+  const STATUS_COLORS = { received:'#1565C0', accepted:'#C8860A', in_production:'#E65100', qc:'#7B1FA2', shipped:'#00838F', delivered:'#2E7D32', closed:'#388E3C', cancelled:'#888' };
+  const STATUS_STEPS = ['received','accepted','in_production','qc','shipped','delivered','closed'];
 
   let allManufacturers = [];
   let allBuyers = [];
+  let buyerMilestones = []; // local state while editing
+  let mfgMilestones = [];
+  let currentProjectId = null;
 
   async function loadProjects() {
     const statusFilter = document.getElementById('project-status-filter').value;
@@ -1384,45 +1501,41 @@
     const { data, error } = await query;
     const tbody = document.getElementById('projects-tbody');
     if (error || !data || data.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="7" class="table-empty">No projects yet. Create one from a buyer\'s submitted requirement.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="7" class="table-empty">No projects yet. Approve a buyer to auto-create projects, or create manually.</td></tr>';
       return;
     }
     tbody.innerHTML = data.map(p => {
-      const statusLabels = { received: 'Received', in_progress: 'In Progress', quality_check: 'Quality Check', delivered: 'Delivered', cancelled: 'Cancelled' };
-      const statusColors = { received: '#1565C0', in_progress: '#E65100', quality_check: '#7B1FA2', delivered: '#2E7D32', cancelled: '#888' };
-      const col = statusColors[p.status] || '#888';
-      const label = statusLabels[p.status] || p.status;
+      const col = STATUS_COLORS[p.status] || '#888';
+      const label = STATUS_LABELS[p.status] || p.status;
       const buyer = p.buyers?.company_name || '—';
-      const mfg = p.manufacturers?.company_name || '<span style="color:#888;font-style:italic;">Not assigned</span>';
-      const updated = p.updated_at ? new Date(p.updated_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '—';
+      const mfg = p.manufacturers?.company_name || '<span style="color:#888;font-style:italic;">Unassigned</span>';
+      const updated = p.updated_at ? new Date(p.updated_at).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' }) : '—';
       return `<tr>
-        <td><span style="display:inline-flex;align-items:center;gap:6px;font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;padding:4px 10px;background:${col}22;color:${col};"><span style="width:6px;height:6px;border-radius:50%;background:${col};flex-shrink:0;"></span>${label}</span></td>
+        <td><span style="display:inline-flex;align-items:center;gap:5px;font-size:9px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;padding:4px 10px;background:${col}22;color:${col};"><span style="width:5px;height:5px;border-radius:50%;background:${col};flex-shrink:0;"></span>${label}</span></td>
         <td style="font-weight:500;">${p.product_name}</td>
         <td>${buyer}</td>
         <td>${mfg}</td>
         <td style="color:var(--muted);font-size:12px;">${p.timeline || '—'}</td>
         <td style="color:var(--muted);font-size:12px;">${updated}</td>
         <td>
-          <button class="btn-edit" onclick="openEditProjectModal('${p.id}')">Edit</button>
-          <button class="btn-delete" onclick="deleteProject('${p.id}')">Delete</button>
+          <button class="btn-edit" onclick="openEditProjectModal('${p.id}')">Manage</button>
+          <button class="btn-del" onclick="deleteProject('${p.id}')">Delete</button>
         </td>
       </tr>`;
     }).join('');
   }
 
   async function loadBuyersAndManufacturers() {
-    const [{ data: buyers }, { data: mfgs }] = await Promise.all([
+    const [{ data: buyers, error: be }, { data: mfgs, error: me }] = await Promise.all([
       _supa.from('buyers').select('id, company_name, products').order('company_name'),
-      _supa.from('manufacturers').select('id, company_name').eq('status', 'approved').order('company_name')
+      _supa.from('manufacturers').select('id, company_name').order('company_name')
     ]);
     allBuyers = buyers || [];
     allManufacturers = mfgs || [];
 
-    const buyerSel = document.getElementById('proj-buyer-id');
-    const mfgSel = document.getElementById('proj-manufacturer-id');
-    buyerSel.innerHTML = '<option value="">Select buyer...</option>' +
+    document.getElementById('proj-buyer-id').innerHTML = '<option value="">Select buyer...</option>' +
       allBuyers.map(b => `<option value="${b.id}">${b.company_name || 'Unnamed'}</option>`).join('');
-    mfgSel.innerHTML = '<option value="">Not yet assigned</option>' +
+    document.getElementById('proj-manufacturer-id').innerHTML = '<option value="">Not yet assigned</option>' +
       allManufacturers.map(m => `<option value="${m.id}">${m.company_name || 'Unnamed'}</option>`).join('');
   }
 
@@ -1431,20 +1544,11 @@
     const buyer = allBuyers.find(b => b.id == buyerId);
     const prodSel = document.getElementById('proj-product-select');
     if (!buyer) { prodSel.innerHTML = '<option value="">Select buyer first...</option>'; return; }
-
-    // Handle JSONB that may come back as string or array
     let products = buyer.products;
-    if (typeof products === 'string') {
-      try { products = JSON.parse(products); } catch(e) { products = []; }
-    }
+    if (typeof products === 'string') { try { products = JSON.parse(products); } catch(e) { products = []; } }
     if (!Array.isArray(products)) products = [];
-    // Filter out empty entries
     products = products.filter(p => p && (p.name || p.product_name));
-
-    if (products.length === 0) {
-      prodSel.innerHTML = '<option value="">No products found for this buyer</option>';
-      return;
-    }
+    if (products.length === 0) { prodSel.innerHTML = '<option value="">No products found</option>'; return; }
     prodSel.innerHTML = '<option value="">Select product...</option>' +
       products.map((p, i) => `<option value="${i}">${p.name || p.product_name || 'Product ' + (i+1)}</option>`).join('');
   }
@@ -1462,34 +1566,118 @@
     if (p) document.getElementById('proj-product-name').value = p.name || p.product_name || '';
   }
 
+  // ── MILESTONES ──
+  function renderMilestone(m, idx, side) {
+    const color = side === 'buyer' ? 'var(--gold)' : '#7B9CCC';
+    return `<div style="display:grid;grid-template-columns:28px 1fr 1fr 1fr 1fr auto;gap:8px;align-items:center;margin-bottom:8px;padding:10px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);">
+      <div style="font-family:var(--serif);font-size:18px;color:${color};opacity:0.6;">${idx+1}</div>
+      <input type="text" placeholder="Description" value="${m.description||''}" oninput="updateMilestone('${side}',${idx},'description',this.value)" style="font-family:var(--sans);font-size:12px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:var(--white);padding:8px;outline:none;" />
+      <input type="number" placeholder="%" value="${m.percentage||''}" oninput="updateMilestone('${side}',${idx},'percentage',this.value)" style="font-family:var(--sans);font-size:12px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:var(--white);padding:8px;outline:none;" />
+      <input type="number" placeholder="Amount ₹" value="${m.amount||''}" oninput="updateMilestone('${side}',${idx},'amount',this.value)" style="font-family:var(--sans);font-size:12px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:var(--white);padding:8px;outline:none;" />
+      <select oninput="updateMilestone('${side}',${idx},'status',this.value)" style="font-family:var(--sans);font-size:12px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:var(--white);padding:8px;outline:none;">
+        <option value="pending" ${m.status==='pending'?'selected':''}>Pending</option>
+        <option value="invoiced" ${m.status==='invoiced'?'selected':''}>Invoiced</option>
+        <option value="paid" ${m.status==='paid'?'selected':''}>Paid</option>
+      </select>
+      <button onclick="removeMilestone('${side}',${idx})" style="background:none;border:none;color:#e74c3c;cursor:pointer;font-size:16px;padding:0 4px;">✕</button>
+    </div>`;
+  }
+
+  function renderMilestones() {
+    document.getElementById('buyer-milestones-list').innerHTML = buyerMilestones.length === 0
+      ? '<div style="font-size:12px;color:rgba(255,255,255,0.25);padding:8px 0;">No milestones yet. Add at least 3.</div>'
+      : buyerMilestones.map((m,i) => renderMilestone(m,i,'buyer')).join('');
+    document.getElementById('mfg-milestones-list').innerHTML = mfgMilestones.length === 0
+      ? '<div style="font-size:12px;color:rgba(255,255,255,0.25);padding:8px 0;">No milestones yet. Add at least 3.</div>'
+      : mfgMilestones.map((m,i) => renderMilestone(m,i,'manufacturer')).join('');
+  }
+
+  function addMilestone(side) {
+    const arr = side === 'buyer' ? buyerMilestones : mfgMilestones;
+    arr.push({ description:'', percentage:'', amount:'', status:'pending', notes:'' });
+    renderMilestones();
+  }
+
+  function removeMilestone(side, idx) {
+    if (side === 'buyer') buyerMilestones.splice(idx, 1);
+    else mfgMilestones.splice(idx, 1);
+    renderMilestones();
+  }
+
+  function updateMilestone(side, idx, field, val) {
+    const arr = side === 'buyer' ? buyerMilestones : mfgMilestones;
+    if (arr[idx]) arr[idx][field] = val;
+  }
+
+  // ── OPEN MODALS ──
   async function openCreateProjectModal() {
+    currentProjectId = null;
+    buyerMilestones = [{description:'',percentage:'',amount:'',status:'pending'},{description:'',percentage:'',amount:'',status:'pending'},{description:'',percentage:'',amount:'',status:'pending'}];
+    mfgMilestones = [{description:'',percentage:'',amount:'',status:'pending'},{description:'',percentage:'',amount:'',status:'pending'},{description:'',percentage:'',amount:'',status:'pending'}];
     document.getElementById('project-modal-title').textContent = 'Create Project';
     document.getElementById('project-edit-id').value = '';
     document.getElementById('proj-product-name').value = '';
     document.getElementById('proj-status').value = 'received';
     document.getElementById('proj-timeline').value = '';
     document.getElementById('proj-notes').value = '';
+    document.getElementById('proj-completion-note').value = '';
+    document.getElementById('doc-buyer-po').value = '';
+    document.getElementById('doc-buyer-po-ref').value = '';
+    document.getElementById('doc-mfg-po').value = '';
+    document.getElementById('doc-mfg-po-ref').value = '';
+    document.getElementById('doc-buyer-qc').value = '';
+    document.getElementById('doc-mfg-qc').value = '';
+    renderMilestones();
     await loadBuyersAndManufacturers();
     document.getElementById('project-modal').style.display = 'flex';
   }
 
   async function openEditProjectModal(id) {
+    currentProjectId = id;
     const { data: p } = await _supa.from('projects').select('*').eq('id', id).single();
     if (!p) return;
-    document.getElementById('project-modal-title').textContent = 'Edit Project';
+
+    document.getElementById('project-modal-title').textContent = 'Manage Project';
     document.getElementById('project-edit-id').value = p.id;
     document.getElementById('proj-product-name').value = p.product_name || '';
     document.getElementById('proj-status').value = p.status || 'received';
     document.getElementById('proj-timeline').value = p.timeline || '';
     document.getElementById('proj-notes').value = p.admin_notes || '';
+    document.getElementById('proj-completion-note').value = p.completion_note || '';
+
     await loadBuyersAndManufacturers();
     if (p.buyer_id) document.getElementById('proj-buyer-id').value = p.buyer_id;
     if (p.manufacturer_id) document.getElementById('proj-manufacturer-id').value = p.manufacturer_id;
+
+    // Load milestones
+    const [{ data: bm }, { data: mm }] = await Promise.all([
+      _supa.from('buyer_milestones').select('*').eq('project_id', id).order('milestone_number'),
+      _supa.from('manufacturer_milestones').select('*').eq('project_id', id).order('milestone_number')
+    ]);
+    buyerMilestones = bm || [];
+    mfgMilestones = mm || [];
+    if (buyerMilestones.length === 0) buyerMilestones = [{description:'',percentage:'',amount:'',status:'pending'},{description:'',percentage:'',amount:'',status:'pending'},{description:'',percentage:'',amount:'',status:'pending'}];
+    if (mfgMilestones.length === 0) mfgMilestones = [{description:'',percentage:'',amount:'',status:'pending'},{description:'',percentage:'',amount:'',status:'pending'},{description:'',percentage:'',amount:'',status:'pending'}];
+    renderMilestones();
+
+    // Load documents
+    const { data: docs } = await _supa.from('project_documents').select('*').eq('project_id', id);
+    const getDoc = (type) => (docs || []).find(d => d.doc_type === type);
+    const bpo = getDoc('buyer_po'); const mpo = getDoc('admin_to_mfg_po');
+    const bqc = getDoc('buyer_qc'); const mqc = getDoc('mfg_qc');
+    document.getElementById('doc-buyer-po').value = bpo?.content || '';
+    document.getElementById('doc-buyer-po-ref').value = bpo?.reference_number || '';
+    document.getElementById('doc-mfg-po').value = mpo?.content || '';
+    document.getElementById('doc-mfg-po-ref').value = mpo?.reference_number || '';
+    document.getElementById('doc-buyer-qc').value = bqc?.content || '';
+    document.getElementById('doc-mfg-qc').value = mqc?.content || '';
+
     document.getElementById('project-modal').style.display = 'flex';
   }
 
   function closeProjectModal() {
     document.getElementById('project-modal').style.display = 'none';
+    currentProjectId = null;
   }
 
   async function saveProject() {
@@ -1500,23 +1688,69 @@
     const status = document.getElementById('proj-status').value;
     const timeline = document.getElementById('proj-timeline').value.trim();
     const notes = document.getElementById('proj-notes').value.trim();
+    const completionNote = document.getElementById('proj-completion-note').value.trim();
 
     if (!productName) { alert('Product name is required.'); return; }
 
     const btn = document.getElementById('proj-save-btn');
     btn.disabled = true; btn.textContent = 'Saving...';
 
-    const payload = { product_name: productName, buyer_id: buyerId, manufacturer_id: mfgId, status, timeline: timeline || null, admin_notes: notes || null };
+    const payload = {
+      product_name: productName,
+      buyer_id: buyerId ? parseInt(buyerId) : null,
+      manufacturer_id: mfgId ? parseInt(mfgId) : null,
+      status,
+      timeline: timeline || null,
+      admin_notes: notes || null,
+      completion_note: completionNote || null,
+      status_updated_at: new Date().toISOString()
+    };
 
+    let projectId = id;
     let error;
     if (id) {
       ({ error } = await _supa.from('projects').update(payload).eq('id', id));
     } else {
-      ({ error } = await _supa.from('projects').insert(payload));
+      const { data: newP, error: ie } = await _supa.from('projects').insert(payload).select().single();
+      error = ie;
+      if (newP) projectId = newP.id;
+    }
+
+    if (error) { btn.disabled = false; btn.textContent = 'Save Project'; alert('Error: ' + error.message); return; }
+
+    // Save milestones — delete old, insert new
+    if (projectId) {
+      await Promise.all([
+        _supa.from('buyer_milestones').delete().eq('project_id', projectId),
+        _supa.from('manufacturer_milestones').delete().eq('project_id', projectId)
+      ]);
+      const bInsert = buyerMilestones.filter(m => m.description).map((m,i) => ({ project_id: projectId, milestone_number: i+1, description: m.description, percentage: m.percentage ? parseFloat(m.percentage) : null, amount: m.amount ? parseFloat(m.amount) : null, status: m.status || 'pending' }));
+      const mInsert = mfgMilestones.filter(m => m.description).map((m,i) => ({ project_id: projectId, milestone_number: i+1, description: m.description, percentage: m.percentage ? parseFloat(m.percentage) : null, amount: m.amount ? parseFloat(m.amount) : null, status: m.status || 'pending' }));
+      if (bInsert.length) await _supa.from('buyer_milestones').insert(bInsert);
+      if (mInsert.length) await _supa.from('manufacturer_milestones').insert(mInsert);
+
+      // Save documents — upsert each
+      const docTypes = [
+        { id: 'doc-buyer-po', ref: 'doc-buyer-po-ref', type: 'buyer_po', raised_by: 'buyer' },
+        { id: 'doc-mfg-po', ref: 'doc-mfg-po-ref', type: 'admin_to_mfg_po', raised_by: 'admin' },
+        { id: 'doc-buyer-qc', ref: null, type: 'buyer_qc', raised_by: 'admin' },
+        { id: 'doc-mfg-qc', ref: null, type: 'mfg_qc', raised_by: 'manufacturer' }
+      ];
+      for (const dt of docTypes) {
+        const content = document.getElementById(dt.id).value.trim();
+        if (!content) continue;
+        const ref = dt.ref ? document.getElementById(dt.ref).value.trim() : null;
+        // Check if exists
+        const { data: existing } = await _supa.from('project_documents').select('id').eq('project_id', projectId).eq('doc_type', dt.type);
+        if (existing && existing.length > 0) {
+          await _supa.from('project_documents').update({ content, reference_number: ref || null }).eq('id', existing[0].id);
+        } else {
+          await _supa.from('project_documents').insert({ project_id: projectId, doc_type: dt.type, content, reference_number: ref || null, raised_by: dt.raised_by });
+        }
+      }
     }
 
     btn.disabled = false; btn.textContent = 'Save Project';
-    if (error) { alert('Error: ' + error.message); return; }
     closeProjectModal();
     loadProjects();
   }

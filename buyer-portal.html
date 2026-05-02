@@ -126,8 +126,36 @@
     .btn-am-ghost { background: var(--white); color: var(--ink-mid); border: 1px solid var(--border); }
     .btn-am-ghost:hover { border-color: var(--gold); color: var(--gold); }
 
-    /* LOADING */
-    .loading { text-align: center; padding: 48px; color: var(--ink-light); font-size: 13px; }
+    /* PROGRESS BAR */
+    .progress-bar-wrap { margin-bottom: 16px; }
+    .progress-steps { display: flex; align-items: center; margin-bottom: 8px; }
+    .progress-step { display: flex; flex-direction: column; align-items: center; flex: 1; position: relative; }
+    .progress-step:not(:last-child)::after { content: ''; position: absolute; top: 12px; left: 50%; width: 100%; height: 2px; background: var(--border); z-index: 0; }
+    .progress-step.done:not(:last-child)::after { background: var(--gold); }
+    .step-dot { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--border); background: var(--white); z-index: 1; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 700; color: var(--ink-light); transition: all 0.3s; }
+    .progress-step.done .step-dot { background: var(--gold); border-color: var(--gold); color: var(--white); }
+    .progress-step.active .step-dot { border-color: var(--gold); background: var(--white); color: var(--gold); box-shadow: 0 0 0 3px rgba(200,134,10,0.15); }
+    .step-label { font-size: 8px; letter-spacing: 1px; text-transform: uppercase; color: var(--ink-light); margin-top: 6px; text-align: center; line-height: 1.3; }
+    .progress-step.done .step-label { color: var(--gold); }
+    .progress-step.active .step-label { color: var(--ink); font-weight: 500; }
+
+    /* MILESTONE */
+    .milestone-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border); }
+    .milestone-row:last-child { border-bottom: none; }
+    .ms-num { font-family: var(--serif); font-size: 22px; font-weight: 300; color: var(--gold); opacity: 0.5; width: 28px; flex-shrink: 0; }
+    .ms-desc { font-size: 13px; font-weight: 400; color: var(--ink); flex: 1; margin: 0 16px; }
+    .ms-pct { font-size: 12px; color: var(--ink-mid); margin-right: 16px; }
+    .ms-status { font-size: 9px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; padding: 4px 10px; }
+    .ms-pending { background: rgba(26,26,26,0.06); color: var(--ink-light); }
+    .ms-invoiced { background: rgba(200,134,10,0.1); color: var(--gold); }
+    .ms-paid { background: rgba(46,125,50,0.1); color: #2E7D32; }
+
+    /* DOCUMENT */
+    .doc-card { border: 1px solid var(--border); padding: 20px 24px; margin-bottom: 12px; }
+    .doc-card:last-child { margin-bottom: 0; }
+    .doc-label { font-size: 9px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--ink-light); margin-bottom: 8px; }
+    .doc-ref { font-size: 11px; color: var(--gold); margin-bottom: 8px; font-weight: 500; }
+    .doc-content { font-size: 13px; color: var(--ink-mid); line-height: 1.75; white-space: pre-wrap; }
 
     @media (max-width: 900px) {
       .sidebar { display: none; }
@@ -342,30 +370,96 @@
       document.getElementById('req-count').textContent = total + ' project' + (total !== 1 ? 's' : '');
     }
 
+    const STATUS_STEPS = ['received','accepted','in_production','qc','shipped','delivered','closed'];
+    const STATUS_LABELS_MAP = { received:'Received', accepted:'Accepted', in_production:'In Production', qc:'QC', shipped:'Shipped', delivered:'Delivered', closed:'Closed', cancelled:'Cancelled' };
+
+    function renderProgressBar(currentStatus) {
+      if (currentStatus === 'cancelled') return '<div style="font-size:12px;color:#e74c3c;padding:8px 0;">This project has been cancelled. Please contact your account manager.</div>';
+      const currentIdx = STATUS_STEPS.indexOf(currentStatus);
+      return `<div class="progress-bar-wrap">
+        <div class="progress-steps">
+          ${STATUS_STEPS.map((s, i) => {
+            const isDone = i < currentIdx;
+            const isActive = i === currentIdx;
+            const cls = isDone ? 'done' : isActive ? 'active' : '';
+            return `<div class="progress-step ${cls}">
+              <div class="step-dot">${isDone ? '✓' : i+1}</div>
+              <div class="step-label">${STATUS_LABELS_MAP[s]}</div>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>`;
+    }
+
     function renderProjectCard(project) {
-      const statusLabels = { received: 'Received', in_progress: 'In Progress', quality_check: 'Quality Check', delivered: 'Delivered', cancelled: 'Cancelled' };
-      const statusClass = { received: 'status-received', in_progress: 'status-in-progress', quality_check: 'status-quality-check', delivered: 'status-delivered', cancelled: '' };
-      const label = statusLabels[project.status] || project.status;
-      const cls = statusClass[project.status] || 'status-received';
-      const updated = project.updated_at ? new Date(project.updated_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '—';
-      const details = project.product_details || {};
+      const updated = project.updated_at ? new Date(project.updated_at).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' }) : '—';
+      const statusMsg = {
+        received: 'Your requirement has been received. An account manager will reach out within 48 hours.',
+        accepted: 'Your project has been accepted. IMC is now planning the production.',
+        in_production: 'Your product is currently in production.',
+        qc: 'Production complete. Quality checks are underway before dispatch.',
+        shipped: 'Your product has been shipped and is on its way.',
+        delivered: 'Your product has been delivered.',
+        closed: project.completion_note || 'This project has been completed and closed.',
+        cancelled: 'This project has been cancelled. Please contact your account manager.'
+      };
       return `
-        <div class="req-card">
+        <div class="req-card" id="proj-${project.id}">
           <div class="req-card-top">
             <div class="req-product">${project.product_name}</div>
-            <div style="display:flex;align-items:center;gap:12px;">
-              <span class="status-badge ${cls}">${label}</span>
-              <span class="req-date">Updated ${updated}</span>
-            </div>
+            <span class="req-date">Updated ${updated}</span>
           </div>
-          ${project.timeline ? `<div class="req-meta"><div class="req-meta-item"><strong>Expected Timeline:</strong> ${project.timeline}</div></div>` : ''}
-          <div style="font-size:12px;color:var(--ink-light);">
-            ${project.status === 'received' ? 'Your account manager will reach out within 48 hours to discuss this requirement.' : ''}
-            ${project.status === 'in_progress' ? 'Your product is currently in production. Your account manager will keep you updated.' : ''}
-            ${project.status === 'quality_check' ? 'Production is complete. Quality checks are underway before delivery.' : ''}
-            ${project.status === 'delivered' ? 'Your product has been delivered. Thank you for working with IMC.' : ''}
+          ${renderProgressBar(project.status)}
+          ${project.timeline ? `<div style="font-size:12px;color:var(--ink-mid);margin-bottom:10px;"><strong>Expected Timeline:</strong> ${project.timeline}</div>` : ''}
+          <div style="font-size:13px;color:var(--ink-mid);line-height:1.7;margin-bottom:16px;">${statusMsg[project.status] || ''}</div>
+          <div id="milestones-${project.id}" style="display:none;margin-top:4px;border-top:1px solid var(--border);padding-top:16px;">
+            <div style="font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:12px;">Payment Milestones</div>
+            <div id="ms-list-${project.id}">Loading...</div>
+          </div>
+          <div id="docs-${project.id}" style="display:none;margin-top:4px;border-top:1px solid var(--border);padding-top:16px;">
+            <div style="font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:12px;">Documents</div>
+            <div id="docs-list-${project.id}">Loading...</div>
+          </div>
+          <div style="display:flex;gap:10px;margin-top:12px;">
+            <button onclick="toggleMilestones('${project.id}')" style="font-family:var(--sans);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;background:none;border:1px solid var(--border);color:var(--ink-mid);padding:7px 16px;cursor:pointer;transition:all 0.2s;">Payment Milestones</button>
+            <button onclick="toggleDocs('${project.id}')" style="font-family:var(--sans);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;background:none;border:1px solid var(--border);color:var(--ink-mid);padding:7px 16px;cursor:pointer;transition:all 0.2s;">Documents</button>
           </div>
         </div>`;
+    }
+
+    async function toggleMilestones(projectId) {
+      const el = document.getElementById('milestones-' + projectId);
+      const list = document.getElementById('ms-list-' + projectId);
+      if (el.style.display === 'none') {
+        el.style.display = 'block';
+        const { data: ms } = await supa.from('buyer_milestones').select('*').eq('project_id', projectId).order('milestone_number');
+        if (!ms || ms.length === 0) { list.innerHTML = '<div style="font-size:13px;color:var(--ink-light);">No payment milestones set yet.</div>'; return; }
+        list.innerHTML = ms.map(m => `
+          <div class="milestone-row">
+            <div class="ms-num">${m.milestone_number}</div>
+            <div class="ms-desc">${m.description}</div>
+            ${m.percentage ? `<div class="ms-pct">${m.percentage}%</div>` : ''}
+            ${m.amount ? `<div class="ms-pct">₹${Number(m.amount).toLocaleString('en-IN')}</div>` : ''}
+            <div class="ms-status ms-${m.status}">${m.status}</div>
+          </div>`).join('');
+      } else { el.style.display = 'none'; }
+    }
+
+    async function toggleDocs(projectId) {
+      const el = document.getElementById('docs-' + projectId);
+      const list = document.getElementById('docs-list-' + projectId);
+      if (el.style.display === 'none') {
+        el.style.display = 'block';
+        const { data: docs } = await supa.from('project_documents').select('*').eq('project_id', projectId).in('doc_type', ['buyer_po','buyer_qc']);
+        if (!docs || docs.length === 0) { list.innerHTML = '<div style="font-size:13px;color:var(--ink-light);">No documents available yet.</div>'; return; }
+        const labels = { buyer_po: 'Purchase Order (Your PO to IMC)', buyer_qc: 'Quality Certificate' };
+        list.innerHTML = docs.map(d => `
+          <div class="doc-card">
+            <div class="doc-label">${labels[d.doc_type] || d.doc_type}</div>
+            ${d.reference_number ? `<div class="doc-ref">Ref: ${d.reference_number}</div>` : ''}
+            <div class="doc-content">${d.content}</div>
+          </div>`).join('');
+      } else { el.style.display = 'none'; }
     }
 
     function renderRawProduct(product, buyer) {

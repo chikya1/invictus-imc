@@ -93,6 +93,32 @@
     .pb-desc { font-size: 13px; font-weight: 300; color: rgba(255,255,255,0.45); line-height: 1.75; }
     .pb-desc strong { color: var(--gold); font-weight: 400; }
 
+    /* PROGRESS BAR */
+    .progress-bar-wrap { margin-bottom: 14px; }
+    .progress-steps { display: flex; align-items: center; }
+    .progress-step { display: flex; flex-direction: column; align-items: center; flex: 1; position: relative; }
+    .progress-step:not(:last-child)::after { content: ''; position: absolute; top: 12px; left: 50%; width: 100%; height: 2px; background: var(--border); z-index: 0; }
+    .progress-step.done:not(:last-child)::after { background: var(--gold); }
+    .step-dot { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--border); background: var(--white); z-index: 1; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 700; color: var(--ink-light); }
+    .progress-step.done .step-dot { background: var(--gold); border-color: var(--gold); color: var(--white); }
+    .progress-step.active .step-dot { border-color: var(--gold); color: var(--gold); box-shadow: 0 0 0 3px rgba(200,134,10,0.15); }
+    .step-label { font-size: 8px; letter-spacing: 1px; text-transform: uppercase; color: var(--ink-light); margin-top: 6px; text-align: center; line-height: 1.3; }
+    .progress-step.done .step-label { color: var(--gold); }
+    .progress-step.active .step-label { color: var(--ink); font-weight: 500; }
+    .milestone-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border); }
+    .milestone-row:last-child { border-bottom: none; }
+    .ms-num { font-family: var(--serif); font-size: 22px; font-weight: 300; color: var(--gold); opacity: 0.5; width: 28px; flex-shrink: 0; }
+    .ms-desc { font-size: 13px; color: var(--ink); flex: 1; margin: 0 16px; }
+    .ms-pct { font-size: 12px; color: var(--ink-mid); margin-right: 16px; }
+    .ms-status { font-size: 9px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; padding: 4px 10px; }
+    .ms-pending { background: rgba(26,26,26,0.06); color: var(--ink-light); }
+    .ms-invoiced { background: rgba(200,134,10,0.1); color: var(--gold); }
+    .ms-paid { background: rgba(46,125,50,0.1); color: #2E7D32; }
+    .doc-card { border: 1px solid var(--border); padding: 18px 22px; margin-bottom: 10px; }
+    .doc-label { font-size: 9px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--ink-light); margin-bottom: 6px; }
+    .doc-ref { font-size: 11px; color: var(--gold); margin-bottom: 6px; }
+    .doc-content { font-size: 13px; color: var(--ink-mid); line-height: 1.75; white-space: pre-wrap; }
+
     /* LOADING */
     .loading { text-align: center; padding: 48px; color: var(--ink-light); font-size: 13px; }
 
@@ -295,60 +321,92 @@
       }
     }
 
+    const MFG_STATUS_STEPS = ['received','accepted','in_production','qc','shipped','delivered','closed'];
+    const MFG_STATUS_LABELS = { received:'Received', accepted:'Accepted', in_production:'In Production', qc:'QC', shipped:'Shipped', delivered:'Delivered', closed:'Closed', cancelled:'Cancelled' };
+
+    function renderMfgProgressBar(currentStatus) {
+      if (currentStatus === 'cancelled') return '<div style="font-size:12px;color:#e74c3c;padding:8px 0;">This order has been cancelled.</div>';
+      const currentIdx = MFG_STATUS_STEPS.indexOf(currentStatus);
+      return `<div class="progress-bar-wrap"><div class="progress-steps">
+        ${MFG_STATUS_STEPS.map((s, i) => {
+          const isDone = i < currentIdx, isActive = i === currentIdx;
+          const cls = isDone ? 'done' : isActive ? 'active' : '';
+          return `<div class="progress-step ${cls}"><div class="step-dot">${isDone ? '✓' : i+1}</div><div class="step-label">${MFG_STATUS_LABELS[s]}</div></div>`;
+        }).join('')}
+      </div></div>`;
+    }
+
     async function loadOrders(mfgId) {
-      const { data: projects } = await supa
-        .from('projects')
-        .select('*')
-        .eq('manufacturer_id', mfgId)
-        .order('updated_at', { ascending: false });
-
+      const { data: projects } = await supa.from('projects').select('*').eq('manufacturer_id', mfgId).order('updated_at', { ascending: false });
       const all = projects || [];
-      const active = all.filter(p => ['received','in_progress','quality_check'].includes(p.status)).length;
-      const delivered = all.filter(p => p.status === 'delivered').length;
-
-      // Update stats
+      const delivered = all.filter(p => ['delivered','closed'].includes(p.status)).length;
       const statCards = document.querySelectorAll('.stat-card-val');
       if (statCards[0]) statCards[0].textContent = all.length;
       if (statCards[1]) statCards[1].textContent = delivered;
 
+      const emptyHtml = `<div class="empty-state"><div class="empty-icon">◎</div><div class="empty-title">No orders yet</div><div class="empty-desc">Once approved, IMC will assign orders here.</div></div>`;
+
+      const orderCard = p => {
+        const updated = p.updated_at ? new Date(p.updated_at).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' }) : '—';
+        return `<div style="border:1px solid var(--border);padding:20px 24px;margin-bottom:14px;">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;">
+            <div style="font-family:var(--serif);font-size:20px;font-weight:500;color:var(--ink);">${p.product_name}</div>
+            <span style="font-size:10px;color:var(--ink-light);">Updated ${updated}</span>
+          </div>
+          ${renderMfgProgressBar(p.status)}
+          ${p.timeline ? `<div style="font-size:12px;color:var(--ink-mid);margin-bottom:10px;"><strong>Timeline:</strong> ${p.timeline}</div>` : ''}
+          <div style="display:flex;gap:10px;margin-top:12px;">
+            <button onclick="toggleMfgMilestones('${p.id}')" style="font-family:var(--sans);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;background:none;border:1px solid var(--border);color:var(--ink-mid);padding:7px 16px;cursor:pointer;">Payment Milestones</button>
+            <button onclick="toggleMfgDocs('${p.id}')" style="font-family:var(--sans);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;background:none;border:1px solid var(--border);color:var(--ink-mid);padding:7px 16px;cursor:pointer;">My Documents</button>
+          </div>
+          <div id="mfg-ms-${p.id}" style="display:none;margin-top:14px;border-top:1px solid var(--border);padding-top:14px;">
+            <div style="font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:10px;">Payment Milestones</div>
+            <div id="mfg-ms-list-${p.id}">Loading...</div>
+          </div>
+          <div id="mfg-docs-${p.id}" style="display:none;margin-top:14px;border-top:1px solid var(--border);padding-top:14px;">
+            <div style="font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:10px;">Documents</div>
+            <div id="mfg-docs-list-${p.id}">Loading...</div>
+          </div>
+        </div>`;
+      };
+
       const ordersContainer = document.getElementById('orders-list');
       const dashOrdersContainer = document.getElementById('dash-orders-list');
+      if (ordersContainer) ordersContainer.innerHTML = all.length === 0 ? emptyHtml : all.map(orderCard).join('');
+      if (dashOrdersContainer) dashOrdersContainer.innerHTML = all.length === 0 ? emptyHtml : all.slice(0,2).map(orderCard).join('');
+    }
 
-      if (all.length === 0) {
-        const emptyHtml = `<div class="empty-state"><div class="empty-icon">◎</div><div class="empty-title">No orders yet</div><div class="empty-desc">Once your profile is approved, IMC will assign orders here. Your account manager will contact you before the first order.</div></div>`;
-        if (ordersContainer) ordersContainer.innerHTML = emptyHtml;
-        if (dashOrdersContainer) dashOrdersContainer.innerHTML = emptyHtml;
-        return;
-      }
+    async function toggleMfgMilestones(projectId) {
+      const el = document.getElementById('mfg-ms-' + projectId);
+      const list = document.getElementById('mfg-ms-list-' + projectId);
+      if (el.style.display === 'none') {
+        el.style.display = 'block';
+        const { data: ms } = await supa.from('manufacturer_milestones').select('*').eq('project_id', projectId).order('milestone_number');
+        if (!ms || ms.length === 0) { list.innerHTML = '<div style="font-size:13px;color:var(--ink-light);">No milestones set yet.</div>'; return; }
+        list.innerHTML = ms.map(m => `<div class="milestone-row">
+          <div class="ms-num">${m.milestone_number}</div>
+          <div class="ms-desc">${m.description}</div>
+          ${m.percentage ? `<div class="ms-pct">${m.percentage}%</div>` : ''}
+          ${m.amount ? `<div class="ms-pct">₹${Number(m.amount).toLocaleString('en-IN')}</div>` : ''}
+          <div class="ms-status ms-${m.status}">${m.status}</div>
+        </div>`).join('');
+      } else { el.style.display = 'none'; }
+    }
 
-      const html = all.map(p => {
-        const statusLabels = { received: 'New Order', in_progress: 'In Progress', quality_check: 'Quality Check', delivered: 'Delivered', cancelled: 'Cancelled' };
-        const statusColors = { received: '#1565C0', in_progress: '#E65100', quality_check: '#7B1FA2', delivered: '#2E7D32', cancelled: '#888' };
-        const col = statusColors[p.status] || '#888';
-        const label = statusLabels[p.status] || p.status;
-        const updated = p.updated_at ? new Date(p.updated_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '—';
-        return `
-          <div class="req-card" style="border:1px solid var(--border);padding:20px 24px;margin-bottom:12px;">
-            <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px;">
-              <div style="font-family:var(--serif);font-size:20px;font-weight:500;color:var(--ink);">${p.product_name}</div>
-              <span style="display:inline-flex;align-items:center;gap:6px;font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;padding:4px 10px;background:${col}18;color:${col};">
-                <span style="width:6px;height:6px;border-radius:50%;background:${col};flex-shrink:0;"></span>${label}
-              </span>
-            </div>
-            ${p.timeline ? `<div style="font-size:12px;color:var(--ink-mid);margin-bottom:8px;"><strong>Timeline:</strong> ${p.timeline}</div>` : ''}
-            <div style="font-size:11px;color:var(--ink-light);">Last updated ${updated}</div>
-          </div>`;
-      }).join('');
-
-      if (ordersContainer) ordersContainer.innerHTML = html;
-      if (dashOrdersContainer) dashOrdersContainer.innerHTML = all.slice(0,3).map(p => {
-        const statusColors = { received: '#1565C0', in_progress: '#E65100', quality_check: '#7B1FA2', delivered: '#2E7D32', cancelled: '#888' };
-        const statusLabels = { received: 'New Order', in_progress: 'In Progress', quality_check: 'Quality Check', delivered: 'Delivered', cancelled: 'Cancelled' };
-        return `<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border);">
-          <span style="font-size:14px;font-weight:400;color:var(--ink);">${p.product_name}</span>
-          <span style="font-size:9px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:${statusColors[p.status] || '#888'};">${statusLabels[p.status] || p.status}</span>
-        </div>`;
-      }).join('');
+    async function toggleMfgDocs(projectId) {
+      const el = document.getElementById('mfg-docs-' + projectId);
+      const list = document.getElementById('mfg-docs-list-' + projectId);
+      if (el.style.display === 'none') {
+        el.style.display = 'block';
+        const { data: docs } = await supa.from('project_documents').select('*').eq('project_id', projectId).in('doc_type', ['admin_to_mfg_po','mfg_qc']);
+        if (!docs || docs.length === 0) { list.innerHTML = '<div style="font-size:13px;color:var(--ink-light);">No documents yet.</div>'; return; }
+        const labels = { admin_to_mfg_po: 'Purchase Order (IMC to You)', mfg_qc: 'Quality Certificate' };
+        list.innerHTML = docs.map(d => `<div class="doc-card">
+          <div class="doc-label">${labels[d.doc_type] || d.doc_type}</div>
+          ${d.reference_number ? `<div class="doc-ref">Ref: ${d.reference_number}</div>` : ''}
+          <div class="doc-content">${d.content}</div>
+        </div>`).join('');
+      } else { el.style.display = 'none'; }
     }
 
     function renderProfile(mfg) {
