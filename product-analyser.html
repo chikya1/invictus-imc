@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
+  <link rel="icon" type="image/png" href="/INVICTUS_LOGO.png" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Product Analyser — Invictus IMC</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
@@ -47,14 +48,34 @@
       z-index: 100;
     }
     .nav-logo {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 20px;
-      font-weight: 700;
-      color: var(--white);
-      letter-spacing: 2px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
       text-decoration: none;
+      flex-shrink: 0;
     }
-    .nav-logo span { color: var(--gold); }
+    .nav-logo img {
+      width: 34px;
+      height: 34px;
+      object-fit: contain;
+    }
+    .nav-logo-wordmark { display: flex; flex-direction: column; gap: 2px; }
+    .nav-logo-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 17px;
+      font-weight: 600;
+      letter-spacing: 2.5px;
+      color: var(--white);
+      text-transform: uppercase;
+      line-height: 1;
+    }
+    .nav-logo-tag {
+      font-size: 8px;
+      letter-spacing: 3px;
+      color: var(--gold);
+      text-transform: uppercase;
+      line-height: 1;
+    }
     .nav-links { display: flex; gap: 32px; align-items: center; }
     .nav-links a {
       color: rgba(255,255,255,0.6);
@@ -761,7 +782,13 @@
 
   <!-- NAV -->
   <nav>
-    <a href="/" class="nav-logo">INVICTUS <span>IMC</span></a>
+    <a href="/" class="nav-logo">
+      <img src="/INVICTUS_LOGO-NO_BG.png" alt="Invictus IMC" />
+      <div class="nav-logo-wordmark">
+        <span class="nav-logo-name">Invictus IMC</span>
+        <span class="nav-logo-tag">India Manufacturing Company</span>
+      </div>
+    </a>
     <div class="nav-links">
       <a href="/the-opportunity">The Opportunity</a>
       <a href="/manufacturers-club">Manufacturers Club</a>
@@ -779,16 +806,6 @@
 
   <!-- MAIN -->
   <main class="main">
-
-    <!-- CLUB NAV BUTTONS -->
-    <div style="display:flex; gap:16px; justify-content:center; margin-bottom:48px; flex-wrap:wrap;">
-      <a href="/manufacturers-club" style="display:inline-flex; align-items:center; gap:10px; background:var(--void); color:#F5F2EC; border:1px solid #2E2E2E; padding:13px 28px; font-family:'Outfit',sans-serif; font-size:12px; font-weight:600; letter-spacing:1.5px; text-transform:uppercase; text-decoration:none; transition:all 0.2s;" onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold)'" onmouseout="this.style.borderColor='#2E2E2E';this.style.color='#F5F2EC'">
-        <span style="font-size:16px;">⚙</span> I Am a Manufacturer
-      </a>
-      <a href="/buyers-club" style="display:inline-flex; align-items:center; gap:10px; background:var(--void); color:#F5F2EC; border:1px solid #2E2E2E; padding:13px 28px; font-family:'Outfit',sans-serif; font-size:12px; font-weight:600; letter-spacing:1.5px; text-transform:uppercase; text-decoration:none; transition:all 0.2s;" onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold)'" onmouseout="this.style.borderColor='#2E2E2E';this.style.color='#F5F2EC'">
-        <span style="font-size:16px;">📦</span> I Am a Buyer / Importer
-      </a>
-    </div>
 
     <!-- UPLOAD SECTION -->
     <div class="upload-section" id="upload-section">
@@ -984,8 +1001,12 @@
         <h3>Ready to Source This in India?</h3>
         <p>Join the Invictus IMC Buyers Club and we'll find the right manufacturer, manage the production, and deliver — end to end.</p>
         <div class="results-cta-buttons">
-          <a href="/buyers-club" class="btn-gold">Join Buyers Club</a>
-          <a href="/manufacturers-club" class="btn-outline">I'm a Manufacturer</a>
+          <a href="/manufacturers-club" style="display:inline-flex;align-items:center;gap:10px;background:var(--void);color:#F5F2EC;border:1px solid #2E2E2E;padding:13px 28px;font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;text-decoration:none;transition:all 0.2s;" onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold)'" onmouseout="this.style.borderColor='#2E2E2E';this.style.color='#F5F2EC'">
+            <span style="font-size:16px;">⚙</span> I Am a Manufacturer
+          </a>
+          <a href="/buyers-club" style="display:inline-flex;align-items:center;gap:10px;background:var(--gold);color:#0A0A0A;border:1px solid var(--gold);padding:13px 28px;font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;text-decoration:none;transition:all 0.2s;" onmouseover="this.style.opacity='0.88'" onmouseout="this.style.opacity='1'">
+            <span style="font-size:16px;">📦</span> I Am a Buyer / Importer
+          </a>
         </div>
       </div>
 
@@ -1133,9 +1154,9 @@
       startLoadingAnimation();
 
       try {
-        // Convert image to base64
+        // Convert image to base64 (compressed to max 1024px JPEG)
         const base64 = await fileToBase64(selectedFile);
-        const mimeType = selectedFile.type;
+        const mimeType = 'image/jpeg'; // always JPEG after compression
 
         // Call serverless function
         const response = await fetch('/api/analyse-product', {
@@ -1171,13 +1192,26 @@
 
     function fileToBase64(file) {
       return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => {
-          const base64 = reader.result.split(',')[1];
-          resolve(base64);
+        const img = new Image();
+        const url = URL.createObjectURL(file);
+        img.onload = () => {
+          URL.revokeObjectURL(url);
+          // Resize to max 1024px on longest side to keep payload small
+          const MAX = 1024;
+          let { width, height } = img;
+          if (width > MAX || height > MAX) {
+            if (width > height) { height = Math.round(height * MAX / width); width = MAX; }
+            else { width = Math.round(width * MAX / height); height = MAX; }
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = width; canvas.height = height;
+          canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+          // Use JPEG at 0.85 quality for smaller payload
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+          resolve(dataUrl.split(',')[1]);
         };
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
+        img.onerror = reject;
+        img.src = url;
       });
     }
 
