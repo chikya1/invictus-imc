@@ -1255,6 +1255,7 @@
             <button class="btn-edit" onclick="viewApp(${i})">View</button>
             <button class="btn-edit" style="color:#3DAA6E;background:rgba(61,170,110,0.10);border-color:rgba(61,170,110,0.3);" onclick="updateAppStatus(${i},'approved','manufacturer')">Approve</button>
             <button class="btn-del" onclick="updateAppStatus(${i},'rejected','manufacturer')">Reject</button>
+            ${a.status === 'approved' ? `<button class="btn-edit" style="color:#C8860A;background:rgba(200,134,10,0.1);border-color:rgba(200,134,10,0.3);" onclick="inviteToPortal('${a.pocEmail}','${a.pocName}','manufacturer')">Invite to Portal</button>` : ''}
           </div>
         </td>
       </tr>
@@ -1367,6 +1368,7 @@
             <button class="btn-edit" onclick="viewBuyerApp(${i})">View</button>
             <button class="btn-edit" style="color:#3DAA6E;background:rgba(61,170,110,0.10);border-color:rgba(61,170,110,0.3);" onclick="updateAppStatus(${i},'approved','buyer')">Approve</button>
             <button class="btn-del" onclick="updateAppStatus(${i},'rejected','buyer')">Reject</button>
+            ${a.status === 'approved' ? `<button class="btn-edit" style="color:#C8860A;background:rgba(200,134,10,0.1);border-color:rgba(200,134,10,0.3);" onclick="inviteToPortal('${a.pocEmail}','${a.pocName}','buyer')">Invite to Portal</button>` : ''}
           </div>
         </td>
       </tr>
@@ -1879,25 +1881,12 @@
     closeProjectModal(); loadMgmtProjects();
   }
 
-  async function autoCreateProjectsForBuyer(buyerApp) {
-    const email=buyerApp.pocEmail||buyerApp.email||'';
-    const companyName=buyerApp.companyName||buyerApp.company_name||'';
-    let buyers=null;
-    if(email){const{data}=await _supa.from('buyers').select('id,products,company_name').eq('poc_email',email);buyers=data;}
-    if(!buyers?.length&&companyName){const{data}=await _supa.from('buyers').select('id,products,company_name').ilike('company_name',companyName);buyers=data;}
-    if(!buyers?.length) return;
-    const buyer=buyers[0];
-    let products=buyer.products;
-    if(typeof products==='string'){try{products=JSON.parse(products);}catch(e){return;}}
-    if(!Array.isArray(products)) return;
-    const{data:existing}=await _supa.from('projects').select('product_name').eq('buyer_id',buyer.id);
-    const existingNames=(existing||[]).map(p=>p.product_name);
-    for(const product of products){
-      const name=product.name||product.product_name||'';
-      if(!name||existingNames.includes(name)) continue;
-      await _supa.from('projects').insert({buyer_id:buyer.id,product_name:name,product_details:product,status:'received',acceptance_status:'received'});
-    }
+  async function inviteToPortal(email, name, role) {
+    if (!email) { alert('No email found for this applicant.'); return; }
+    alert(`To invite ${name} to the portal:\n\n1. Go to Supabase → Authentication → Users\n2. Click "Invite User"\n3. Enter: ${email}\n4. They will receive an email with a link to set their password and access their ${role} portal.\n\nAfter they sign up, go to Supabase → Table Editor → profiles and set their role to "${role}".`);
   }
+
+  async function autoCreateProjectsForBuyer(buyerApp) {
 </script>
 </body>
 </html>

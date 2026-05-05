@@ -445,7 +445,7 @@
     <a href="#" class="active">Buyers Club</a>
   </div>
   <div class="nav-right">
-    <button class="btn-ghost">Sign In</button>
+    <a href="/login" class="btn-ghost">Sign In</a>
     <button class="btn-gold-nav" onclick="scrollToForm()">Apply Now</button>
   </div>
   <button class="hamburger" id="hamburger-btn" onclick="toggleMobileMenu()" aria-label="Open menu">
@@ -1229,10 +1229,15 @@
               </div>
               <div style="padding:36px 32px;background:#faf8f3;">
                 <p style="font-size:15px;line-height:1.7;">Dear ${application.poc_name},</p>
-                <p style="font-size:15px;line-height:1.7;">Thank you for your interest in <strong>Invictus IMC - Buyers Club</strong>.</p>
-                <p style="font-size:15px;line-height:1.7;">We have received your sourcing interest from <strong>${application.company_name}</strong>. Our team shall reach out to you soon.</p>
-                <p style="font-size:15px;line-height:1.7;">Welcome to Invictus IMC.</p>
-                <div style="margin:32px 0;padding:20px 24px;border-left:3px solid #D4970D;background:#fff;">
+                <p style="font-size:15px;line-height:1.7;">Thank you for applying to the <strong>Invictus IMC Buyers Club</strong>.</p>
+                <p style="font-size:15px;line-height:1.7;">We have received your application from <strong>${application.company_name}</strong>. Our team will personally review your requirement and respond within 2 business days.</p>
+                <div style="margin:28px 0;padding:20px 24px;background:#fff;border:1px solid #e0e0dc;">
+                  <p style="margin:0 0 10px;font-size:13px;font-weight:bold;color:#1a1a1a;letter-spacing:1px;text-transform:uppercase;">What happens next</p>
+                  <p style="margin:0 0 8px;font-size:13px;color:#555;line-height:1.7;">① Our team reviews your requirement — within 2 business days</p>
+                  <p style="margin:0 0 8px;font-size:13px;color:#555;line-height:1.7;">② If approved, you will receive a <strong>separate email with a link to set up your Buyers Portal</strong></p>
+                  <p style="margin:0;font-size:13px;color:#555;line-height:1.7;">③ Once inside your portal, you can track your project status, view documents, and communicate with your account manager</p>
+                </div>
+                <div style="margin:0 0 28px;padding:20px 24px;border-left:3px solid #D4970D;background:#fff;">
                   <p style="margin:0;font-size:13px;color:#555;">Company: ${application.company_name}</p>
                   <p style="margin:6px 0 0;font-size:13px;color:#555;">Buyer Type: ${application.buyer_type}</p>
                   <p style="margin:6px 0 0;font-size:13px;color:#555;">Location: ${application.city}, ${application.state}</p>
