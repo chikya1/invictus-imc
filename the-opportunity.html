@@ -418,6 +418,288 @@
       .step-connector { margin: 0 8px; }
     }
 
+    /* ── DPIIT SECTION ── */
+    .dpiit-section { padding: 0 72px 80px; background: var(--ivory); }
+
+    /* News Bar */
+    .dpiit-newsbar {
+      display: flex; align-items: center; gap: 0;
+      border: 1px solid var(--ivory-border);
+      background: white; margin-bottom: 56px;
+      overflow: hidden;
+    }
+    .dpiit-newsbar-label {
+      font-size: 9px; font-weight: 500; letter-spacing: 2.5px; text-transform: uppercase;
+      color: var(--void); background: var(--gold);
+      padding: 12px 18px; white-space: nowrap; flex-shrink: 0;
+    }
+    .dpiit-newsbar-links {
+      display: flex; align-items: stretch; flex: 1; overflow: hidden;
+    }
+    .dpiit-newsbar-link {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 20px; border-left: 1px solid var(--ivory-border);
+      text-decoration: none; flex: 1;
+      transition: background 0.2s;
+    }
+    .dpiit-newsbar-link:hover { background: var(--raised); }
+    .dpiit-newsbar-source {
+      font-size: 8px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase;
+      color: var(--gold); white-space: nowrap; flex-shrink: 0;
+    }
+    .dpiit-newsbar-headline {
+      font-size: 12px; font-weight: 300; color: var(--ink-mid);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      line-height: 1.3;
+    }
+    .dpiit-newsbar-arrow {
+      font-size: 14px; color: var(--gold); flex-shrink: 0; margin-left: auto;
+    }
+
+    /* Headline */
+    .dpiit-headline {
+      font-family: var(--serif); font-size: 52px; font-weight: 300;
+      color: var(--ink); line-height: 1.05; letter-spacing: -1px;
+      margin-bottom: 20px; max-width: 780px;
+    }
+    .dpiit-headline em { font-style: italic; color: var(--gold); }
+    .dpiit-subline {
+      font-size: 15px; font-weight: 300; color: var(--ink-mid);
+      line-height: 1.7; max-width: 680px; margin-bottom: 40px;
+    }
+
+    /* Stats Row */
+    .dpiit-stats {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 1px; background: var(--ivory-border);
+      border: 1px solid var(--ivory-border);
+      margin-bottom: 40px;
+    }
+    .dpiit-stat {
+      background: white; padding: 28px 28px 24px;
+      position: relative;
+    }
+    .dpiit-stat::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    }
+    .dpiit-stat.total::before { background: var(--gold); }
+    .dpiit-stat.c1::before { background: #E05A2B; }
+    .dpiit-stat.c2::before { background: #2E8B57; }
+    .dpiit-stat.c3::before { background: #4A90D9; }
+    .dpiit-stat-val {
+      font-family: var(--serif); font-size: 48px; font-weight: 300;
+      line-height: 1; margin-bottom: 6px; color: var(--ink);
+    }
+    .dpiit-stat.total .dpiit-stat-val { color: var(--gold); }
+    .dpiit-stat.c1 .dpiit-stat-val { color: #E05A2B; }
+    .dpiit-stat.c2 .dpiit-stat-val { color: #2E8B57; }
+    .dpiit-stat.c3 .dpiit-stat-val { color: #4A90D9; }
+    .dpiit-stat-label {
+      font-size: 10px; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase;
+      color: var(--ink); margin-bottom: 4px;
+    }
+    .dpiit-stat-sub {
+      font-size: 10px; font-weight: 300; color: var(--ink-mid); letter-spacing: 0.3px;
+    }
+
+    /* Tabs */
+    .dpiit-tabs {
+      display: flex; gap: 0; border-bottom: 2px solid var(--ivory-border);
+      margin-bottom: 28px;
+    }
+    .dpiit-tab {
+      font-family: var(--sans); font-size: 11px; font-weight: 400;
+      letter-spacing: 1.5px; text-transform: uppercase;
+      padding: 12px 24px; border: none; background: none; cursor: pointer;
+      color: var(--ink-mid); border-bottom: 2px solid transparent;
+      margin-bottom: -2px; transition: all 0.2s;
+    }
+    .dpiit-tab:hover { color: var(--ink); }
+    .dpiit-tab.active { color: var(--gold); border-bottom-color: var(--gold); }
+
+    /* Filters Row */
+    .dpiit-filters {
+      display: flex; gap: 12px; align-items: center; margin-bottom: 24px; flex-wrap: wrap;
+    }
+    .dpiit-search {
+      font-family: var(--sans); font-size: 12px; font-weight: 300;
+      color: var(--ink); background: white; border: 1px solid var(--ivory-border);
+      padding: 9px 16px; outline: none; flex: 1; min-width: 200px; max-width: 320px;
+      transition: border-color 0.2s;
+    }
+    .dpiit-search:focus { border-color: var(--gold-border); }
+    .dpiit-search::placeholder { color: var(--ink-mid); }
+    .dpiit-sector-filter { display: none; } /* replaced by buttons */
+    .dpiit-result-count {
+      font-size: 10px; color: var(--ink-mid); letter-spacing: 1px; margin-left: auto;
+    }
+
+    /* Sector buttons */
+    .dpiit-sector-btns {
+      display: flex; gap: 6px; flex-wrap: wrap; align-items: center;
+    }
+    .dpiit-sector-btn {
+      font-family: var(--sans); font-size: 10px; font-weight: 400;
+      letter-spacing: 1.5px; text-transform: uppercase;
+      padding: 7px 14px; border: 1px solid var(--ivory-border);
+      background: white; color: var(--ink-mid); cursor: pointer;
+      transition: all 0.2s;
+    }
+    .dpiit-sector-btn:hover { color: var(--gold); border-color: var(--gold-border); }
+    .dpiit-sector-btn.active { color: var(--gold); border-color: var(--gold-border); background: var(--gold-dim); }
+
+    /* Product Rows */
+    .dpiit-list { display: flex; flex-direction: column; gap: 0; border: 1px solid var(--ivory-border); }
+    .dpiit-row {
+      display: grid;
+      grid-template-columns: 120px 1fr 100px 120px 120px 150px auto;
+      gap: 0; align-items: stretch;
+      border-bottom: 1px solid var(--ivory-border);
+      background: white; transition: background 0.2s;
+      min-height: 72px;
+    }
+    .dpiit-row:last-child { border-bottom: none; }
+    .dpiit-row:hover { background: var(--raised); }
+    .dpiit-row-cell {
+      padding: 16px 18px; height: 100%;
+      display: flex; align-items: center;
+      border-right: 1px solid var(--ivory-border);
+    }
+    .dpiit-row-cell:last-child { border-right: none; }
+
+    /* Badge */
+    .dpiit-badge {
+      font-size: 8px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase;
+      padding: 5px 8px; display: inline-block; line-height: 1.2; text-align: center;
+    }
+    .dpiit-badge.c1 { background: rgba(224,90,43,0.10); color: #E05A2B; border: 1px solid rgba(224,90,43,0.25); }
+    .dpiit-badge.c2 { background: rgba(46,139,87,0.10); color: #2E8B57; border: 1px solid rgba(46,139,87,0.25); }
+    .dpiit-badge.c3 { background: rgba(74,144,217,0.10); color: #4A90D9; border: 1px solid rgba(74,144,217,0.25); }
+
+    /* Product cell */
+    .dpiit-product-name {
+      font-family: var(--serif); font-size: 17px; font-weight: 400;
+      color: var(--ink); line-height: 1.2; margin-bottom: 4px;
+    }
+    .dpiit-product-meta {
+      font-size: 10px; color: var(--ink-mid); letter-spacing: 0.3px; line-height: 1.5;
+    }
+    .dpiit-product-clusters {
+      font-size: 10px; color: var(--ink-mid); margin-top: 2px;
+    }
+
+    /* Cells */
+    .dpiit-hsn { font-size: 11px; font-weight: 400; color: var(--ink-mid); letter-spacing: 1px; font-family: monospace; }
+    .dpiit-import-val {
+      font-family: var(--serif); font-size: 20px; font-weight: 300; color: var(--ink);
+    }
+    .dpiit-import-label { font-size: 9px; color: var(--ink-mid); letter-spacing: 1px; margin-top: 2px; }
+    .dpiit-sources { font-size: 10px; color: var(--ink-mid); line-height: 1.6; }
+    .dpiit-sources-label { font-size: 9px; letter-spacing: 1px; text-transform: uppercase; color: var(--ink-mid); margin-bottom: 3px; }
+
+    /* CTA buttons in row */
+    .dpiit-row-ctas {
+      display: flex; flex-direction: column; gap: 8px; padding: 12px 16px;
+    }
+    .dpiit-btn-mfg, .dpiit-btn-buy {
+      font-family: var(--sans);
+      padding: 10px 14px; border: none; cursor: pointer;
+      text-decoration: none; display: flex; flex-direction: column;
+      align-items: center; gap: 2px;
+      transition: all 0.2s;
+    }
+    .dpiit-btn-label {
+      font-size: 10px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase;
+      line-height: 1.2; white-space: nowrap;
+    }
+    .dpiit-btn-sublabel {
+      font-size: 9px; font-weight: 400; letter-spacing: 0.5px; opacity: 0.75;
+      text-transform: none; white-space: nowrap;
+    }
+    .dpiit-btn-mfg { background: var(--gold); color: var(--void); }
+    .dpiit-btn-mfg:hover { background: var(--gold-light); }
+    .dpiit-btn-buy { background: none; color: var(--gold); border: 1px solid var(--gold-border); }
+    .dpiit-btn-buy:hover { background: var(--gold-dim); }
+
+    /* Empty / loading */
+    .dpiit-empty {
+      padding: 64px; text-align: center; background: white;
+      border: 1px solid var(--ivory-border);
+    }
+    .dpiit-empty p {
+      font-family: var(--serif); font-size: 22px; font-weight: 300;
+      font-style: italic; color: var(--ink-mid);
+    }
+    .dpiit-loading {
+      padding: 64px; text-align: center; background: white;
+      border: 1px solid var(--ivory-border);
+      font-size: 12px; letter-spacing: 2px; text-transform: uppercase;
+      color: var(--ink-mid);
+    }
+
+    /* Dark CTA Banner */
+    .dpiit-cta-banner {
+      margin-top: 40px;
+      background: var(--void); border: 1px solid var(--gold-border);
+      padding: 40px 48px;
+      display: flex; align-items: center; justify-content: space-between; gap: 48px;
+      position: relative;
+    }
+    .dpiit-cta-banner::before {
+      content: ''; position: absolute; top: -1px; left: 10%; right: 10%; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    }
+    .dpiit-cta-banner-text h3 {
+      font-family: var(--serif); font-size: 32px; font-weight: 300;
+      color: var(--white); letter-spacing: -0.3px; margin-bottom: 8px;
+    }
+    .dpiit-cta-banner-text h3 em { font-style: italic; color: var(--gold); }
+    .dpiit-cta-banner-text p {
+      font-size: 13px; font-weight: 300; color: var(--muted); line-height: 1.6; max-width: 480px;
+    }
+    .dpiit-cta-banner-btns { display: flex; gap: 12px; flex-shrink: 0; }
+
+    /* Pagination */
+    .dpiit-pagination {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      margin-top: 24px;
+    }
+    .dpiit-page-btn {
+      font-family: var(--sans); font-size: 11px; letter-spacing: 1px;
+      padding: 8px 14px; border: 1px solid var(--ivory-border);
+      background: white; color: var(--ink-mid); cursor: pointer; transition: all 0.2s;
+    }
+    .dpiit-page-btn:hover, .dpiit-page-btn.active {
+      border-color: var(--gold-border); color: var(--gold); background: var(--gold-dim);
+    }
+    .dpiit-page-btn:disabled { opacity: 0.35; cursor: default; }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .dpiit-section { padding: 0 32px 64px; }
+      .dpiit-headline { font-size: 40px; }
+      .dpiit-stats { grid-template-columns: 1fr 1fr; }
+      .dpiit-row { grid-template-columns: 100px 1fr 90px 110px; }
+      .dpiit-row-cell:nth-child(5), .dpiit-row-cell:nth-child(6), .dpiit-row-cell:nth-child(7) { display: none; }
+      .dpiit-row-ctas { display: none; }
+      .dpiit-newsbar-links { overflow-x: auto; }
+    }
+    @media (max-width: 768px) {
+      .dpiit-section { padding: 0 24px 48px; }
+      .dpiit-headline { font-size: 32px; }
+      .dpiit-stats { grid-template-columns: 1fr 1fr; gap: 1px; }
+      .dpiit-stat-val { font-size: 36px; }
+      .dpiit-row { grid-template-columns: 90px 1fr 100px; }
+      .dpiit-row-cell:nth-child(3), .dpiit-row-cell:nth-child(4), .dpiit-row-cell:nth-child(5), .dpiit-row-cell:nth-child(6), .dpiit-row-cell:nth-child(7) { display: none; }
+      .dpiit-tabs { overflow-x: auto; }
+      .dpiit-tab { white-space: nowrap; }
+      .dpiit-newsbar { flex-direction: column; }
+      .dpiit-newsbar-links { flex-direction: column; }
+      .dpiit-newsbar-link { border-left: none; border-top: 1px solid var(--ivory-border); }
+      .dpiit-cta-banner { flex-direction: column; gap: 24px; padding: 32px 24px; }
+      .dpiit-cta-banner-btns { flex-direction: column; width: 100%; }
+    }
+
   </style>
 </head>
 <body>
@@ -469,6 +751,115 @@
         <div class="header-pill" onclick="filterSector('Machinery')">Machinery</div>
       </div>
     </div>
+  </section>
+
+  <!-- DPIIT 102 PRODUCTS SECTION -->
+  <div class="divider reveal">
+    <div class="divider-line"></div>
+    <div class="divider-text">DPIIT Priority — 102 Products</div>
+    <div class="divider-line"></div>
+    <div class="divider-count" id="dpiit-divider-count"></div>
+  </div>
+
+  <section class="dpiit-section reveal" id="dpiit-section">
+
+    <!-- News Bar -->
+    <div class="dpiit-newsbar">
+      <div class="dpiit-newsbar-label">In the News</div>
+      <div class="dpiit-newsbar-links">
+        <a href="https://cfo.economictimes.indiatimes.com/news/commerce-ministry-aims-to-cut-import-bill-shares-list-of-102-items-with-other-ministries/87647536" target="_blank" rel="noopener" class="dpiit-newsbar-link">
+          <span class="dpiit-newsbar-source">Economic Times</span>
+          <span class="dpiit-newsbar-headline">Commerce Ministry aims to cut import bill, shares list of 102 items with other ministries</span>
+          <span class="dpiit-newsbar-arrow">↗</span>
+        </a>
+        <a href="https://www.millenniumpost.in/business/2026/05/10/government-identifying-100-products-for-made-in-india-branding" target="_blank" rel="noopener" class="dpiit-newsbar-link">
+          <span class="dpiit-newsbar-source">Millennium Post</span>
+          <span class="dpiit-newsbar-headline">Government identifying 100+ products for Made in India branding — May 2026</span>
+          <span class="dpiit-newsbar-arrow">↗</span>
+        </a>
+        <a href="https://www.ibef.org/news/india-plans-made-in-india-brand-scheme-targets-gaps-in-domestic-manufacturing" target="_blank" rel="noopener" class="dpiit-newsbar-link">
+          <span class="dpiit-newsbar-source">IBEF</span>
+          <span class="dpiit-newsbar-headline">India plans Made in India brand scheme, targets gaps in domestic manufacturing — May 2026</span>
+          <span class="dpiit-newsbar-arrow">↗</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Headline -->
+    <div class="dpiit-headline">102 products the Government of India<br/><em>wants manufactured domestically.</em></div>
+    <p class="dpiit-subline">DPIIT identified 102 high-import products across three priority cohorts — where India's import dependence is highest and the domestic manufacturing opportunity is most urgent. These are the categories Invictus IMC is built to serve.</p>
+
+    <!-- Stats Row -->
+    <div class="dpiit-stats">
+      <div class="dpiit-stat total">
+        <div class="dpiit-stat-val">102</div>
+        <div class="dpiit-stat-label">Total Products</div>
+        <div class="dpiit-stat-sub">DPIIT Priority List</div>
+      </div>
+      <div class="dpiit-stat c1">
+        <div class="dpiit-stat-val">18</div>
+        <div class="dpiit-stat-label">Critical</div>
+        <div class="dpiit-stat-sub">High Share &amp; High Growth</div>
+      </div>
+      <div class="dpiit-stat c2">
+        <div class="dpiit-stat-val">45</div>
+        <div class="dpiit-stat-label">Forex Saving</div>
+        <div class="dpiit-stat-sub">High Share &amp; Low Growth</div>
+      </div>
+      <div class="dpiit-stat c3">
+        <div class="dpiit-stat-val">39</div>
+        <div class="dpiit-stat-label">Future Tech</div>
+        <div class="dpiit-stat-sub">Low Share &amp; High Growth</div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="dpiit-tabs">
+      <button class="dpiit-tab active" onclick="dpiitTab('all', this)">All 102</button>
+      <button class="dpiit-tab" onclick="dpiitTab(1, this)">Cohort 1 — Critical</button>
+      <button class="dpiit-tab" onclick="dpiitTab(2, this)">Cohort 2 — Forex Saving</button>
+      <button class="dpiit-tab" onclick="dpiitTab(3, this)">Cohort 3 — Future Tech</button>
+    </div>
+
+    <!-- Filters -->
+    <div class="dpiit-filters" style="flex-direction:column;align-items:flex-start;gap:10px;">
+      <div style="display:flex;align-items:center;gap:12px;width:100%;">
+        <input type="text" class="dpiit-search" id="dpiit-search" placeholder="Search products..." oninput="dpiitFilter()" />
+        <span class="dpiit-result-count" id="dpiit-result-count"></span>
+      </div>
+      <div class="dpiit-sector-btns" id="dpiit-sector-btns">
+        <button class="dpiit-sector-btn active" onclick="dpiitSector('', this)">All Sectors</button>
+        <button class="dpiit-sector-btn" onclick="dpiitSector('Electronics', this)">Electronics</button>
+        <button class="dpiit-sector-btn" onclick="dpiitSector('Plastics', this)">Plastics</button>
+        <button class="dpiit-sector-btn" onclick="dpiitSector('Machinery', this)">Machinery</button>
+        <button class="dpiit-sector-btn" onclick="dpiitSector('Energy', this)">Energy</button>
+        <button class="dpiit-sector-btn" onclick="dpiitSector('Metals', this)">Metals</button>
+        <button class="dpiit-sector-btn" onclick="dpiitSector('Textiles', this)">Textiles</button>
+        <button class="dpiit-sector-btn" onclick="dpiitSector('Chemicals', this)">Chemicals</button>
+        <button class="dpiit-sector-btn" onclick="dpiitSector('Healthcare', this)">Healthcare</button>
+      </div>
+    </div>
+
+    <!-- Product List -->
+    <div id="dpiit-list">
+      <div class="dpiit-loading">Loading products from database...</div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="dpiit-pagination" id="dpiit-pagination"></div>
+
+    <!-- Dark CTA Banner -->
+    <div class="dpiit-cta-banner">
+      <div class="dpiit-cta-banner-text">
+        <h3>These opportunities are <em>live on the platform.</em></h3>
+        <p>Whether you manufacture any of these products or want to source them from India — Invictus IMC manages the entire process end to end. PO to delivery.</p>
+      </div>
+      <div class="dpiit-cta-banner-btns">
+        <button class="btn-primary-large" onclick="window.location.href='/manufacturers-club'">I Can Make This</button>
+        <button class="btn-outline-large" onclick="window.location.href='/buyers-club'">Source in India</button>
+      </div>
+    </div>
+
   </section>
 
   <!-- MARKET INTELLIGENCE -->
@@ -738,6 +1129,158 @@
     renderMI(null);
     renderReqs('all');
   
+    // ── DPIIT 102 PRODUCTS ──
+    const SUPABASE_URL = 'https://nmjkzhquoxuuebzyotnx.supabase.co';
+    const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5tamt6aHF1b3h1dWVienlvdG54Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwNzY0MDEsImV4cCI6MjA5MTY1MjQwMX0.6uwyWMSLGhG259TY9x-vpUxNiENkYAXOqFEUI3aSv5M';
+
+    let dpiitAllProducts = [];
+    let dpiitFiltered = [];
+    let dpiitCurrentTab = 'all';
+    let dpiitCurrentSector = '';
+    let dpiitCurrentPage = 1;
+    const DPIIT_PER_PAGE = 20;
+
+    async function loadDPIITProducts() {
+      try {
+        const res = await fetch(
+          `${SUPABASE_URL}/rest/v1/market_intelligence?dpiit_cohort=not.is.null&is_active=eq.true&order=dpiit_cohort.asc,product.asc&select=*`,
+          { headers: { 'apikey': SUPABASE_ANON, 'Authorization': 'Bearer ' + SUPABASE_ANON } }
+        );
+        if (!res.ok) throw new Error('Failed to fetch');
+        dpiitAllProducts = await res.json();
+        dpiitFilter();
+      } catch(e) {
+        document.getElementById('dpiit-list').innerHTML =
+          '<div class="dpiit-empty"><p>Could not load product data. Please refresh.</p></div>';
+      }
+    }
+
+    function dpiitTab(cohort, btn) {
+      dpiitCurrentTab = cohort;
+      dpiitCurrentPage = 1;
+      document.querySelectorAll('.dpiit-tab').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+      dpiitFilter();
+    }
+
+    function dpiitSector(sector, btn) {
+      dpiitCurrentSector = sector;
+      dpiitCurrentPage = 1;
+      document.querySelectorAll('.dpiit-sector-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      dpiitFilter();
+    }
+
+    function dpiitFilter() {
+      const search = document.getElementById('dpiit-search').value.toLowerCase().trim();
+
+      dpiitFiltered = dpiitAllProducts.filter(p => {
+        if (dpiitCurrentTab !== 'all' && p.dpiit_cohort !== dpiitCurrentTab) return false;
+        if (dpiitCurrentSector && p.sector !== dpiitCurrentSector) return false;
+        if (search) {
+          const haystack = (p.product + ' ' + p.sector + ' ' + (p.manufacturing_clusters || []).join(' ')).toLowerCase();
+          if (!haystack.includes(search)) return false;
+        }
+        return true;
+      });
+
+      dpiitCurrentPage = 1;
+      document.getElementById('dpiit-result-count').textContent = dpiitFiltered.length + ' products';
+      document.getElementById('dpiit-divider-count').textContent = dpiitAllProducts.length + ' products';
+      renderDPIITPage();
+    }
+
+    function renderDPIITPage() {
+      const start = (dpiitCurrentPage - 1) * DPIIT_PER_PAGE;
+      const page = dpiitFiltered.slice(start, start + DPIIT_PER_PAGE);
+      const list = document.getElementById('dpiit-list');
+
+      if (dpiitFiltered.length === 0) {
+        list.innerHTML = '<div class="dpiit-empty"><p>No products match your search.</p></div>';
+        document.getElementById('dpiit-pagination').innerHTML = '';
+        return;
+      }
+
+      const cohortLabels = { 1: ['c1', 'Critical'], 2: ['c2', 'Forex Saving'], 3: ['c3', 'Future Tech'] };
+
+      list.innerHTML = `
+        <div class="dpiit-list">
+          ${page.map(p => {
+            const [cls, label] = cohortLabels[p.dpiit_cohort] || ['c1', ''];
+            const clusters = (p.manufacturing_clusters || []).join(' · ');
+            const sources = (p.top_import_sources || []).join(', ');
+            const usdVal = p.import_value ? `$${p.import_value}` : '—';
+            const inrRaw = p.import_value ? (p.import_value * 83.5 / 1000) : null;
+            const inrVal = inrRaw ? `₹${inrRaw >= 10 ? Math.round(inrRaw) : inrRaw.toFixed(1)}` : '—';
+            return `
+            <div class="dpiit-row">
+              <div class="dpiit-row-cell">
+                <span class="dpiit-badge ${cls}">${label}</span>
+              </div>
+              <div class="dpiit-row-cell" style="flex-direction:column;align-items:flex-start;gap:0;">
+                <div class="dpiit-product-name">${p.product}</div>
+                <div class="dpiit-product-meta">${p.sector}${clusters ? ' · ' + clusters : ''}</div>
+              </div>
+              <div class="dpiit-row-cell">
+                <span class="dpiit-hsn">HSN ${p.hsn || '—'}</span>
+              </div>
+              <div class="dpiit-row-cell" style="flex-direction:column;align-items:flex-start;gap:2px;">
+                <div class="dpiit-import-val">${usdVal}</div>
+                <div class="dpiit-import-label">Million USD / Year</div>
+              </div>
+              <div class="dpiit-row-cell" style="flex-direction:column;align-items:flex-start;gap:2px;">
+                <div class="dpiit-import-val">${inrVal}</div>
+                <div class="dpiit-import-label">Thousand Cr / Year</div>
+              </div>
+              <div class="dpiit-row-cell" style="flex-direction:column;align-items:flex-start;gap:3px;">
+                <div class="dpiit-sources-label">Top Sources</div>
+                <div class="dpiit-sources">${sources || '—'}</div>
+              </div>
+              <div class="dpiit-row-ctas">
+                <a href="/manufacturers-club" class="dpiit-btn-mfg">
+                  <span class="dpiit-btn-label">I Can Make This →</span>
+                  <span class="dpiit-btn-sublabel">for Manufacturers</span>
+                </a>
+                <a href="/buyers-club" class="dpiit-btn-buy">
+                  <span class="dpiit-btn-label">Source in India →</span>
+                  <span class="dpiit-btn-sublabel">for Buyers</span>
+                </a>
+              </div>
+            </div>`;
+          }).join('')}
+        </div>`;
+
+      renderDPIITPagination();
+    }
+
+    function renderDPIITPagination() {
+      const total = Math.ceil(dpiitFiltered.length / DPIIT_PER_PAGE);
+      const pg = document.getElementById('dpiit-pagination');
+      if (total <= 1) { pg.innerHTML = ''; return; }
+
+      let html = `<button class="dpiit-page-btn" onclick="dpiitGoPage(${dpiitCurrentPage - 1})" ${dpiitCurrentPage === 1 ? 'disabled' : ''}>← Prev</button>`;
+      for (let i = 1; i <= total; i++) {
+        if (total > 7 && i > 2 && i < total - 1 && Math.abs(i - dpiitCurrentPage) > 1) {
+          if (i === 3 || i === total - 2) html += `<span style="color:var(--ink-mid);padding:0 4px;">…</span>`;
+          continue;
+        }
+        html += `<button class="dpiit-page-btn ${i === dpiitCurrentPage ? 'active' : ''}" onclick="dpiitGoPage(${i})">${i}</button>`;
+      }
+      html += `<button class="dpiit-page-btn" onclick="dpiitGoPage(${dpiitCurrentPage + 1})" ${dpiitCurrentPage === total ? 'disabled' : ''}>Next →</button>`;
+      pg.innerHTML = html;
+    }
+
+    function dpiitGoPage(n) {
+      const total = Math.ceil(dpiitFiltered.length / DPIIT_PER_PAGE);
+      if (n < 1 || n > total) return;
+      dpiitCurrentPage = n;
+      renderDPIITPage();
+      document.getElementById('dpiit-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    // Init DPIIT on load
+    loadDPIITProducts();
+
   function toggleMobileMenu() {
     const btn = document.getElementById('hamburger-btn');
     if (btn) btn.classList.toggle('active');
