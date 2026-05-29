@@ -386,14 +386,7 @@
 
   </style>
 
-  <!-- Supabase -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script>if (!window.supabase) document.write('<script src="https://unpkg.com/@supabase/supabase-js@2"><\/script>');</script>
-  <script>
-    const _supa = (window.supabase && window.supabase.createClient)
-      ? window.supabase.createClient('https://nmjkzhquoxuuebzyotnx.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5tamt6aHF1b3h1dWVienlvdG54Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwNzY0MDEsImV4cCI6MjA5MTY1MjQwMX0.6uwyWMSLGhG259TY9x-vpUxNiENkYAXOqFEUI3aSv5M')
-      : null;
-  </script>
+  <!-- Supabase loaded in body script -->
 </head>
 <body>
 
@@ -976,7 +969,16 @@
   </div>
 </div>
 
+<script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script>
+  let _supa = null;
+  try {
+    _supa = window.supabase.createClient(
+      'https://nmjkzhquoxuuebzyotnx.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5tamt6aHF1b3h1dWVienlvdG54Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwNzY0MDEsImV4cCI6MjA5MTY1MjQwMX0.6uwyWMSLGhG259TY9x-vpUxNiENkYAXOqFEUI3aSv5M'
+    );
+  } catch(e) { console.warn('Supabase init failed:', e); }
+
   const ADMIN_PASS = 'Doofenshmirtz@56';
   const MI_KEY = 'imc_mi_data';
   const REQ_KEY = 'imc_req_data';
