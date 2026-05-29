@@ -969,15 +969,20 @@
   </div>
 </div>
 
-<script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js" crossorigin="anonymous"></script>
 <script>
   let _supa = null;
-  try {
-    _supa = window.supabase.createClient(
-      'https://nmjkzhquoxuuebzyotnx.supabase.co',
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5tamt6aHF1b3h1dWVienlvdG54Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwNzY0MDEsImV4cCI6MjA5MTY1MjQwMX0.6uwyWMSLGhG259TY9x-vpUxNiENkYAXOqFEUI3aSv5M'
-    );
-  } catch(e) { console.warn('Supabase init failed:', e); }
+  function initSupa() {
+    try {
+      if (window.supabase && window.supabase.createClient) {
+        _supa = window.supabase.createClient(
+          'https://nmjkzhquoxuuebzyotnx.supabase.co',
+          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5tamt6aHF1b3h1dWVienlvdG54Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwNzY0MDEsImV4cCI6MjA5MTY1MjQwMX0.6uwyWMSLGhG259TY9x-vpUxNiENkYAXOqFEUI3aSv5M'
+        );
+      }
+    } catch(e) { console.warn('Supabase init failed', e); }
+  }
+  document.addEventListener('DOMContentLoaded', initSupa);
 
   const ADMIN_PASS = 'Doofenshmirtz@56';
   const MI_KEY = 'imc_mi_data';
@@ -1010,6 +1015,7 @@
   async function doLogin() {
     const pwd = document.getElementById('pwd').value;
     if (pwd === ADMIN_PASS) {
+      if (!_supa) initSupa();
       document.getElementById('login-screen').style.display = 'none';
       document.getElementById('admin-app').style.display = 'block';
       refreshDashboard();
