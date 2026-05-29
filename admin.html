@@ -443,6 +443,18 @@
       </div>
       <div class="sidebar-divider"></div>
       <div class="sidebar-section">
+        <span class="sidebar-label">Lead Gen</span>
+        <div class="sidebar-link" onclick="showTab('leads-buyers', this)">
+          <svg viewBox="0 0 14 14" fill="none"><circle cx="7" cy="4" r="3" stroke="currentColor" stroke-width="1"/><path d="M1 13C1 10.24 3.69 8 7 8C10.31 8 13 10.24 13 13" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="11" y1="3" x2="13" y2="3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="12" y1="2" x2="12" y2="4" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
+          Buyer Leads
+        </div>
+        <div class="sidebar-link" onclick="showTab('leads-mfg', this)">
+          <svg viewBox="0 0 14 14" fill="none"><rect x="1" y="5" width="12" height="8" rx="1" stroke="currentColor" stroke-width="1"/><path d="M4 5V3.5C4 2.12 5.12 1 6.5 1H7.5C8.88 1 10 2.12 10 3.5V5" stroke="currentColor" stroke-width="1"/><line x1="11" y1="3" x2="13" y2="3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="12" y1="2" x2="12" y2="4" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
+          Manufacturer Leads
+        </div>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
         <span class="sidebar-label">Members</span>
         <div class="sidebar-link" onclick="showTab('manufacturers', this)">
           <svg viewBox="0 0 14 14" fill="none"><rect x="1" y="5" width="12" height="8" rx="1" stroke="currentColor" stroke-width="1"/><path d="M4 5V3.5C4 2.12 5.12 1 6.5 1H7.5C8.88 1 10 2.12 10 3.5V5" stroke="currentColor" stroke-width="1"/></svg>
@@ -557,19 +569,57 @@
         </table>
       </div>
 
-      <!-- MANUFACTURERS TAB -->
+      <!-- BUYER LEADS TAB -->
+      <div class="tab-panel" id="tab-leads-buyers">
+        <div class="page-title">Buyer <em>Leads</em></div>
+        <div class="page-subtitle">Homepage impression submissions from buyers. Graduate to Members once they submit a full profile.</div>
+        <div class="section-header">
+          <div class="section-title">Buyer Leads <span id="buyer-leads-count" style="font-size:11px;color:var(--muted);margin-left:8px;"></span></div>
+          <button class="btn-edit" onclick="exportLeads('buyer')" style="padding:10px 16px;">Export CSV</button>
+        </div>
+        <table class="admin-table">
+          <thead>
+            <tr><th>Status</th><th>Company</th><th>What They Need</th><th>Name</th><th>Mobile</th><th>Email</th><th>Also Mfg?</th><th>Submitted</th><th>Actions</th></tr>
+          </thead>
+          <tbody id="buyer-leads-tbody">
+            <tr><td colspan="9" class="table-empty">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- MANUFACTURER LEADS TAB -->
+      <div class="tab-panel" id="tab-leads-mfg">
+        <div class="page-title">Manufacturer <em>Leads</em></div>
+        <div class="page-subtitle">Homepage impression submissions from manufacturers. Graduate to Members once they submit a full profile.</div>
+        <div class="section-header">
+          <div class="section-title">Manufacturer Leads <span id="mfg-leads-count" style="font-size:11px;color:var(--muted);margin-left:8px;"></span></div>
+          <button class="btn-edit" onclick="exportLeads('manufacturer')" style="padding:10px 16px;">Export CSV</button>
+        </div>
+        <table class="admin-table">
+          <thead>
+            <tr><th>Status</th><th>Company</th><th>What They Make</th><th>Name</th><th>City</th><th>Mobile</th><th>Email</th><th>Also Buyer?</th><th>Submitted</th><th>Actions</th></tr>
+          </thead>
+          <tbody id="mfg-leads-tbody">
+            <tr><td colspan="10" class="table-empty">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- MANUFACTURERS MEMBER TAB -->
       <div class="tab-panel" id="tab-manufacturers">
         <div class="page-title">Manufacturers <em>Club</em></div>
         <div class="page-subtitle">All membership applications from the Manufacturers Club form.</div>
         <div class="section-header">
           <div class="section-title">Applications</div>
           <div style="display:flex;gap:8px;">
+            <button class="btn-del" id="mfg-delete-btn" onclick="deleteSelectedApps('manufacturer')" style="display:none;padding:10px 16px;">Delete Selected</button>
             <button class="btn-edit" onclick="exportApps('manufacturer')" style="padding:10px 16px;">Export CSV</button>
           </div>
         </div>
         <table class="admin-table" id="mfg-apps-table">
           <thead>
             <tr>
+              <th><input type="checkbox" id="mfg-check-all" onchange="toggleAllChecks('manufacturer', this.checked)" /></th>
               <th>Status</th><th>Company</th><th>Sector</th><th>City</th><th>POC</th><th>Phone</th><th>Submitted</th><th>Actions</th>
             </tr>
           </thead>
@@ -577,19 +627,20 @@
         </table>
       </div>
 
-      <!-- BUYERS TAB -->
+      <!-- BUYERS MEMBER TAB -->
       <div class="tab-panel" id="tab-buyers">
         <div class="page-title">Buyers <em>Club</em></div>
         <div class="page-subtitle">All membership applications from the Buyers Club form.</div>
         <div class="section-header">
           <div class="section-title">Applications</div>
           <div style="display:flex;gap:8px;">
+            <button class="btn-del" id="buyer-delete-btn" onclick="deleteSelectedApps('buyer')" style="display:none;padding:10px 16px;">Delete Selected</button>
             <button class="btn-edit" onclick="exportApps('buyer')" style="padding:10px 16px;">Export CSV</button>
           </div>
         </div>
         <table class="admin-table">
           <thead>
-            <tr><th>Status</th><th>Company</th><th>Type</th><th>City</th><th>Products</th><th>POC</th><th>Submitted</th><th>Actions</th></tr>
+            <tr><th><input type="checkbox" id="buyer-check-all" onchange="toggleAllChecks('buyer', this.checked)" /></th><th>Status</th><th>Company</th><th>Type</th><th>City</th><th>Products</th><th>POC</th><th>Submitted</th><th>Actions</th></tr>
           </thead>
           <tbody id="buyer-apps-tbody"></tbody>
         </table>
@@ -1041,6 +1092,11 @@
     document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
     document.getElementById('tab-' + name).classList.add('active');
     if (clickedEl) clickedEl.classList.add('active');
+    if (name === 'leads-buyers') loadLeads('buyer');
+    if (name === 'leads-mfg') loadLeads('manufacturer');
+    if (name === 'projects') loadAcceptanceProjects();
+    if (name === 'project-mgmt') loadMgmtProjects();
+    if (name === 'archived') loadArchivedProjects();
   }
 
   // DASHBOARD
@@ -1249,11 +1305,12 @@
     const tbody = document.getElementById('mfg-apps-tbody');
     document.getElementById('stat-mfg').textContent = apps.length;
     if (!apps.length) {
-      tbody.innerHTML = '<tr><td colspan="8" class="table-empty">No applications yet. Share the Manufacturers Club page to start receiving applications.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="9" class="table-empty">No applications yet. Share the Manufacturers Club page to start receiving applications.</td></tr>';
       return;
     }
     tbody.innerHTML = apps.map((a, i) => `
       <tr>
+        <td><input type="checkbox" class="mfg-check-item" value="${i}" onchange="updateDeleteBtn('manufacturer')" /></td>
         <td><span style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;padding:4px 10px;background:${a.status==='approved'?'rgba(61,170,110,0.15)':a.status==='rejected'?'rgba(192,57,43,0.15)':'rgba(184,134,11,0.10)'};color:${a.status==='approved'?'#3DAA6E':a.status==='rejected'?'#e74c3c':'var(--gold)'};">${a.status||'Pending'}</span></td>
         <td><strong style="font-size:13px;">${a.companyName}</strong><br/><span class="td-muted">${a.companyType||''}</span></td>
         <td><span class="td-sector">${(a.primarySector||'').substring(0,20)}</span></td>
@@ -1362,11 +1419,12 @@
     const tbody = document.getElementById('buyer-apps-tbody');
     document.getElementById('stat-buyer').textContent = apps.length;
     if (!apps.length) {
-      tbody.innerHTML = '<tr><td colspan="8" class="table-empty">No applications yet. Share the Buyers Club page to start receiving applications.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="9" class="table-empty">No applications yet. Share the Buyers Club page to start receiving applications.</td></tr>';
       return;
     }
     tbody.innerHTML = apps.map((a, i) => `
       <tr>
+        <td><input type="checkbox" class="buyer-check-item" value="${i}" onchange="updateDeleteBtn('buyer')" /></td>
         <td><span style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;padding:4px 10px;background:${a.status==='approved'?'rgba(61,170,110,0.15)':a.status==='rejected'?'rgba(192,57,43,0.15)':'rgba(184,134,11,0.10)'};color:${a.status==='approved'?'#3DAA6E':a.status==='rejected'?'#e74c3c':'var(--gold)'};">${a.status||'Pending'}</span></td>
         <td><strong style="font-size:13px;">${a.companyName}</strong><br/><span class="td-muted">${a.city}, ${a.state}</span></td>
         <td><span class="td-sector">${a.buyerType||''}</span></td>
@@ -1384,6 +1442,154 @@
         </td>
       </tr>
     `).join('');
+  }
+
+  // CHECKBOX & DELETE FOR MEMBERS
+  function updateDeleteBtn(type) {
+    const cls = type === 'manufacturer' ? '.mfg-check-item' : '.buyer-check-item';
+    const btnId = type === 'manufacturer' ? 'mfg-delete-btn' : 'buyer-delete-btn';
+    const checked = document.querySelectorAll(cls + ':checked').length;
+    document.getElementById(btnId).style.display = checked > 0 ? 'inline-block' : 'none';
+  }
+
+  function toggleAllChecks(type, checked) {
+    const cls = type === 'manufacturer' ? '.mfg-check-item' : '.buyer-check-item';
+    document.querySelectorAll(cls).forEach(cb => cb.checked = checked);
+    updateDeleteBtn(type);
+  }
+
+  function deleteSelectedApps(type) {
+    const cls = type === 'manufacturer' ? '.mfg-check-item' : '.buyer-check-item';
+    const key = type === 'manufacturer' ? 'imc_manufacturer_apps' : 'imc_buyer_apps';
+    const selected = [...document.querySelectorAll(cls + ':checked')].map(cb => parseInt(cb.value));
+    if (!selected.length) return;
+    if (!confirm(`Delete ${selected.length} selected application(s)? This cannot be undone.`)) return;
+    let apps = JSON.parse(localStorage.getItem(key) || '[]');
+    apps = apps.filter((_, i) => !selected.includes(i));
+    localStorage.setItem(key, JSON.stringify(apps));
+    if (type === 'manufacturer') renderMfgApps();
+    else renderBuyerApps();
+    updateDeleteBtn(type);
+  }
+
+  // LEAD GEN — IMPRESSIONS
+  async function loadLeads(source) {
+    const tbodyId = source === 'buyer' ? 'buyer-leads-tbody' : 'mfg-leads-tbody';
+    const countId = source === 'buyer' ? 'buyer-leads-count' : 'mfg-leads-count';
+    const tbody = document.getElementById(tbodyId);
+    if (!tbody) return;
+    tbody.innerHTML = '<tr><td colspan="10" class="table-empty">Loading...</td></tr>';
+
+    try {
+      const res = await fetch(
+        `https://nmjkzhquoxuuebzyotnx.supabase.co/rest/v1/impressions?source=eq.${source}&order=created_at.desc`,
+        { headers: { 'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5tamt6aHF1b3h1dWVienlvdG54Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwNzY0MDEsImV4cCI6MjA5MTY1MjQwMX0.6uwyWMSLGhG259TY9x-vpUxNiENkYAXOqFEUI3aSv5M', 'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5tamt6aHF1b3h1dWVienlvdG54Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwNzY0MDEsImV4cCI6MjA5MTY1MjQwMX0.6uwyWMSLGhG259TY9x-vpUxNiENkYAXOqFEUI3aSv5M' } }
+      );
+      const leads = await res.json();
+      document.getElementById(countId).textContent = `(${leads.length})`;
+
+      if (!leads.length) {
+        tbody.innerHTML = `<tr><td colspan="10" class="table-empty">No ${source} leads yet.</td></tr>`;
+        return;
+      }
+
+      if (source === 'buyer') {
+        tbody.innerHTML = leads.map(l => `
+          <tr>
+            <td>${l.graduated
+              ? '<span style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;padding:4px 10px;background:rgba(61,170,110,0.15);color:#3DAA6E;">Member</span>'
+              : '<span style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;padding:4px 10px;background:rgba(184,134,11,0.10);color:var(--gold);">Lead</span>'
+            }</td>
+            <td><strong>${l.company_name||'—'}</strong></td>
+            <td style="font-size:12px;max-width:180px;">${l.what_they_need||'—'}</td>
+            <td>${l.contact_name||'—'}</td>
+            <td>${l.mobile||'—'}</td>
+            <td class="td-muted">${l.email||'—'}</td>
+            <td style="text-align:center;">${l.also_manufacturer ? '✓' : '—'}</td>
+            <td class="td-muted" style="font-size:11px;">${new Date(l.created_at).toLocaleString('en-IN')}</td>
+            <td>
+              <div class="td-actions">
+                ${!l.graduated ? `<button class="btn-edit" style="color:#3DAA6E;background:rgba(61,170,110,0.10);border-color:rgba(61,170,110,0.3);" onclick="graduateLead('${l.id}','${l.mobile||''}','buyer')">Graduate →</button>` : '<span style="font-size:11px;color:var(--muted);">Graduated</span>'}
+                <button class="btn-del" onclick="deleteLead('${l.id}','buyer')">Delete</button>
+              </div>
+            </td>
+          </tr>
+        `).join('');
+      } else {
+        tbody.innerHTML = leads.map(l => `
+          <tr>
+            <td>${l.graduated
+              ? '<span style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;padding:4px 10px;background:rgba(61,170,110,0.15);color:#3DAA6E;">Member</span>'
+              : '<span style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;padding:4px 10px;background:rgba(184,134,11,0.10);color:var(--gold);">Lead</span>'
+            }</td>
+            <td><strong>${l.company_name||'—'}</strong></td>
+            <td style="font-size:12px;max-width:180px;">${l.what_they_need||'—'}</td>
+            <td>${l.contact_name||'—'}</td>
+            <td class="td-muted">${l.city||'—'}</td>
+            <td>${l.mobile||'—'}</td>
+            <td class="td-muted">${l.email||'—'}</td>
+            <td style="text-align:center;">${l.also_buyer ? '✓' : '—'}</td>
+            <td class="td-muted" style="font-size:11px;">${new Date(l.created_at).toLocaleString('en-IN')}</td>
+            <td>
+              <div class="td-actions">
+                ${!l.graduated ? `<button class="btn-edit" style="color:#3DAA6E;background:rgba(61,170,110,0.10);border-color:rgba(61,170,110,0.3);" onclick="graduateLead('${l.id}','${l.mobile||''}','manufacturer')">Graduate →</button>` : '<span style="font-size:11px;color:var(--muted);">Graduated</span>'}
+                <button class="btn-del" onclick="deleteLead('${l.id}','manufacturer')">Delete</button>
+              </div>
+            </td>
+          </tr>
+        `).join('');
+      }
+    } catch(e) {
+      tbody.innerHTML = `<tr><td colspan="10" class="table-empty">Error loading leads: ${e.message}</td></tr>`;
+    }
+  }
+
+  async function graduateLead(id, mobile, source) {
+    if (!confirm('Mark this lead as graduated to Member?')) return;
+    // Check if mobile matches a member record
+    let matched = false;
+    if (mobile) {
+      const table = source === 'buyer' ? 'buyers' : 'manufacturers';
+      const res = await fetch(
+        `https://nmjkzhquoxuuebzyotnx.supabase.co/rest/v1/${table}?poc_phone=eq.${encodeURIComponent(mobile)}&select=id,company_name`,
+        { headers: { 'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5tamt6aHF1b3h1dWVienlvdG54Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwNzY0MDEsImV4cCI6MjA5MTY1MjQwMX0.6uwyWMSLGhG259TY9x-vpUxNiENkYAXOqFEUI3aSv5M', 'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5tamt6aHF1b3h1dWVienlvdG54Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwNzY0MDEsImV4cCI6MjA5MTY1MjQwMX0.6uwyWMSLGhG259TY9x-vpUxNiENkYAXOqFEUI3aSv5M' } }
+      );
+      const members = await res.json();
+      matched = members && members.length > 0;
+    }
+    // Mark as graduated
+    await fetch(
+      `https://nmjkzhquoxuuebzyotnx.supabase.co/rest/v1/impressions?id=eq.${id}`,
+      { method: 'PATCH', headers: { 'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5tamt6aHF1b3h1dWVienlvdG54Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwNzY0MDEsImV4cCI6MjA5MTY1MjQwMX0.6uwyWMSLGhG259TY9x-vpUxNiENkYAXOqFEUI3aSv5M', 'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5tamt6aHF1b3h1dWVienlvdG54Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwNzY0MDEsImV4cCI6MjA5MTY1MjQwMX0.6uwyWMSLGhG259TY9x-vpUxNiENkYAXOqFEUI3aSv5M', 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ graduated: true, graduated_at: new Date().toISOString() }) }
+    );
+    if (!matched) alert(`No matching ${source} member found by mobile number. Lead marked as graduated manually — verify in Members tab.`);
+    else alert(`Lead graduated! Matching member record found in ${source === 'buyer' ? 'Buyers' : 'Manufacturers'} Club.`);
+    loadLeads(source);
+  }
+
+  async function deleteLead(id, source) {
+    if (!confirm('Delete this lead permanently?')) return;
+    await fetch(
+      `https://nmjkzhquoxuuebzyotnx.supabase.co/rest/v1/impressions?id=eq.${id}`,
+      { method: 'DELETE', headers: { 'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5tamt6aHF1b3h1dWVienlvdG54Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwNzY0MDEsImV4cCI6MjA5MTY1MjQwMX0.6uwyWMSLGhG259TY9x-vpUxNiENkYAXOqFEUI3aSv5M', 'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5tamt6aHF1b3h1dWVienlvdG54Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwNzY0MDEsImV4cCI6MjA5MTY1MjQwMX0.6uwyWMSLGhG259TY9x-vpUxNiENkYAXOqFEUI3aSv5M' } }
+    );
+    loadLeads(source);
+  }
+
+  function exportLeads(source) {
+    // Re-fetch and download as CSV
+    fetch(
+      `https://nmjkzhquoxuuebzyotnx.supabase.co/rest/v1/impressions?source=eq.${source}&order=created_at.desc`,
+      { headers: { 'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5tamt6aHF1b3h1dWVienlvdG54Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwNzY0MDEsImV4cCI6MjA5MTY1MjQwMX0.6uwyWMSLGhG259TY9x-vpUxNiENkYAXOqFEUI3aSv5M', 'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5tamt6aHF1b3h1dWVienlvdG54Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwNzY0MDEsImV4cCI6MjA5MTY1MjQwMX0.6uwyWMSLGhG259TY9x-vpUxNiENkYAXOqFEUI3aSv5M' } }
+    ).then(r => r.json()).then(leads => {
+      if (!leads.length) { alert('No leads to export.'); return; }
+      const keys = Object.keys(leads[0]);
+      const csv = [keys.join(','), ...leads.map(l => keys.map(k => JSON.stringify(l[k]||'')).join(','))].join('\n');
+      const blob = new Blob([csv], {type:'text/csv'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = source + '-leads.csv'; a.click();
+    });
   }
 
   function viewBuyerApp(idx) {
