@@ -389,11 +389,11 @@
     <a href="#process">Our Process</a>
     <a href="/product-analyser" class="hl">✦ Analyse Product</a>
     <a href="#industries">Industries</a>
-    <a href="#about">About</a>
+    <a href="#clubs">About</a>
   </div>
 
   <div class="nav-right">
-    <a href="/manufacturers-club" class="btn-nav-gold">Request Membership</a>
+    <a href="/buyers-club" class="btn-nav-gold">Request Membership</a>
   </div>
 
   <button class="hamburger" id="hamburger-btn" onclick="toggleMobileMenu()" aria-label="Open menu">
@@ -407,8 +407,8 @@
   <a href="#process" onclick="closeMobileMenu()">Our Process</a>
   <a href="/product-analyser" style="color:var(--gold);">✦ Analyse Product</a>
   <a href="#industries" onclick="closeMobileMenu()">Industries</a>
-  <a href="#about" onclick="closeMobileMenu()">About</a>
-  <a href="/manufacturers-club" class="mob-gold">Request Membership →</a>
+  <a href="#clubs" onclick="closeMobileMenu()">About</a>
+  <a href="/buyers-club" class="mob-gold">Request Membership →</a>
 </div>
 
 <!-- HERO -->
@@ -734,7 +734,7 @@
       return;
     }
 
-    const btn = document.querySelector('#buyer-msg + * + * + * + * + * + * + * .lf-submit') || document.querySelectorAll('.lf-submit')[0];
+    const btn = document.querySelectorAll('.lf-submit')[0];
     btn.disabled = true; btn.textContent = 'Submitting...';
 
     try {
@@ -744,13 +744,6 @@
         body: JSON.stringify({ company_name: company, what_they_need: product, contact_name: name, mobile, email, source: 'buyer', also_manufacturer: alsoMfg, also_buyer: false })
       });
       if (!res.ok) throw new Error('Failed');
-
-      // Send confirmation email
-      await fetch('/api/send-email', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ to: email, name, type: 'buyer_impression', company })
-      });
-
       showMsg('buyer-msg', 'success', 'Interest received. An IMC account manager will contact you within 48 hours to understand your requirements and get you started.');
       ['b-company','b-product','b-name','b-mobile','b-email'].forEach(id => document.getElementById(id).value = '');
       document.getElementById('b-also-mfg').checked = false;
@@ -784,12 +777,6 @@
         body: JSON.stringify({ company_name: company, what_they_need: product, contact_name: name, city, email, mobile, source: 'manufacturer', also_buyer: alsoBuyer, also_manufacturer: false })
       });
       if (!res.ok) throw new Error('Failed');
-
-      await fetch('/api/send-email', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ to: email, name, type: 'mfg_impression', company })
-      });
-
       showMsg('mfg-msg', 'success', 'Interest received. An IMC account manager will visit or call you within 48 hours to understand your capacity and discuss how we can fill your order book.');
       ['m-company','m-product','m-name','m-city','m-email','m-mobile'].forEach(id => document.getElementById(id).value = '');
       document.getElementById('m-also-buyer').checked = false;
