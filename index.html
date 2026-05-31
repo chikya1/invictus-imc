@@ -242,11 +242,53 @@
     .flow-pills { display: flex; flex-direction: column; gap: 8px; margin-top: 16px; }
     .flow-pill { display: block; width: fit-content; font-size: 9px; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gold); border: 1px solid var(--gold-border); padding: 5px 12px; background: var(--gold-dim); }
 
-    /* LEAD FORMS */
-    .lead-forms { padding: 48px 64px 64px; background: var(--surface); }
-    .lead-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-    .lead-card { padding: 44px 40px; background: var(--white); border: 1px solid var(--border); }
-    .lead-card-dark { background: var(--void); border-color: #1E1E1E; }
+    /* LEAD FORMS — compact two-row design */
+    .lead-forms { padding: 40px 64px 48px; background: var(--surface); }
+
+    .club-row-buyer {
+      display: grid; grid-template-columns: 1fr 1.2fr;
+      background: var(--white);
+      border-top: 0.5px solid var(--border);
+      border-right: 0.5px solid var(--border);
+      border-bottom: 0.5px solid var(--border);
+      border-left: 3px solid var(--gold);
+      margin-bottom: 14px;
+    }
+    .club-row-mfg {
+      display: grid; grid-template-columns: 1.2fr 1fr;
+      background: var(--white);
+      border-top: 1px solid var(--void);
+      border-left: 1px solid var(--void);
+      border-bottom: 1px solid var(--void);
+      border-right: 3px solid var(--gold);
+    }
+
+    .club-copy { padding: 1.5rem 1.5rem 1.5rem 1.75rem; display: flex; flex-direction: column; }
+    .club-copy-right { padding: 1.5rem 1.75rem 1.5rem 1.5rem; display: flex; flex-direction: column; }
+    .club-copy-middle { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+
+    .club-tag { font-size: 11px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); margin-bottom: 0; display: block; }
+    .club-headline { font-family: var(--serif); font-size: 26px; font-weight: 400; color: var(--ink); line-height: 1.2; margin-bottom: 10px; }
+    .club-headline em { font-style: italic; color: var(--gold); }
+    .club-body-text { font-size: 12px; font-weight: 300; color: var(--ink-mid); line-height: 1.75; margin-bottom: 10px; }
+    .club-privacy-text { font-size: 10px; font-weight: 300; color: var(--ink-light); line-height: 1.6; }
+
+    .club-form { padding: 1.25rem 1.5rem; display: flex; flex-direction: column; gap: 8px; border-left: 0.5px solid var(--border); }
+    .club-form-left { padding: 1.25rem 1.5rem; display: flex; flex-direction: column; gap: 8px; border-right: 0.5px solid var(--border); }
+
+    .cf-label { font-size: 9px; font-weight: 400; letter-spacing: 1px; text-transform: uppercase; color: var(--ink-light); display: block; margin-bottom: 3px; }
+    .cf-input { width: 100%; font-family: var(--sans); font-size: 12px; font-weight: 300; color: var(--ink); background: var(--surface); border: 0.5px solid var(--border); padding: 8px 10px; outline: none; transition: border-color 0.2s; box-sizing: border-box; }
+    .cf-input:focus { border-color: var(--gold-border); }
+    .cf-input::placeholder { color: rgba(26,26,26,0.28); font-size: 11px; }
+    .cf-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .cf-check-row { display: flex; align-items: flex-start; gap: 7px; }
+    .cf-check { accent-color: var(--gold); flex-shrink: 0; margin-top: 2px; cursor: pointer; }
+    .cf-check-label { font-size: 10px; font-weight: 300; color: var(--ink-mid); line-height: 1.55; cursor: pointer; }
+    .cf-submit { font-family: var(--sans); font-size: 10px; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase; color: var(--void); background: var(--gold); border: none; padding: 10px 22px; cursor: pointer; transition: background 0.2s; }
+    .cf-submit:hover { background: var(--gold-light); }
+    .cf-msg { display: none; font-size: 12px; font-weight: 300; padding: 10px 12px; line-height: 1.6; border: 1px solid; }
+    .cf-msg.success { background: rgba(46,125,50,0.08); border-color: rgba(46,125,50,0.3); color: #2E7D32; display: block; }
+    .cf-msg.error { background: rgba(231,76,60,0.08); border-color: rgba(231,76,60,0.3); color: #c0392b; display: block; }
     .lead-tag { font-size: 9px; font-weight: 500; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); margin-bottom: 14px; display: block; }
     .lead-title { font-family: var(--serif); font-size: 32px; font-weight: 400; color: var(--ink); line-height: 1.15; margin-bottom: 8px; }
     .lead-title em { font-style: italic; color: var(--gold); }
@@ -318,8 +360,10 @@
       .flow-node, .flow-node-imc, .flow-node-right { padding: 32px 28px; }
       .flow-node-imc { padding: 8px 28px; }
       .lead-forms { padding: 32px 28px 48px; }
-      .lead-grid { grid-template-columns: 1fr; gap: 16px; }
-      .lead-card { border: 1px solid var(--border); }
+      .club-row-buyer, .club-row-mfg { grid-template-columns: 1fr; }
+      .club-row-mfg { border-right: 1px solid var(--void); border-top: 3px solid var(--gold); }
+      .club-form { border-left: none; border-top: 0.5px solid var(--border); }
+      .club-form-left { border-right: none; border-bottom: 0.5px solid var(--border); }
       .full-profile { padding: 40px 28px; }
       .full-profile-btns { flex-direction: column; }
       .contact-sec { padding: 32px 28px; }
@@ -328,7 +372,6 @@
       .div { padding: 60px 28px 48px; }
       .process-wrap { padding: 0 28px 60px; }
       .process-inner { grid-template-columns: 1fr 1fr; }
-      .process-step { border-right: none; border-bottom: 1px solid var(--border); }
       .ind-sec { padding: 0 28px 60px; }
       .cta-banner { flex-direction: column; gap: 28px; padding: 44px 32px; margin: 0 28px 60px; }
       footer { padding: 28px; }
@@ -343,9 +386,10 @@
       .flow-node-imc { padding: 8px 20px; }
       .flow-title { font-size: 22px; }
       .lead-forms { padding: 24px 20px 40px; }
-      .lead-card { padding: 28px 20px; }
-      .lead-title { font-size: 26px; }
-      .lf-row { grid-template-columns: 1fr; gap: 0; }
+      .club-copy, .club-copy-right { padding: 24px 20px; }
+      .club-form, .club-form-left { padding: 20px; }
+      .club-headline { font-size: 22px; }
+      .cf-row { grid-template-columns: 1fr; gap: 0; }
       .localise-strip { padding: 40px 20px; }
       .loc-ai-big { font-size: 30px; }
       .full-profile { padding: 32px 20px; }
@@ -354,8 +398,6 @@
       .contact-items { flex-direction: column; gap: 20px; }
       .div { padding: 48px 20px 40px; }
       .process-inner { grid-template-columns: 1fr; }
-      .cta-left h2 { font-size: 30px; }
-      .cta-right { width: 100%; }
       footer { flex-direction: column; gap: 16px; text-align: center; padding: 24px 20px; }
       .foot-l { flex-direction: column; gap: 10px; }
       .ind-sec { padding: 0 20px 48px; }
@@ -364,7 +406,7 @@
     @media (max-width: 480px) {
       .hero h1 { font-size: 30px; }
       .flow-title { font-size: 20px; }
-      .lead-title { font-size: 22px; }
+      .club-headline { font-size: 20px; }
       .loc-ai-big { font-size: 26px; }
       .fp-btn-gold, .fp-btn-outline { width: 100%; text-align: center; padding: 13px 20px; }
     }
@@ -453,95 +495,97 @@
 </div>
 
 <div class="lead-forms reveal">
-  <div class="lead-grid">
 
-    <!-- BUYER FORM -->
-    <div class="lead-card">
-      <span class="lead-tag">01 · Buyers Club</span>
-      <div class="lead-title">You import it.<br/>We'll make it here.</div>
-      <p class="lead-sub">Tell us what you need. Our team reaches out within 48 hours.</p>
-
-      <div class="lf-msg" id="buyer-msg"></div>
-
-      <label class="lf-label">Company name</label>
-      <input type="text" class="lf-input" id="b-company" placeholder="Acme Industries Pvt Ltd" />
-
-      <label class="lf-label">What do you need manufactured? <span class="lf-hint">(one line is fine)</span></label>
-      <input type="text" class="lf-input" id="b-product" placeholder="e.g. Plastic injection moulded enclosures, currently importing from China" />
-
-      <div class="lf-row">
-        <div>
-          <label class="lf-label">Your name</label>
-          <input type="text" class="lf-input" id="b-name" placeholder="Tejas Patil" />
-        </div>
-        <div>
-          <label class="lf-label">Mobile</label>
-          <input type="tel" class="lf-input" id="b-mobile" placeholder="+91 98765 43210" />
-        </div>
+  <!-- BUYER ROW -->
+  <div class="club-row-buyer">
+    <div class="club-copy">
+      <span class="club-tag">01 · Buyers Club</span>
+      <div class="club-copy-middle">
+        <div class="club-headline">You import it.<br/><em>We'll make it here.</em></div>
+        <p class="club-body-text">Tell us what you need. Our team reaches out within 48 hours. No commitment required.</p>
+        <p class="club-privacy-text">Your identity and requirements are never shared with manufacturers without your explicit approval.</p>
       </div>
-
-      <label class="lf-label">Email</label>
-      <input type="email" class="lf-input" id="b-email" placeholder="you@company.com" />
-
-      <div class="lf-check-row">
-        <input type="checkbox" class="lf-check" id="b-also-mfg" />
-        <label for="b-also-mfg" class="lf-check-label">I also manufacture — add me to the Manufacturers Club too</label>
-      </div>
-
-      <p class="lf-privacy">Your identity and requirements are never shared with manufacturers without your explicit approval.</p>
-
-      <button class="lf-submit" onclick="submitBuyer()">Express Interest — Buyers Club</button>
-      <p class="lf-below">Our team contacts you within 48 hours. No commitment required.</p>
     </div>
-
-    <!-- MANUFACTURER FORM -->
-    <div class="lead-card lead-card-dark">
-      <span class="lead-tag">02 · Manufacturers Club</span>
-      <div class="lead-title lead-title-dark">More orders.<br/><em>On-time payments.</em></div>
-      <p class="lead-sub lead-sub-dark">Tell us what you make. We'll reach out within 48 hours.</p>
-
-      <div class="lf-msg" id="mfg-msg"></div>
-
-      <label class="lf-label lf-label-dark">Company / factory name</label>
-      <input type="text" class="lf-input lf-input-dark" id="m-company" placeholder="Precision Parts Pvt Ltd" />
-
-      <label class="lf-label lf-label-dark">What do you manufacture? <span class="lf-hint lf-hint-dark">(one line is fine)</span></label>
-      <input type="text" class="lf-input lf-input-dark" id="m-product" placeholder="e.g. CNC turned components, auto grade, Pune" />
-
-      <div class="lf-row">
+    <div class="club-form">
+      <div class="cf-msg" id="buyer-msg"></div>
+      <div>
+        <label class="cf-label">Company name</label>
+        <input type="text" class="cf-input" id="b-company" placeholder="Acme Industries Pvt Ltd" />
+      </div>
+      <div>
+        <label class="cf-label">What do you need manufactured?</label>
+        <input type="text" class="cf-input" id="b-product" placeholder="e.g. Plastic enclosures, currently importing from China" />
+      </div>
+      <div class="cf-row">
         <div>
-          <label class="lf-label lf-label-dark">Your name</label>
-          <input type="text" class="lf-input lf-input-dark" id="m-name" placeholder="Owner / Director name" />
+          <label class="cf-label">Your name</label>
+          <input type="text" class="cf-input" id="b-name" placeholder="Tejas Patil" />
         </div>
         <div>
-          <label class="lf-label lf-label-dark">City</label>
-          <input type="text" class="lf-input lf-input-dark" id="m-city" placeholder="Pune, Mumbai..." />
+          <label class="cf-label">Mobile</label>
+          <input type="tel" class="cf-input" id="b-mobile" placeholder="+91 98765 43210" />
         </div>
       </div>
-
-      <div class="lf-row">
-        <div>
-          <label class="lf-label lf-label-dark">Email</label>
-          <input type="email" class="lf-input lf-input-dark" id="m-email" placeholder="you@factory.com" />
-        </div>
-        <div>
-          <label class="lf-label lf-label-dark">Mobile</label>
-          <input type="tel" class="lf-input lf-input-dark" id="m-mobile" placeholder="+91 98765 43210" />
-        </div>
+      <div>
+        <label class="cf-label">Email</label>
+        <input type="email" class="cf-input" id="b-email" placeholder="you@company.com" />
       </div>
-
-      <div class="lf-check-row">
-        <input type="checkbox" class="lf-check" id="m-also-buyer" />
-        <label for="m-also-buyer" class="lf-check-label lf-check-label-dark">I also buy / import — add me to the Buyers Club too</label>
+      <div class="cf-check-row">
+        <input type="checkbox" class="cf-check" id="b-also-mfg" />
+        <label for="b-also-mfg" class="cf-check-label">I also manufacture — add me to the Manufacturers Club too</label>
       </div>
-
-      <p class="lf-privacy lf-privacy-dark">Your factory details are never shared with buyers without your approval. IMC manages all buyer communication.</p>
-
-      <button class="lf-submit" onclick="submitMfg()">Express Interest — Manufacturers Club</button>
-      <p class="lf-below lf-below-dark">We review every application. Our team reaches out within 48 hours.</p>
+      <div><button class="cf-submit" onclick="submitBuyer()">Get a Callback</button></div>
     </div>
-
   </div>
+
+  <!-- MANUFACTURER ROW -->
+  <div class="club-row-mfg">
+    <div class="club-form-left">
+      <div class="cf-msg" id="mfg-msg"></div>
+      <div>
+        <label class="cf-label">Company / factory name</label>
+        <input type="text" class="cf-input" id="m-company" placeholder="Precision Parts Pvt Ltd" />
+      </div>
+      <div>
+        <label class="cf-label">What do you manufacture?</label>
+        <input type="text" class="cf-input" id="m-product" placeholder="e.g. CNC turned components, auto grade, Pune" />
+      </div>
+      <div class="cf-row">
+        <div>
+          <label class="cf-label">Your name</label>
+          <input type="text" class="cf-input" id="m-name" placeholder="Owner / Director name" />
+        </div>
+        <div>
+          <label class="cf-label">City</label>
+          <input type="text" class="cf-input" id="m-city" placeholder="Pune, Mumbai..." />
+        </div>
+      </div>
+      <div class="cf-row">
+        <div>
+          <label class="cf-label">Email</label>
+          <input type="email" class="cf-input" id="m-email" placeholder="you@factory.com" />
+        </div>
+        <div>
+          <label class="cf-label">Mobile</label>
+          <input type="tel" class="cf-input" id="m-mobile" placeholder="+91 98765 43210" />
+        </div>
+      </div>
+      <div class="cf-check-row">
+        <input type="checkbox" class="cf-check" id="m-also-buyer" />
+        <label for="m-also-buyer" class="cf-check-label">I also buy / import — add me to the Buyers Club too</label>
+      </div>
+      <div><button class="cf-submit" onclick="submitMfg()">Get a Callback</button></div>
+    </div>
+    <div class="club-copy-right">
+      <span class="club-tag">02 · Manufacturers Club</span>
+      <div class="club-copy-middle">
+        <div class="club-headline">More orders.<br/><em>On-time payments.</em></div>
+        <p class="club-body-text">We bring you orders, project manage end to end, and pay on time. Our team reaches out within 48 hours.</p>
+        <p class="club-privacy-text">Your factory details are never shared with buyers without your approval. IMC manages all buyer communication.</p>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <!-- LOCALISATION STRIP -->
@@ -717,7 +761,7 @@
 
   function showMsg(id, type, text) {
     const el = document.getElementById(id);
-    el.className = 'lf-msg ' + type;
+    el.className = 'cf-msg ' + type;
     el.textContent = text;
   }
 
@@ -734,7 +778,7 @@
       return;
     }
 
-    const btn = document.querySelectorAll('.lf-submit')[0];
+    const btn = document.querySelectorAll('.cf-submit')[0];
     btn.disabled = true; btn.textContent = 'Submitting...';
 
     try {
@@ -750,7 +794,7 @@
     } catch(e) {
       showMsg('buyer-msg', 'error', 'Something went wrong. Please try again or email connect@invictusimc.com');
     }
-    btn.disabled = false; btn.textContent = 'Express Interest — Buyers Club';
+    btn.disabled = false; btn.textContent = 'Get a Callback';
   }
 
   async function submitMfg() {
@@ -767,7 +811,7 @@
       return;
     }
 
-    const btn = document.querySelectorAll('.lf-submit')[1];
+    const btn = document.querySelectorAll('.cf-submit')[1];
     btn.disabled = true; btn.textContent = 'Submitting...';
 
     try {
@@ -783,7 +827,7 @@
     } catch(e) {
       showMsg('mfg-msg', 'error', 'Something went wrong. Please try again or email connect@invictusimc.com');
     }
-    btn.disabled = false; btn.textContent = 'Express Interest — Manufacturers Club';
+    btn.disabled = false; btn.textContent = 'Get a Callback';
   }
 </script>
 </body>
