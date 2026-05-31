@@ -1,0 +1,16 @@
+User-agent: *
+Allow: /
+
+# Priority pages for crawlers
+Allow: /the-opportunity
+Allow: /buyers-club
+Allow: /manufacturers-club
+Allow: /product-analyser
+
+# Exclude portal and admin
+Disallow: /admin
+Disallow: /buyer-portal
+Disallow: /manufacturer-portal
+Disallow: /reset-password
+
+Sitemap: https://www.invictusimc.com/sitemap.xml
