@@ -87,25 +87,37 @@
     .nav-mobile-menu .mob-gold { margin-top: 14px; text-align: center; background: var(--gold); color: var(--white); padding: 14px; font-weight: 500; letter-spacing: 1.5px; }
 
     /* HERO */
-    .hero { position: relative; width: 100%; height: calc(100vh - var(--nav-h)); min-height: 540px; max-height: 820px; overflow: hidden; }
-    .hero-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; }
-    .hero-overlay { position: absolute; inset: 0; background: linear-gradient(105deg, rgba(6,4,2,0.84) 0%, rgba(6,4,2,0.58) 44%, rgba(6,4,2,0.18) 100%); }
-    .hero-content { position: relative; z-index: 2; height: 100%; display: flex; flex-direction: column; justify-content: center; padding: 0 80px 100px; max-width: 820px; }
-    .hero-eyebrow { font-size: 10px; font-weight: 400; letter-spacing: 5px; text-transform: uppercase; color: var(--gold); margin-bottom: 26px; opacity: 0; animation: fadeUp 0.7s 0.2s forwards; display: flex; align-items: center; gap: 14px; }
+    .hero { position: relative; width: 100%; height: 62vh; min-height: 360px; max-height: 520px; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; background: var(--void); }
+    .hero-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 30%; opacity: 0.42; }
+    .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(10,10,10,0.15) 0%, rgba(10,10,10,0.55) 55%, rgba(10,10,10,0.92) 100%); }
+    .hero-content { position: relative; z-index: 2; padding: 0 64px 0; }
+    .hero-eyebrow { font-size: 9px; font-weight: 400; letter-spacing: 4px; text-transform: uppercase; color: var(--gold); margin-bottom: 14px; display: flex; align-items: center; gap: 12px; }
     .hero-eyebrow::before { content: ''; display: inline-block; width: 28px; height: 1px; background: var(--gold); }
-    .hero h1 { font-family: var(--serif); font-size: 70px; font-weight: 400; line-height: 1.06; letter-spacing: -1px; color: #FFFFFF; margin-bottom: 22px; opacity: 0; animation: fadeUp 0.8s 0.35s forwards; }
+    .hero h1 { font-family: var(--serif); font-size: 56px; font-weight: 400; line-height: 1.06; letter-spacing: -1px; color: #FFFFFF; }
     .hero h1 em { font-style: italic; color: var(--gold); }
-    .hero-sub { font-size: 16px; font-weight: 300; color: rgba(255,255,255,0.68); line-height: 1.75; margin-bottom: 40px; max-width: 500px; opacity: 0; animation: fadeUp 0.8s 0.5s forwards; }
-    .hero-actions { display: flex; gap: 12px; align-items: center; opacity: 0; animation: fadeUp 0.8s 0.65s forwards; }
-    .btn-hp { font-family: var(--sans); font-size: 13px; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase; color: var(--void); background: var(--gold); border: none; cursor: pointer; padding: 15px 38px; transition: all 0.25s; text-decoration: none; display: inline-block; }
-    .btn-hp:hover { background: var(--gold-light); transform: translateY(-1px); }
-    .btn-ho { font-family: var(--sans); font-size: 13px; font-weight: 400; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,0.85); background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.28); cursor: pointer; padding: 15px 38px; transition: all 0.25s; text-decoration: none; display: inline-block; }
-    .btn-ho:hover { background: rgba(255,255,255,0.14); border-color: rgba(255,255,255,0.5); }
-    .hero-bar { position: absolute; bottom: 0; left: 0; right: 0; z-index: 3; background: rgba(8,6,4,0.74); backdrop-filter: blur(8px); border-top: 1px solid rgba(255,255,255,0.09); display: grid; grid-template-columns: repeat(3, 1fr); }
-    .hbar-item { padding: 20px 44px; border-right: 1px solid rgba(255,255,255,0.09); display: flex; align-items: center; gap: 16px; }
-    .hbar-item:last-child { border-right: none; }
-    .hbar-num { font-family: var(--serif); font-size: 34px; font-weight: 300; color: var(--gold); line-height: 1; flex-shrink: 0; }
-    .hbar-label { font-size: 11px; font-weight: 400; letter-spacing: 0.5px; color: rgba(255,255,255,0.48); line-height: 1.5; }
+
+    /* FLOW BAR — inside hero at bottom */
+    .flow-bar { position: relative; z-index: 2; display: grid; grid-template-columns: 1fr 1fr 1fr; margin-top: 28px; border-top: 1px solid rgba(200,134,10,0.2); background: rgba(0,0,0,0.6); }
+    .flow-cell { padding: 16px 28px; border-right: 1px solid rgba(255,255,255,0.07); }
+    .flow-cell:last-child { border-right: none; }
+    .flow-cell-imc { padding: 16px 28px; background: rgba(200,134,10,0.07); border-left: 1px solid rgba(200,134,10,0.25); border-right: 1px solid rgba(200,134,10,0.25); }
+    .flow-cell-label { font-size: 8px; font-weight: 500; letter-spacing: 2.5px; text-transform: uppercase; color: rgba(200,134,10,0.7); margin-bottom: 5px; display: block; }
+    .flow-cell-title { font-family: var(--serif); font-size: 15px; font-weight: 400; color: #F5F2EC; line-height: 1.2; margin-bottom: 5px; }
+    .flow-cell-title em { font-style: italic; color: var(--gold); }
+    .flow-cell-body { font-size: 10px; font-weight: 300; color: rgba(255,255,255,0.35); line-height: 1.65; }
+    .flow-cell-pills { display: flex; flex-direction: column; gap: 4px; margin-top: 6px; }
+    .flow-cell-pill { display: inline-block; font-size: 8px; font-weight: 500; letter-spacing: 1px; text-transform: uppercase; color: var(--gold); border: 0.5px solid rgba(200,134,10,0.35); padding: 3px 8px; width: fit-content; }
+
+    /* WRITEUP SECTION */
+    .writeup-sec { background: var(--white); border-bottom: 1px solid var(--border); }
+    .writeup-grid { display: grid; grid-template-columns: 1fr 1fr; }
+    .writeup-col { padding: 40px 52px; }
+    .writeup-col-right { padding: 40px 52px; border-left: 1px solid var(--border); background: var(--surface); }
+    .writeup-eyebrow { font-size: 9px; font-weight: 500; letter-spacing: 2.5px; text-transform: uppercase; color: var(--gold); margin-bottom: 14px; display: block; }
+    .writeup-h { font-family: var(--serif); font-size: 22px; font-weight: 400; color: var(--ink); line-height: 1.3; margin-bottom: 16px; }
+    .writeup-h em { font-style: italic; color: var(--gold); }
+    .writeup-body { font-size: 13px; font-weight: 300; color: var(--ink-mid); line-height: 1.85; margin-bottom: 12px; }
+    .writeup-sign { font-size: 12px; font-weight: 400; color: var(--gold); font-style: italic; }
 
     /* CLUBS */
     .sec { padding: 80px 64px; background: var(--white); }
@@ -373,6 +385,12 @@
 
     /* RESPONSIVE - new sections */
     @media (max-width: 1024px) {
+      .flow-bar { grid-template-columns: 1fr; }
+      .flow-cell, .flow-cell-imc { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.07); }
+      .flow-cell:last-child { border-bottom: none; }
+      .writeup-grid { grid-template-columns: 1fr; }
+      .writeup-col-right { border-left: none; border-top: 1px solid var(--border); }
+      .writeup-col, .writeup-col-right { padding: 32px 28px; }
       .flow-strip { grid-template-columns: 1fr; }
       .flow-node, .flow-node-imc, .flow-node-right { padding: 32px 28px; }
       .flow-node-imc { padding: 8px 28px; }
@@ -396,9 +414,9 @@
     @media (max-width: 768px) {
       nav { height: 60px; padding: 0 20px; }
       .logo-name { font-size: 14px; letter-spacing: 2px; }
-      .hero { min-height: 420px; }
-      .hero-content { padding: 36px 22px 60px; }
-      .hero h1 { font-size: 36px; letter-spacing: -0.5px; }
+      .hero { height: 55vh; min-height: 320px; }
+      .hero-content { padding: 0 22px 0; }
+      .hero h1 { font-size: 34px; }
       .flow-node, .flow-node-right { padding: 28px 20px; }
       .flow-node-imc { padding: 8px 20px; }
       .flow-title { font-size: 22px; }
@@ -471,36 +489,54 @@
 </div>
 
 <!-- HERO -->
-<section class="hero">
-  <img src="manufacturing-collage.png" alt="India Manufacturing" class="hero-img" />
+<section class="hero" style="min-height:360px;max-height:520px;height:62vh;">
+  <img src="manufacturing-collage.png" alt="India Manufacturing" class="hero-img" style="object-position:center 30%;" />
   <div class="hero-overlay"></div>
   <div class="hero-content">
     <div class="hero-eyebrow">India Manufacturing Company</div>
     <h1>Business Partner In Your<br/><em>Manufacturing Requirements</em></h1>
   </div>
-</section>
 
-<!-- FLOW STRIP -->
-<div class="flow-strip reveal">
-  <div class="flow-node">
-    <span class="flow-tag">Buyer</span>
-    <div class="flow-title">You tell us<br/>what you need.</div>
-    <div class="flow-body">Tell us what you need. We make it in India. One partner, full accountability.</div>
-  </div>
-  <div class="flow-node-imc">
-    <div class="flow-node-imc-inner">
-      <span class="flow-tag">Invictus IMC</span>
-      <div class="flow-title">Your manufacturing<br/><em>partner.</em></div>
-      <div class="flow-pills">
-        <span class="flow-pill">AI Manufacturing</span>
-        <span class="flow-pill">AI Project Management</span>
+  <!-- FLOW BAR ON HERO BOTTOM -->
+  <div class="flow-bar">
+    <div class="flow-cell">
+      <span class="flow-cell-label">Buyers &amp; Importers</span>
+      <div class="flow-cell-title">You tell us<br/>what you need.</div>
+      <div class="flow-cell-body">We make it in India. One partner, full accountability.</div>
+    </div>
+    <div class="flow-cell-imc">
+      <span class="flow-cell-label">Invictus IMC</span>
+      <div class="flow-cell-title">Your manufacturing <em>partner.</em></div>
+      <div class="flow-cell-pills">
+        <span class="flow-cell-pill">AI Manufacturing</span>
+        <span class="flow-cell-pill">AI Project Management</span>
       </div>
     </div>
+    <div class="flow-cell">
+      <span class="flow-cell-label">Manufacturer</span>
+      <div class="flow-cell-title">You just<br/>manufacture.</div>
+      <div class="flow-cell-body">We bring orders, manage end to end, and pay on time.</div>
+    </div>
   </div>
-  <div class="flow-node flow-node-right">
-    <span class="flow-tag">Manufacturer</span>
-    <div class="flow-title">You just<br/>manufacture.</div>
-    <div class="flow-body">We bring you orders, project manage end to end, and pay on time.</div>
+</section>
+
+<!-- WRITEUP SECTION -->
+<div class="writeup-sec reveal">
+  <div class="writeup-grid">
+    <div class="writeup-col">
+      <span class="writeup-eyebrow">For Buyers &amp; Importers</span>
+      <div class="writeup-h">If you're importing parts,<br/><em>let's make them here instead.</em></div>
+      <p class="writeup-body">Invictus IMC specialises in manufacturing localisation. We take your imported product, find the right Indian manufacturer, and manage the entire process — from order to delivery. Quality, timelines, and accountability are fully ours. You get a dedicated account manager and zero supplier headaches.</p>
+      <p class="writeup-body">India has the engineering capability, skilled labour, and raw materials to match what you're currently importing — often at better quality. When you make in India, you save on import duties, international freight, insurance, and currency risk. You also eliminate geopolitical supply chain exposure entirely.</p>
+      <span class="writeup-sign">Let's make it in India. →</span>
+    </div>
+    <div class="writeup-col-right">
+      <span class="writeup-eyebrow">For Manufacturers</span>
+      <div class="writeup-h">Looking for consistent orders<br/><em>and on-time payments?</em></div>
+      <p class="writeup-body">Invictus IMC is actively looking for manufacturing partners across sectors — machine tools, electronics, plastics, automotive, consumer goods, heavy engineering, and more.</p>
+      <p class="writeup-body">We bring the buyers. You bring the capability. In return, you get incremental and growing order flow, timely payments, engineering assistance, end-to-end project management, and a dedicated account manager.</p>
+      <span class="writeup-sign">Let's build this together. →</span>
+    </div>
   </div>
 </div>
 
