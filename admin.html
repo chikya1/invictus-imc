@@ -759,6 +759,10 @@
                 <input type="email" class="form-input" id="fa-email" placeholder="employee@invictusimc.com" />
               </div>
               <div>
+                <label class="form-label">Password</label>
+                <input type="password" class="form-input" id="fa-password" placeholder="Set a password for this user" />
+              </div>
+              <div>
                 <label class="form-label">Role</label>
                 <select class="form-input" id="fa-role">
                   <option value="field_agent">Field Agent</option>
@@ -766,8 +770,8 @@
                 </select>
               </div>
               <div id="fa-msg" style="display:none;font-size:12px;padding:10px;"></div>
-              <button class="btn-add" onclick="createFieldAccount()" style="width:100%;">Send Invite Email</button>
-              <p style="font-size:11px;color:var(--muted);text-align:center;">Employee will receive an email to set their password and access the app.</p>
+              <button class="btn-add" onclick="createFieldAccount()" style="width:100%;">Create Account</button>
+              <p style="font-size:11px;color:var(--muted);text-align:center;">Share the email and password directly with the employee. No email sent.</p>
             </div>
           </div>
         </div>
@@ -2227,49 +2231,49 @@
   }
   function closeFieldAccountModal() {
     document.getElementById('field-account-modal').style.display = 'none';
-    ['fa-name','fa-email'].forEach(id => document.getElementById(id).value = '');
+    ['fa-name','fa-email','fa-password'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
     const msg = document.getElementById('fa-msg');
-    msg.style.display = 'none';
+    if(msg) msg.style.display = 'none';
+  }
+
+  function simpleHash(str) {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      const char = str.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash;
+    }
+    return Math.abs(hash).toString(36);
   }
 
   async function createFieldAccount() {
     const name = document.getElementById('fa-name').value.trim();
     const email = document.getElementById('fa-email').value.trim();
+    const password = document.getElementById('fa-password').value.trim();
     const role = document.getElementById('fa-role').value;
     const msg = document.getElementById('fa-msg');
 
-    if (!name || !email) {
-      msg.style.display = 'block';
-      msg.style.background = 'rgba(231,76,60,0.1)';
-      msg.style.color = '#e74c3c';
-      msg.style.border = '1px solid rgba(231,76,60,0.3)';
-      msg.textContent = 'Please enter both name and email.';
-      return;
+    if (!name || !email || !password) {
+      msg.style.cssText = 'display:block;background:rgba(231,76,60,0.1);color:#e74c3c;border:1px solid rgba(231,76,60,0.3);padding:10px;font-size:12px;';
+      msg.textContent = 'Please fill in all fields.'; return;
     }
 
-    msg.style.display = 'block';
-    msg.style.background = 'rgba(200,134,10,0.08)';
-    msg.style.color = 'var(--gold)';
-    msg.style.border = '1px solid var(--gold-border)';
-    msg.textContent = 'Sending invite...';
+    msg.style.cssText = 'display:block;background:rgba(200,134,10,0.08);color:var(--gold);border:1px solid var(--gold-border);padding:10px;font-size:12px;';
+    msg.textContent = 'Creating account...';
 
     try {
-      // Use Supabase invite — requires service role in real deployment
-      // For now, show instructions like the member portal flow
-      msg.style.background = 'rgba(46,125,50,0.1)';
-      msg.style.color = '#3DAA6E';
-      msg.style.border = '1px solid rgba(46,125,50,0.3)';
-      msg.textContent = `To invite ${name}: Go to Supabase → Authentication → Users → Invite User → enter ${email}. They'll receive a link to set their password.`;
-
-      // Log to field_leads as reference
-      await fetch(`${FIELD_SUPA_URL}/rest/v1/field_leads`, {
+      const hash = simpleHash(password);
+      const res = await fetch(`https://nmjkzhquoxuuebzyotnx.supabase.co/rest/v1/field_users`, {
         method: 'POST',
         headers: { ...FIELD_HEADERS, 'Prefer': 'return=minimal' },
-        body: JSON.stringify({ company_name: `[APP USER] ${name}`, poc_name: name, poc_email: email, poc_title: role, status: 'new' })
+        body: JSON.stringify({ full_name: name, email: email.toLowerCase(), password_hash: hash, role })
       });
-
+      if (!res.ok) { const e = await res.json(); throw new Error(e.message || 'Failed'); }
+      msg.style.cssText = 'display:block;background:rgba(61,170,110,0.1);color:#3DAA6E;border:1px solid rgba(61,170,110,0.3);padding:10px;font-size:12px;';
+      msg.textContent = `Account created for ${name}. They can now log into the app with these credentials.`;
       loadFieldAccounts();
     } catch(e) {
+      msg.style.cssText = 'display:block;background:rgba(231,76,60,0.1);color:#e74c3c;border:1px solid rgba(231,76,60,0.3);padding:10px;font-size:12px;';
       msg.textContent = 'Error: ' + e.message;
     }
   }
@@ -2278,22 +2282,21 @@
     const tbody = document.getElementById('field-accounts-tbody');
     if (!tbody) return;
     try {
-      const res = await fetch(
-        `${FIELD_SUPA_URL}/rest/v1/field_leads?company_name=like.[APP USER]*&select=*&order=created_at.desc`,
-        { headers: FIELD_HEADERS }
-      );
+      const res = await fetch(`https://nmjkzhquoxuuebzyotnx.supabase.co/rest/v1/field_users?order=created_at.desc&select=*`, { headers: FIELD_HEADERS });
       const rows = await res.json();
       if (!rows.length) {
-        tbody.innerHTML = '<tr><td colspan="5" class="table-empty">No app accounts yet. Create one above.</td></tr>';
-        return;
+        tbody.innerHTML = '<tr><td colspan="5" class="table-empty">No app accounts yet. Create one above.</td></tr>'; return;
       }
       tbody.innerHTML = rows.map(r => `
         <tr>
-          <td><strong>${r.poc_name||'—'}</strong></td>
-          <td class="td-muted">${r.poc_email||'—'}</td>
-          <td><span class="td-sector">${r.poc_title||'field_agent'}</span></td>
-          <td class="td-muted" style="font-size:11px;">${new Date(r.created_at).toLocaleDateString('en-IN')}</td>
-          <td><div class="td-actions"><button class="btn-del" onclick="deleteFieldAccount('${r.id}')">Remove</button></div></td>
+          <td><strong>${r.full_name}</strong></td>
+          <td class="td-muted">${r.email}</td>
+          <td><span class="td-sector">${r.role}</span></td>
+          <td class="td-muted" style="font-size:11px;">${r.last_login ? new Date(r.last_login).toLocaleString('en-IN') : 'Never'}</td>
+          <td><div class="td-actions">
+            <button class="btn-edit" onclick="resetFieldPassword('${r.id}','${r.full_name}')">Reset Password</button>
+            <button class="btn-del" onclick="deleteFieldUser('${r.id}')">Delete</button>
+          </div></td>
         </tr>
       `).join('');
     } catch(e) {
@@ -2301,9 +2304,20 @@
     }
   }
 
-  async function deleteFieldAccount(id) {
-    if (!confirm('Remove this app account?')) return;
-    await fetch(`${FIELD_SUPA_URL}/rest/v1/field_leads?id=eq.${id}`, { method: 'DELETE', headers: FIELD_HEADERS });
+  async function resetFieldPassword(id, name) {
+    const newPass = prompt(`Enter new password for ${name}:`);
+    if (!newPass) return;
+    const hash = simpleHash(newPass);
+    await fetch(`https://nmjkzhquoxuuebzyotnx.supabase.co/rest/v1/field_users?id=eq.${id}`, {
+      method: 'PATCH', headers: { ...FIELD_HEADERS, 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ password_hash: hash })
+    });
+    alert(`Password reset for ${name}.`);
+  }
+
+  async function deleteFieldUser(id) {
+    if (!confirm('Delete this app user?')) return;
+    await fetch(`https://nmjkzhquoxuuebzyotnx.supabase.co/rest/v1/field_users?id=eq.${id}`, { method: 'DELETE', headers: FIELD_HEADERS });
     loadFieldAccounts();
   }
 
