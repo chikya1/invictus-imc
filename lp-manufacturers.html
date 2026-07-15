@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/png" href="/INVICTUS_LOGO.png" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manufacturers Club — Invictus IMC</title>
+  <meta name="robots" content="noindex" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --ivory: #F7F6F3; --white: #FFFFFF; --void: #0A0A0A;
+      --ink: #1A1A1A; --ink-mid: #555; --border: #E2E0DC;
+      --gold: #C8860A; --gold-light: #E09B12;
+      --gold-border: rgba(200,134,10,0.35); --gold-dim: rgba(200,134,10,0.08);
+      --serif: 'Cormorant Garamond', Georgia, serif;
+      --sans: 'Outfit', sans-serif;
+    }
+    body { font-family: var(--sans); background: var(--ivory); color: var(--ink); min-height: 100vh; display: flex; flex-direction: column; }
+    .topbar { background: var(--void); padding: 0 24px; height: 52px; display: flex; align-items: center; justify-content: space-between; }
+    .topbar-left { display: flex; align-items: center; gap: 10px; }
+    .topbar-logo { font-family: var(--serif); font-size: 16px; font-weight: 600; letter-spacing: 2.5px; color: #F5F2EC; text-transform: uppercase; text-decoration: none; }
+    .topbar-sep { width: 1px; height: 18px; background: rgba(255,255,255,0.15); }
+    .topbar-tag { font-size: 9px; letter-spacing: 2px; color: var(--gold); text-transform: uppercase; }
+    .topbar-back { font-size: 11px; color: rgba(255,255,255,0.45); text-decoration: none; letter-spacing: 0.5px; border: 1px solid rgba(255,255,255,0.15); padding: 5px 12px; transition: all 0.2s; }
+    .topbar-back:hover { color: var(--gold); border-color: var(--gold-border); }
+    .hero { background: var(--void); padding: 52px 24px 56px; border-bottom: 1px solid rgba(200,134,10,0.15); }
+    .hero-eyebrow { font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+    .hero-eyebrow::before { content: ''; display: inline-block; width: 20px; height: 1px; background: var(--gold); }
+    .hero-h1 { font-family: var(--serif); font-size: 48px; font-weight: 400; color: #F5F2EC; line-height: 1.08; margin-bottom: 16px; }
+    .hero-h1 em { font-style: italic; color: var(--gold); }
+    .hero-sub { font-size: 14px; font-weight: 300; color: rgba(255,255,255,0.48); line-height: 1.75; max-width: 560px; }
+    .form-section { padding: 40px 24px 48px; display: flex; flex-direction: column; align-items: center; }
+    .form-card { background: var(--white); border: 1px solid var(--border); border-left: 3px solid var(--gold); padding: 32px 28px; max-width: 480px; }
+    .form-label-top { font-size: 9px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); margin-bottom: 8px; display: block; }
+    .form-title { font-family: var(--serif); font-size: 26px; font-weight: 400; color: var(--ink); margin-bottom: 6px; }
+    .form-sub { font-size: 13px; font-weight: 300; color: var(--ink-mid); margin-bottom: 24px; line-height: 1.6; }
+    .field-label { font-size: 10px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--ink); display: block; margin-bottom: 6px; margin-top: 16px; }
+    .field-input { width: 100%; font-family: var(--sans); font-size: 15px; font-weight: 300; color: var(--ink); background: var(--ivory); border: 1px solid var(--border); padding: 13px 14px; outline: none; transition: border-color 0.2s; }
+    .field-input:focus { border-color: var(--gold-border); background: var(--white); }
+    .field-input::placeholder { color: rgba(26,26,26,0.3); }
+    .privacy-note { display: flex; align-items: flex-start; gap: 8px; margin-top: 18px; font-size: 11px; font-weight: 300; color: var(--ink-mid); line-height: 1.6; }
+    .privacy-icon { color: var(--gold); font-size: 13px; flex-shrink: 0; margin-top: 1px; }
+    .btn-submit { width: 100%; margin-top: 22px; font-family: var(--sans); font-size: 12px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--void); background: var(--gold); border: none; padding: 16px; cursor: pointer; transition: background 0.2s; }
+    .btn-submit:hover { background: var(--gold-light); }
+    .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+    .btn-below { font-size: 11px; color: var(--ink-mid); text-align: center; margin-top: 10px; line-height: 1.6; }
+    .msg { display: none; font-size: 13px; font-weight: 300; padding: 12px 14px; margin-top: 14px; line-height: 1.6; border: 1px solid; }
+    .msg.success { background: rgba(46,125,50,0.08); border-color: rgba(46,125,50,0.3); color: #2E7D32; display: block; }
+    .msg.error { background: rgba(231,76,60,0.08); border-color: rgba(231,76,60,0.3); color: #c0392b; display: block; }
+    .props { padding: 0 24px 48px; max-width: 480px; width: 100%; }
+    .props-title { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--ink-mid); margin-bottom: 16px; }
+    .prop { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 14px; }
+    .prop-dot { width: 5px; height: 5px; background: var(--gold); flex-shrink: 0; margin-top: 8px; }
+    .prop-text { font-size: 13px; font-weight: 300; color: var(--ink-mid); line-height: 1.7; }
+    .prop-text strong { font-weight: 500; color: var(--ink); }
+    .footer { margin-top: auto; background: var(--void); padding: 18px 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+    .footer-text { font-size: 10px; letter-spacing: 1px; color: rgba(255,255,255,0.25); }
+    .footer-contact { font-size: 11px; color: rgba(200,134,10,0.6); }
+    @media (min-width: 768px) {
+      .hero { padding: 72px 56px 72px; }
+      .hero-h1 { font-size: 62px; }
+      .form-section { padding: 52px 56px 52px; }
+      .props { padding: 0 56px 56px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="topbar-left">
+      <a href="/" class="topbar-logo">Invictus IMC</a>
+      <div class="topbar-sep"></div>
+      <span class="topbar-tag">India Manufacturing Company</span>
+    </div>
+    <a href="/" class="topbar-back">← Main Website</a>
+  </div>
+
+  <div class="hero">
+    <div class="hero-eyebrow">Manufacturers Club</div>
+    <h1 class="hero-h1">More orders.<br/><em>On-time payments.</em></h1>
+    <p class="hero-sub">Join our manufacturer network. We bring you consistent orders from verified buyers, manage all buyer communication, and pay you on time — every time. You focus on manufacturing.</p>
+  </div>
+
+  <div class="form-section">
+    <div class="form-card">
+      <span class="form-label-top">Express Interest</span>
+      <div class="form-title">Get a callback within 48 hours.</div>
+      <p class="form-sub">Leave your details. Our team reaches out to understand your capacity and get orders flowing.</p>
+
+      <label class="field-label">Company / Factory Name</label>
+      <input type="text" class="field-input" id="f-company" placeholder="Precision Parts Pvt Ltd" />
+
+      <label class="field-label">Mobile Number</label>
+      <input type="tel" class="field-input" id="f-mobile" placeholder="+91 98765 43210" />
+
+      <label class="field-label">Email Address</label>
+      <input type="email" class="field-input" id="f-email" placeholder="you@factory.com" onkeydown="if(event.key==='Enter') submitLead()" />
+
+      <div class="privacy-note">
+        <span class="privacy-icon">●</span>
+        Your factory details are never shared with buyers without your approval. IMC manages all buyer communication.
+      </div>
+
+      <button class="btn-submit" id="submit-btn" onclick="submitLead()">Get a Callback →</button>
+      <p class="btn-below">We review every application. Our team reaches out within 48 hours.</p>
+      <div id="form-msg" class="msg"></div>
+    </div>
+  </div>
+
+  <div style="display:flex;flex-direction:column;align-items:center;">
+  <div class="props">
+    <p class="props-title">What you get with Invictus IMC</p>
+    <div class="prop"><div class="prop-dot"></div><div class="prop-text"><strong>Consistent order flow.</strong> We bring you orders from vetted buyers. No cold calling, no bidding, no chasing leads yourself.</div></div>
+    <div class="prop"><div class="prop-dot"></div><div class="prop-text"><strong>On-time payments.</strong> IMC pays on agreed milestones — removing the 60–90 day credit cycle problem that affects most Indian factories.</div></div>
+    <div class="prop"><div class="prop-dot"></div><div class="prop-text"><strong>Engineering assistance.</strong> We help translate buyer specs into production-ready briefs so you're never left interpreting unclear requirements.</div></div>
+    <div class="prop"><div class="prop-dot"></div><div class="prop-text"><strong>Zero sales effort.</strong> IMC handles all buyer communication and negotiation. You focus entirely on manufacturing.</div></div>
+  </div>
+  </div>
+
+  <div class="footer">
+    <span class="footer-text">© 2025 Invictus IMC · SKYLabs India Private Limited</span>
+    <span class="footer-contact">connect@invictusimc.com · +91 82173 67948</span>
+  </div>
+
+  <script>
+    const SUPA_URL = 'https://nmjkzhquoxuuebzyotnx.supabase.co';
+    const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5tamt6aHF1b3h1dWVienlvdG54Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwNzY0MDEsImV4cCI6MjA5MTY1MjQwMX0.6uwyWMSLGhG259TY9x-vpUxNiENkYAXOqFEUI3aSv5M';
+
+    async function submitLead() {
+      const company = document.getElementById('f-company').value.trim();
+      const mobile = document.getElementById('f-mobile').value.trim();
+      const email = document.getElementById('f-email').value.trim();
+      const msg = document.getElementById('form-msg');
+      const btn = document.getElementById('submit-btn');
+
+      if (!company || !mobile || !email) {
+        msg.className = 'msg error';
+        msg.textContent = 'Please fill in all three fields.';
+        return;
+      }
+      btn.disabled = true; btn.textContent = 'Submitting...';
+      msg.className = 'msg'; msg.textContent = '';
+
+      try {
+        const res = await fetch(`${SUPA_URL}/rest/v1/impressions`, {
+          method: 'POST',
+          headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+          body: JSON.stringify({ company_name: company, mobile, email, source: 'manufacturer', contact_name: '', also_manufacturer: false, also_buyer: false })
+        });
+        if (!res.ok) throw new Error(await res.text());
+        msg.className = 'msg success';
+        msg.textContent = 'Done! An IMC account manager will reach out within 48 hours to discuss orders.';
+        document.getElementById('f-company').value = '';
+        document.getElementById('f-mobile').value = '';
+        document.getElementById('f-email').value = '';
+        btn.textContent = 'Submitted ✓';
+      } catch(e) {
+        msg.className = 'msg error';
+        msg.textContent = 'Something went wrong. Please WhatsApp us at +91 82173 67948.';
+        btn.disabled = false; btn.textContent = 'Get a Callback →';
+      }
+    }
+    // Auto-scroll to form on page load (mobile-friendly)
+    window.addEventListener('load', function() {
+      const formSection = document.querySelector('.form-section');
+      if (formSection) {
+        setTimeout(function() {
+          formSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 400);
+      }
+    });
+  </script>
+</body>
+</html>
