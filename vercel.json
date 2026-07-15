@@ -8,8 +8,8 @@
     }
   ],
   "rewrites": [
-    { "source": "/sitemap.xml", "destination": "/sitemap.xml" },
-    { "source": "/robots.txt", "destination": "/robots.txt" },
+    { "source": "/lp-buyers", "destination": "/lp-buyers.html" },
+    { "source": "/lp-manufacturers", "destination": "/lp-manufacturers.html" },
     { "source": "/login", "destination": "/login.html" },
     { "source": "/reset-password", "destination": "/reset-password.html" },
     { "source": "/buyer-portal", "destination": "/buyer-portal.html" },
