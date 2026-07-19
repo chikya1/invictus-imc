@@ -591,14 +591,17 @@
         <div class="page-subtitle">Homepage impression submissions from buyers. Graduate to Members once they submit a full profile.</div>
         <div class="section-header">
           <div class="section-title">Buyer Leads <span id="buyer-leads-count" style="font-size:11px;color:var(--muted);margin-left:8px;"></span></div>
-          <button class="btn-edit" onclick="exportLeads('buyer')" style="padding:10px 16px;">Export CSV</button>
+          <div style="display:flex;gap:8px;">
+            <button class="btn-del" id="buyer-leads-delete-btn" onclick="deleteSelectedLeads('buyer')" style="display:none;padding:10px 16px;">Delete Selected</button>
+            <button class="btn-edit" onclick="exportLeads('buyer')" style="padding:10px 16px;">Export CSV</button>
+          </div>
         </div>
         <table class="admin-table">
           <thead>
-            <tr><th>Status</th><th>Company</th><th>What They Need</th><th>Name</th><th>Mobile</th><th>Email</th><th>Also Mfg?</th><th>Submitted</th><th>Actions</th></tr>
+            <tr><th><input type="checkbox" id="buyer-leads-check-all" onchange="toggleAllLeadChecks('buyer', this.checked)" /></th><th>Status</th><th>Company</th><th>What They Need</th><th>Name</th><th>Mobile</th><th>Email</th><th>Also Mfg?</th><th>Submitted</th><th>Actions</th></tr>
           </thead>
           <tbody id="buyer-leads-tbody">
-            <tr><td colspan="9" class="table-empty">Loading...</td></tr>
+            <tr><td colspan="10" class="table-empty">Loading...</td></tr>
           </tbody>
         </table>
       </div>
@@ -609,14 +612,17 @@
         <div class="page-subtitle">Homepage impression submissions from manufacturers. Graduate to Members once they submit a full profile.</div>
         <div class="section-header">
           <div class="section-title">Manufacturer Leads <span id="mfg-leads-count" style="font-size:11px;color:var(--muted);margin-left:8px;"></span></div>
-          <button class="btn-edit" onclick="exportLeads('manufacturer')" style="padding:10px 16px;">Export CSV</button>
+          <div style="display:flex;gap:8px;">
+            <button class="btn-del" id="mfg-leads-delete-btn" onclick="deleteSelectedLeads('manufacturer')" style="display:none;padding:10px 16px;">Delete Selected</button>
+            <button class="btn-edit" onclick="exportLeads('manufacturer')" style="padding:10px 16px;">Export CSV</button>
+          </div>
         </div>
         <table class="admin-table">
           <thead>
-            <tr><th>Status</th><th>Company</th><th>What They Make</th><th>Name</th><th>City</th><th>Mobile</th><th>Email</th><th>Also Buyer?</th><th>Submitted</th><th>Actions</th></tr>
+            <tr><th><input type="checkbox" id="mfg-leads-check-all" onchange="toggleAllLeadChecks('manufacturer', this.checked)" /></th><th>Status</th><th>Company</th><th>What They Make</th><th>Name</th><th>City</th><th>Mobile</th><th>Email</th><th>Also Buyer?</th><th>Submitted</th><th>Actions</th></tr>
           </thead>
           <tbody id="mfg-leads-tbody">
-            <tr><td colspan="10" class="table-empty">Loading...</td></tr>
+            <tr><td colspan="11" class="table-empty">Loading...</td></tr>
           </tbody>
         </table>
       </div>
@@ -1614,6 +1620,7 @@
       if (source === 'buyer') {
         tbody.innerHTML = leads.map(l => `
           <tr>
+            <td><input type="checkbox" class="buyer-lead-check" value="${l.id}" onchange="updateLeadDeleteBtn('buyer')" /></td>
             <td>${l.graduated
               ? '<span style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;padding:4px 10px;background:rgba(61,170,110,0.15);color:#3DAA6E;">Member</span>'
               : '<span style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;padding:4px 10px;background:rgba(184,134,11,0.10);color:var(--gold);">Lead</span>'
@@ -1636,6 +1643,7 @@
       } else {
         tbody.innerHTML = leads.map(l => `
           <tr>
+            <td><input type="checkbox" class="mfg-lead-check" value="${l.id}" onchange="updateLeadDeleteBtn('manufacturer')" /></td>
             <td>${l.graduated
               ? '<span style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;padding:4px 10px;background:rgba(61,170,110,0.15);color:#3DAA6E;">Member</span>'
               : '<span style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;padding:4px 10px;background:rgba(184,134,11,0.10);color:var(--gold);">Lead</span>'
@@ -1688,10 +1696,40 @@
 
   async function deleteLead(id, source) {
     if (!confirm('Delete this lead permanently?')) return;
-    await fetch(
+    const res = await fetch(
       `https://nmjkzhquoxuuebzyotnx.supabase.co/rest/v1/impressions?id=eq.${id}`,
-      { method: 'DELETE', headers: { 'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5tamt6aHF1b3h1dWVienlvdG54Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwNzY0MDEsImV4cCI6MjA5MTY1MjQwMX0.6uwyWMSLGhG259TY9x-vpUxNiENkYAXOqFEUI3aSv5M', 'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5tamt6aHF1b3h1dWVienlvdG54Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwNzY0MDEsImV4cCI6MjA5MTY1MjQwMX0.6uwyWMSLGhG259TY9x-vpUxNiENkYAXOqFEUI3aSv5M' } }
+      { method: 'DELETE', headers: { 'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5tamt6aHF1b3h1dWVienlvdG54Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwNzY0MDEsImV4cCI6MjA5MTY1MjQwMX0.6uwyWMSLGhG259TY9x-vpUxNiENkYAXOqFEUI3aSv5M', 'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5tamt6aHF1b3h1dWVienlvdG54Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwNzY0MDEsImV4cCI6MjA5MTY1MjQwMX0.6uwyWMSLGhG259TY9x-vpUxNiENkYAXOqFEUI3aSv5M', 'Prefer': 'return=minimal' } }
     );
+    if (!res.ok) { alert('Delete failed: ' + await res.text()); return; }
+    loadLeads(source);
+  }
+
+  function toggleAllLeadChecks(source, checked) {
+    const cls = source === 'buyer' ? '.buyer-lead-check' : '.mfg-lead-check';
+    const btnId = source === 'buyer' ? 'buyer-leads-delete-btn' : 'mfg-leads-delete-btn';
+    document.querySelectorAll(cls).forEach(cb => cb.checked = checked);
+    const count = document.querySelectorAll(cls + ':checked').length;
+    document.getElementById(btnId).style.display = count > 0 ? 'inline-block' : 'none';
+  }
+
+  function updateLeadDeleteBtn(source) {
+    const cls = source === 'buyer' ? '.buyer-lead-check' : '.mfg-lead-check';
+    const btnId = source === 'buyer' ? 'buyer-leads-delete-btn' : 'mfg-leads-delete-btn';
+    const count = document.querySelectorAll(cls + ':checked').length;
+    document.getElementById(btnId).style.display = count > 0 ? 'inline-block' : 'none';
+  }
+
+  async function deleteSelectedLeads(source) {
+    const cls = source === 'buyer' ? '.buyer-lead-check' : '.mfg-lead-check';
+    const selected = [...document.querySelectorAll(cls + ':checked')].map(cb => cb.value);
+    if (!selected.length) return;
+    if (!confirm(`Delete ${selected.length} selected lead(s) permanently?`)) return;
+    for (const id of selected) {
+      await fetch(
+        `https://nmjkzhquoxuuebzyotnx.supabase.co/rest/v1/impressions?id=eq.${id}`,
+        { method: 'DELETE', headers: { 'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5tamt6aHF1b3h1dWVienlvdG54Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwNzY0MDEsImV4cCI6MjA5MTY1MjQwMX0.6uwyWMSLGhG259TY9x-vpUxNiENkYAXOqFEUI3aSv5M', 'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5tamt6aHF1b3h1dWVienlvdG54Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwNzY0MDEsImV4cCI6MjA5MTY1MjQwMX0.6uwyWMSLGhG259TY9x-vpUxNiENkYAXOqFEUI3aSv5M', 'Prefer': 'return=minimal' } }
+      );
+    }
     loadLeads(source);
   }
 
