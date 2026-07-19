@@ -510,7 +510,41 @@
       <div class="tab-panel active" id="tab-dashboard">
         <div class="page-title">Good to see you, <em>Admin.</em></div>
         <div class="page-subtitle">Here's what's happening on the platform right now.</div>
-        <div class="stats-row">
+
+        <div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:12px;">Lead Gen</div>
+        <div class="stats-row" style="margin-bottom:24px;">
+          <div class="stat-card" style="cursor:pointer;" onclick="showTab('leads-buyers', document.querySelector('[onclick*=leads-buyers]'))">
+            <div class="stat-val" id="stat-buyer-leads">—</div>
+            <div class="stat-label">Buyer Leads</div>
+          </div>
+          <div class="stat-card" style="cursor:pointer;" onclick="showTab('leads-mfg', document.querySelector('[onclick*=leads-mfg]'))">
+            <div class="stat-val" id="stat-mfg-leads">—</div>
+            <div class="stat-label">Manufacturer Leads</div>
+          </div>
+          <div class="stat-card" style="cursor:pointer;" onclick="showTab('field-submissions', document.querySelector('[onclick*=field-submissions]'))">
+            <div class="stat-val" id="stat-field-leads">—</div>
+            <div class="stat-label">Field App Leads</div>
+          </div>
+        </div>
+
+        <div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:12px;">Members</div>
+        <div class="stats-row" style="margin-bottom:24px;">
+          <div class="stat-card" style="cursor:pointer;" onclick="showTab('manufacturers', document.querySelector('[onclick*=manufacturers]'))">
+            <div class="stat-val" id="stat-mfg">—</div>
+            <div class="stat-label">Manufacturer Applications</div>
+          </div>
+          <div class="stat-card" style="cursor:pointer;" onclick="showTab('buyers', document.querySelector('[onclick*=\'buyers\']'))">
+            <div class="stat-val" id="stat-buyer">—</div>
+            <div class="stat-label">Buyer Applications</div>
+          </div>
+          <div class="stat-card" style="cursor:pointer;" onclick="showTab('field-accounts', document.querySelector('[onclick*=field-accounts]'))">
+            <div class="stat-val" id="stat-field-users">—</div>
+            <div class="stat-label">Field App Users</div>
+          </div>
+        </div>
+
+        <div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:12px;">Platform</div>
+        <div class="stats-row" style="margin-bottom:32px;">
           <div class="stat-card">
             <div class="stat-val" id="stat-mi">—</div>
             <div class="stat-label">Market Intel Entries</div>
@@ -519,26 +553,16 @@
             <div class="stat-val" id="stat-reqs">—</div>
             <div class="stat-label">Live Requirements</div>
           </div>
-          <div class="stat-card">
-            <div class="stat-val" id="stat-mfg">—</div>
-            <div class="stat-label">Manufacturer Apps</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-val" id="stat-buyer">—</div>
-            <div class="stat-label">Buyer Apps</div>
-          </div>
         </div>
-        <div style="background:var(--surface);border:1px solid var(--faint);padding:36px;max-width:600px;">
-          <div style="font-family:var(--serif);font-size:22px;font-weight:400;color:var(--white);margin-bottom:12px;">Quick Actions</div>
-          <div style="display:flex;flex-direction:column;gap:10px;margin-top:20px;">
-            <button class="btn-add" onclick="showTab('mi', document.querySelector('.sidebar-link:nth-child(1)'));openMIModal()" style="width:fit-content;">
-              <svg viewBox="0 0 12 12" fill="none"><line x1="6" y1="1" x2="6" y2="11" stroke="currentColor" stroke-width="1.5"/><line x1="1" y1="6" x2="11" y2="6" stroke="currentColor" stroke-width="1.5"/></svg>
-              Add Market Intelligence Entry
-            </button>
-            <button class="btn-add" onclick="showTab('reqs', document.querySelector('.sidebar-link:nth-child(2)'));openReqModal()" style="width:fit-content;background:var(--surface);color:var(--gold);border:1px solid var(--gold-border);">
-              <svg viewBox="0 0 12 12" fill="none"><line x1="6" y1="1" x2="6" y2="11" stroke="currentColor" stroke-width="1.5"/><line x1="1" y1="6" x2="11" y2="6" stroke="currentColor" stroke-width="1.5"/></svg>
-              Add Live Requirement
-            </button>
+
+        <div style="background:var(--surface);border:1px solid var(--faint);padding:28px;max-width:600px;">
+          <div style="font-family:var(--serif);font-size:20px;font-weight:400;color:var(--white);margin-bottom:16px;">Quick Actions</div>
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <button class="btn-add" onclick="showTab('leads-buyers', document.querySelector('[onclick*=leads-buyers]'))" style="width:fit-content;">View Buyer Leads →</button>
+            <button class="btn-add" onclick="showTab('leads-mfg', document.querySelector('[onclick*=leads-mfg]'))" style="width:fit-content;">View Manufacturer Leads →</button>
+            <button class="btn-add" onclick="showTab('field-submissions', document.querySelector('[onclick*=field-submissions]'))" style="width:fit-content;">View Field App Submissions →</button>
+            <button class="btn-add" onclick="showTab('mi', document.querySelector('[onclick*=\"showTab(\'mi\'\"]'));openMIModal()" style="width:fit-content;background:var(--surface);color:var(--gold);border:1px solid var(--gold-border);">+ Add Market Intelligence Entry</button>
+            <button class="btn-add" onclick="showTab('reqs', document.querySelector('[onclick*=\"showTab(\'reqs\'\"]'));openReqModal()" style="width:fit-content;background:var(--surface);color:var(--gold);border:1px solid var(--gold-border);">+ Add Live Requirement</button>
           </div>
         </div>
       </div>
@@ -1227,6 +1251,13 @@
   function refreshDashboard() {
     document.getElementById('stat-mi').textContent = getMI().length;
     document.getElementById('stat-reqs').textContent = getReqs().length;
+    // Load live counts from Supabase
+    const headers = { 'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5tamt6aHF1b3h1dWVienlvdG54Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwNzY0MDEsImV4cCI6MjA5MTY1MjQwMX0.6uwyWMSLGhG259TY9x-vpUxNiENkYAXOqFEUI3aSv5M', 'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5tamt6aHF1b3h1dWVienlvdG54Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwNzY0MDEsImV4cCI6MjA5MTY1MjQwMX0.6uwyWMSLGhG259TY9x-vpUxNiENkYAXOqFEUI3aSv5M', 'Prefer': 'count=exact', 'Range-Unit': 'items', 'Range': '0-0' };
+    const supa = 'https://nmjkzhquoxuuebzyotnx.supabase.co/rest/v1';
+    fetch(`${supa}/impressions?source=eq.buyer&select=id`, { headers }).then(r => { const c = r.headers.get('content-range'); if(c) document.getElementById('stat-buyer-leads').textContent = c.split('/')[1] || '0'; });
+    fetch(`${supa}/impressions?source=eq.manufacturer&select=id`, { headers }).then(r => { const c = r.headers.get('content-range'); if(c) document.getElementById('stat-mfg-leads').textContent = c.split('/')[1] || '0'; });
+    fetch(`${supa}/field_leads?select=id`, { headers }).then(r => { const c = r.headers.get('content-range'); if(c) document.getElementById('stat-field-leads').textContent = c.split('/')[1] || '0'; });
+    fetch(`${supa}/field_users?select=id`, { headers }).then(r => { const c = r.headers.get('content-range'); if(c) document.getElementById('stat-field-users').textContent = c.split('/')[1] || '0'; });
   }
 
   // MI TABLE
