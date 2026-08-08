@@ -2675,8 +2675,8 @@
       const bidCounts = {};
       bids.forEach(b => { bidCounts[b.order_id] = (bidCounts[b.order_id]||0)+1; });
 
-      // Get sub-orders
-      const subRes = await fetch(`${SUPA_URL}/rest/v1/manufacturing_orders?order_code=like.IMC-%-&status=eq.open&select=*`, { headers: { 'apikey': SUPA_ANON, 'Authorization': 'Bearer ' + SUPA_ANON } });
+      // Get sub-orders (orders with a parent)
+      const subRes = await fetch(`${SUPA_URL}/rest/v1/manufacturing_orders?parent_order_id=not.is.null&status=eq.open&select=*`, { headers: { 'apikey': SUPA_ANON, 'Authorization': 'Bearer ' + SUPA_ANON } });
       const allSubs = await subRes.json();
 
       tbody.innerHTML = orders.map(o => {
