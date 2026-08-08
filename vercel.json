@@ -8,6 +8,7 @@
     }
   ],
   "rewrites": [
+    { "source": "/order/:id", "destination": "/order.html" },
     { "source": "/lp-buyers", "destination": "/lp-buyers.html" },
     { "source": "/lp-manufacturers", "destination": "/lp-manufacturers.html" },
     { "source": "/login", "destination": "/login.html" },
