@@ -149,7 +149,12 @@
 
   async function loadOrder() {
     try {
-      const res = await fetch(`${SUPA_URL}/rest/v1/manufacturing_orders?id=eq.${orderId}&select=*`, { headers: H });
+      // Try slug first, then UUID
+      const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(orderId);
+      const query = isUUID
+        ? `${SUPA_URL}/rest/v1/manufacturing_orders?id=eq.${orderId}&select=*`
+        : `${SUPA_URL}/rest/v1/manufacturing_orders?slug=eq.${orderId}&select=*`;
+      const res = await fetch(query, { headers: H });
       const orders = await res.json();
       if (!orders || !orders.length) { showNotFound(); return; }
       orderData = orders[0];
@@ -201,9 +206,15 @@
   function renderAuthSection() {
     return `
       <div class="section-card">
-        <div class="section-title">Create an account to bid</div>
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:6px;">
+          <div class="section-title">Create an account to bid</div>
+          <div id="auth-toggle-wrap" style="flex-shrink:0;padding-top:4px;">
+            <span style="font-size:12px;color:var(--ink-mid);">Already have an account?</span>
+            <button onclick="switchTab('login')" style="font-family:var(--sans);font-size:12px;font-weight:600;color:var(--gold);background:none;border:none;cursor:pointer;text-decoration:underline;padding:0 0 0 4px;">Login</button>
+          </div>
+        </div>
         <div class="section-sub">Takes 30 seconds. Your details are kept confidential — Invictus IMC manages all buyer communication on your behalf.</div>
-        <div class="tab-btns">
+        <div class="tab-btns" style="display:none;">
           <button class="tab-btn active" onclick="switchTab('signup')">New Account</button>
           <button class="tab-btn" onclick="switchTab('login')">Already have an account</button>
         </div>
@@ -260,6 +271,14 @@
     document.querySelectorAll('.tab-btn').forEach((btn, i) => btn.classList.toggle('active', i === (tab === 'signup' ? 0 : 1)));
     document.getElementById('tab-signup').classList.toggle('active', tab === 'signup');
     document.getElementById('tab-login').classList.toggle('active', tab === 'login');
+    const wrap = document.getElementById('auth-toggle-wrap');
+    if (wrap) {
+      if (tab === 'login') {
+        wrap.innerHTML = `<span style="font-size:12px;color:var(--ink-mid);">New here?</span><button onclick="switchTab('signup')" style="font-family:var(--sans);font-size:12px;font-weight:600;color:var(--gold);background:none;border:none;cursor:pointer;text-decoration:underline;padding:0 0 0 4px;">Create account</button>`;
+      } else {
+        wrap.innerHTML = `<span style="font-size:12px;color:var(--ink-mid);">Already have an account?</span><button onclick="switchTab('login')" style="font-family:var(--sans);font-size:12px;font-weight:600;color:var(--gold);background:none;border:none;cursor:pointer;text-decoration:underline;padding:0 0 0 4px;">Login</button>`;
+      }
+    }
   }
 
   async function signup() {
