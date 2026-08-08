@@ -464,6 +464,10 @@
           <svg viewBox="0 0 14 14" fill="none"><path d="M2 10L5 7l2 2 2-2 3 3" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/><circle cx="11" cy="4" r="2" stroke="currentColor" stroke-width="1"/></svg>
           Bids Received
         </div>
+        <div class="sidebar-link" onclick="showTab('order-archive', this)">
+          <svg viewBox="0 0 14 14" fill="none"><rect x="1" y="4" width="12" height="9" rx="1" stroke="currentColor" stroke-width="1"/><path d="M1 4l2-3h8l2 3" stroke="currentColor" stroke-width="1" stroke-linejoin="round"/><line x1="5" y1="7" x2="9" y2="7" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
+          Archived Orders
+        </div>
       </div>
       <div class="sidebar-divider"></div>
       <div class="sidebar-section">
@@ -872,11 +876,17 @@
         <div class="page-subtitle">Create and manage open manufacturing orders. Each order gets a shareable link for WhatsApp outreach.</div>
         <div class="section-header">
           <div class="section-title">Orders <span id="orders-count" style="font-size:11px;color:var(--muted);margin-left:8px;"></span></div>
-          <button class="btn-add" onclick="openOrderModal()">+ Create Order</button>
+          <div style="display:flex;gap:8px;">
+            <button class="btn-del" id="orders-archive-btn" onclick="archiveSelectedOrders()" style="display:none;padding:10px 16px;">Archive Selected</button>
+            <button class="btn-add" onclick="openOrderModal()">+ Create Order</button>
+          </div>
         </div>
         <table class="admin-table">
           <thead>
-            <tr><th>Order Code</th><th>Part Name</th><th>Industry</th><th>Quantity</th><th>Material</th><th>Status</th><th>Bids</th><th>Created</th><th>Actions</th></tr>
+            <tr>
+              <th><input type="checkbox" id="orders-check-all" onchange="toggleAllOrderChecks(this.checked)" /></th>
+              <th>Order Code</th><th>Part Name</th><th>Industry</th><th>Quantity</th><th>Status</th><th>Bids</th><th>Created</th><th>Actions</th>
+            </tr>
           </thead>
           <tbody id="orders-tbody"><tr><td colspan="9" class="table-empty">Loading...</td></tr></tbody>
         </table>
@@ -890,43 +900,43 @@
             </div>
             <div style="padding:24px;display:flex;flex-direction:column;gap:14px;max-height:70vh;overflow-y:auto;">
               <div class="form-row-2">
-                <div>
-                  <label class="form-label">Part Name *</label>
-                  <input type="text" class="form-input" id="o-part" placeholder="Unified Seat Track Locking Fitting" />
-                </div>
-                <div>
-                  <label class="form-label">Industry *</label>
-                  <input type="text" class="form-input" id="o-industry" placeholder="Aerospace & Aviation Interiors" />
-                </div>
+                <div><label class="form-label">Part Name *</label><input type="text" class="form-input" id="o-part" placeholder="Unified Seat Track Locking Fitting" /></div>
+                <div><label class="form-label">Industry *</label><input type="text" class="form-input" id="o-industry" placeholder="Aerospace & Aviation Interiors" /></div>
               </div>
               <div class="form-row-2">
-                <div>
-                  <label class="form-label">Annual Quantity</label>
-                  <input type="text" class="form-input" id="o-annual-qty" placeholder="42,000 – 60,000 units / year" />
-                </div>
-                <div>
-                  <label class="form-label">Monthly Quantity</label>
-                  <input type="text" class="form-input" id="o-monthly-qty" placeholder="3,500 – 5,000 units / month" />
-                </div>
+                <div><label class="form-label">Annual Quantity</label><input type="text" class="form-input" id="o-annual-qty" placeholder="42,000 – 60,000 units / year" /></div>
+                <div><label class="form-label">Monthly Quantity</label><input type="text" class="form-input" id="o-monthly-qty" placeholder="3,500 – 5,000 units / month" /></div>
               </div>
-              <div>
-                <label class="form-label">Material</label>
-                <input type="text" class="form-input" id="o-material" placeholder="Aerospace-Grade Aluminum Alloy 7075-T6 / T651" />
-              </div>
-              <div>
-                <label class="form-label">Primary Process</label>
-                <input type="text" class="form-input" id="o-process" placeholder="Multi-axis CNC Milling/Turning (Precision tolerance ±0.01 mm)" />
-              </div>
-              <div>
-                <label class="form-label">Additional Details</label>
-                <textarea class="form-input" id="o-details" rows="3" placeholder="Any other specs, certifications, or requirements..."></textarea>
-              </div>
-              <div>
-                <label class="form-label">Technical Drawing (image file)</label>
-                <input type="file" class="form-input" id="o-drawing" accept="image/*,.pdf" style="padding:8px;" />
-              </div>
+              <div><label class="form-label">Material</label><input type="text" class="form-input" id="o-material" placeholder="Aerospace-Grade Aluminum Alloy 7075-T6 / T651" /></div>
+              <div><label class="form-label">Primary Process</label><input type="text" class="form-input" id="o-process" placeholder="Multi-axis CNC Milling/Turning (Precision tolerance ±0.01 mm)" /></div>
+              <div><label class="form-label">Additional Details</label><textarea class="form-input" id="o-details" rows="3" placeholder="Any other specs, certifications, or requirements..."></textarea></div>
+              <div><label class="form-label">Technical Drawing (image file)</label><input type="file" class="form-input" id="o-drawing" accept="image/*,.pdf" style="padding:8px;" /></div>
               <div id="o-msg" style="display:none;font-size:12px;padding:10px;border:1px solid;"></div>
               <button class="btn-save" onclick="createOrder()" style="width:100%;">Create Order & Generate Link</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Split Order Modal -->
+        <div class="modal-overlay" id="split-modal" style="display:none;">
+          <div class="modal" style="max-width:580px;">
+            <div class="modal-header">
+              <div class="modal-title">Split Order</div>
+              <button class="modal-close" onclick="document.getElementById('split-modal').style.display='none'">✕</button>
+            </div>
+            <div style="padding:24px;display:flex;flex-direction:column;gap:16px;">
+              <div id="split-order-info" style="font-size:13px;color:var(--muted);padding:12px;background:var(--surface);border:1px solid var(--faint);"></div>
+              <div>
+                <label class="form-label">Split Method</label>
+                <select class="form-input" id="split-method" onchange="updateSplitInputs()">
+                  <option value="units">By Number of Units</option>
+                  <option value="percent">By Percentage</option>
+                </select>
+              </div>
+              <div id="split-parts-wrap" style="display:flex;flex-direction:column;gap:10px;"></div>
+              <button class="btn-edit" onclick="addSplitPart()" style="width:fit-content;padding:8px 16px;">+ Add Part</button>
+              <div id="split-msg" style="display:none;font-size:12px;padding:10px;border:1px solid;"></div>
+              <button class="btn-save" onclick="confirmSplit()" style="width:100%;">Create Sub-Orders</button>
             </div>
           </div>
         </div>
@@ -950,6 +960,21 @@
             <tr><th>Order</th><th>Company</th><th>Mobile</th><th>Email</th><th>Price / Unit</th><th>Notes</th><th>Submitted</th><th>Actions</th></tr>
           </thead>
           <tbody id="bids-tbody"><tr><td colspan="8" class="table-empty">Loading...</td></tr></tbody>
+        </table>
+      </div>
+
+      <!-- ARCHIVED ORDERS TAB -->
+      <div class="tab-panel" id="tab-order-archive">
+        <div class="page-title">Archived <em>Orders</em></div>
+        <div class="page-subtitle">Closed and awarded orders. Reopen any order to accept new bids.</div>
+        <div class="section-header">
+          <div class="section-title">Archived <span id="archive-count" style="font-size:11px;color:var(--muted);margin-left:8px;"></span></div>
+        </div>
+        <table class="admin-table">
+          <thead>
+            <tr><th>Order Code</th><th>Part Name</th><th>Industry</th><th>Status</th><th>Bids</th><th>Archived</th><th>Actions</th></tr>
+          </thead>
+          <tbody id="archive-tbody"><tr><td colspan="7" class="table-empty">Loading...</td></tr></tbody>
         </table>
       </div>
 
@@ -1345,6 +1370,7 @@
     if (name === 'archived') loadArchivedProjects();
     if (name === 'orders') loadOrders();
     if (name === 'order-bids') { loadOrders(); loadBids(); }
+    if (name === 'order-archive') loadArchivedOrders();
     if (name === 'field-submissions') loadFieldSubmissions();
     if (name === 'field-leads') loadFieldLeads();
   }
@@ -2588,6 +2614,23 @@
     orderMsg('Creating order...', 'success');
     try {
       const orderCode = 'IMC-' + Date.now().toString(36).toUpperCase().slice(-6);
+
+      // Generate slug from industry + part name
+      function toSlug(str) {
+        return str.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+      }
+      const baseSlug = [industry, part].filter(Boolean).map(toSlug).join('-').substring(0, 80);
+
+      // Check for duplicate slugs and add suffix if needed
+      let slug = baseSlug;
+      let suffix = 2;
+      while (true) {
+        const check = await fetch(`${SUPA_URL}/rest/v1/manufacturing_orders?slug=eq.${slug}&select=id`, { headers: { 'apikey': SUPA_ANON, 'Authorization': 'Bearer ' + SUPA_ANON } });
+        const existing = await check.json();
+        if (!existing.length) break;
+        slug = `${baseSlug}-${suffix++}`;
+      }
+
       let drawingUrl = null;
       const fileInput = document.getElementById('o-drawing');
       if (fileInput.files[0]) {
@@ -2602,11 +2645,11 @@
       const res = await fetch(`${SUPA_URL}/rest/v1/manufacturing_orders`, {
         method: 'POST',
         headers: { 'apikey': SUPA_ANON, 'Authorization': 'Bearer ' + SUPA_ANON, 'Content-Type': 'application/json', 'Prefer': 'return=representation' },
-        body: JSON.stringify({ order_code: orderCode, part_name: part, industry: industry||null, annual_quantity: document.getElementById('o-annual-qty').value.trim()||null, monthly_quantity: document.getElementById('o-monthly-qty').value.trim()||null, material: document.getElementById('o-material').value.trim()||null, primary_process: document.getElementById('o-process').value.trim()||null, additional_details: document.getElementById('o-details').value.trim()||null, drawing_url: drawingUrl, status: 'open' })
+        body: JSON.stringify({ order_code: orderCode, slug, part_name: part, industry: industry||null, annual_quantity: document.getElementById('o-annual-qty').value.trim()||null, monthly_quantity: document.getElementById('o-monthly-qty').value.trim()||null, material: document.getElementById('o-material').value.trim()||null, primary_process: document.getElementById('o-process').value.trim()||null, additional_details: document.getElementById('o-details').value.trim()||null, drawing_url: drawingUrl, status: 'open' })
       });
       if (!res.ok) throw new Error(await res.text());
       const [order] = await res.json();
-      const link = `https://www.invictusimc.com/order/${order.id}`;
+      const link = `https://www.invictusimc.com/order/${order.slug || order.id}`;
       orderMsg(`✓ Order created! Link: ${link}`, 'success');
       loadOrders();
     } catch(e) { orderMsg('Error: ' + e.message, 'error'); }
@@ -2618,36 +2661,164 @@
     if (!tbody) return;
     tbody.innerHTML = '<tr><td colspan="9" class="table-empty">Loading...</td></tr>';
     try {
-      const res = await fetch(`${SUPA_URL}/rest/v1/manufacturing_orders?order=created_at.desc`, { headers: { 'apikey': SUPA_ANON, 'Authorization': 'Bearer ' + SUPA_ANON } });
+      const res = await fetch(`${SUPA_URL}/rest/v1/manufacturing_orders?status=eq.open&order=created_at.desc`, { headers: { 'apikey': SUPA_ANON, 'Authorization': 'Bearer ' + SUPA_ANON } });
       const orders = await res.json();
       if (countEl) countEl.textContent = `(${orders.length})`;
+
       const filter = document.getElementById('bids-order-filter');
       if (filter) { const ex = [...filter.options].map(o=>o.value); orders.forEach(o => { if(!ex.includes(o.id)){const opt=document.createElement('option');opt.value=o.id;opt.textContent=o.order_code+' — '+o.part_name;filter.appendChild(opt);}}); }
-      if (!orders.length) { tbody.innerHTML = '<tr><td colspan="9" class="table-empty">No orders yet. Create your first order above.</td></tr>'; return; }
+
+      if (!orders.length) { tbody.innerHTML = '<tr><td colspan="9" class="table-empty">No open orders. Create your first order above.</td></tr>'; return; }
+
       const bidsRes = await fetch(`${SUPA_URL}/rest/v1/order_bids?select=order_id`, { headers: { 'apikey': SUPA_ANON, 'Authorization': 'Bearer ' + SUPA_ANON } });
       const bids = await bidsRes.json();
       const bidCounts = {};
       bids.forEach(b => { bidCounts[b.order_id] = (bidCounts[b.order_id]||0)+1; });
+
+      // Get sub-orders
+      const subRes = await fetch(`${SUPA_URL}/rest/v1/manufacturing_orders?order_code=like.IMC-%-&status=eq.open&select=*`, { headers: { 'apikey': SUPA_ANON, 'Authorization': 'Bearer ' + SUPA_ANON } });
+      const allSubs = await subRes.json();
+
       tbody.innerHTML = orders.map(o => {
-        const link = `https://www.invictusimc.com/order/${o.id}`;
-        const sc = o.status==='open'?'#3DAA6E':o.status==='awarded'?'var(--gold)':'var(--muted)';
+        const link = `https://www.invictusimc.com/order/${o.slug || o.id}`;
+        const subs = allSubs.filter(s => s.parent_order_id === o.id);
+        const subRows = subs.length ? `
+          <tr id="sub-${o.id}" style="display:none;">
+            <td colspan="9" style="padding:0 0 0 40px;background:rgba(200,134,10,0.04);">
+              <table class="admin-table" style="margin:0;border:none;">
+                <thead><tr style="background:rgba(200,134,10,0.08);"><th colspan="2">Sub-Order</th><th>Assignment</th><th>Manufacturer</th><th>Status</th><th>Bids</th><th>Actions</th></tr></thead>
+                <tbody>${subs.map(s => `<tr>
+                  <td colspan="2"><span style="font-family:monospace;font-size:11px;color:var(--gold);">${s.order_code}</span></td>
+                  <td class="td-muted">${s.additional_details||'—'}</td>
+                  <td class="td-muted">${s.assigned_to||'Unassigned'}</td>
+                  <td><span style="font-size:9px;text-transform:uppercase;padding:3px 8px;background:rgba(61,170,110,0.1);color:#3DAA6E;">${s.status}</span></td>
+                  <td style="text-align:center;">${bidCounts[s.id]||0}</td>
+                  <td><div class="td-actions"><button class="btn-edit" onclick="copyOrderLink('https://www.invictusimc.com/order/${s.slug||s.id}')">Link</button></div></td>
+                </tr>`).join('')}</tbody>
+              </table>
+            </td>
+          </tr>` : '';
+
         return `<tr>
-          <td><span style="font-family:monospace;font-size:12px;color:var(--gold);">${o.order_code}</span></td>
+          <td><input type="checkbox" class="order-check-item" value="${o.id}" onchange="updateOrderArchiveBtn()" /></td>
+          <td>
+            <span style="font-family:monospace;font-size:12px;color:var(--gold);">${o.order_code}</span>
+            ${subs.length ? `<br/><button onclick="toggleSubOrders('${o.id}')" style="font-size:10px;color:var(--muted);background:none;border:none;cursor:pointer;padding:2px 0;">▶ ${subs.length} sub-order${subs.length>1?'s':''}</button>` : ''}
+          </td>
           <td><strong>${o.part_name}</strong></td>
           <td class="td-muted">${o.industry||'—'}</td>
           <td class="td-muted" style="font-size:11px;">${o.monthly_quantity||o.annual_quantity||'—'}</td>
-          <td class="td-muted" style="font-size:11px;">${(o.material||'—').substring(0,30)}</td>
-          <td><span style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;padding:4px 10px;background:rgba(0,0,0,0.2);color:${sc};">${o.status}</span></td>
+          <td><span style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;padding:4px 10px;background:rgba(61,170,110,0.1);color:#3DAA6E;">Open</span></td>
           <td style="text-align:center;font-weight:600;color:var(--gold);">${bidCounts[o.id]||0}</td>
           <td class="td-muted" style="font-size:11px;">${new Date(o.created_at).toLocaleDateString('en-IN')}</td>
           <td><div class="td-actions">
-            <button class="btn-edit" onclick="copyOrderLink('${link}')">Copy Link</button>
+            <button class="btn-edit" onclick="copyOrderLink('${link}')">Link</button>
             <button class="btn-edit" onclick="whatsappOrder('${o.order_code}','${o.part_name.replace(/'/g,'')}','${link}')">WhatsApp</button>
-            <button class="btn-del" onclick="closeOrder('${o.id}')">Close</button>
+            <button class="btn-edit" style="color:var(--gold);background:var(--gold-dim);border-color:var(--gold-border);" onclick="openSplitModal('${o.id}','${o.order_code}','${o.part_name.replace(/'/g,'')}','${o.monthly_quantity||o.annual_quantity||''}')">Split</button>
+            <button class="btn-del" onclick="archiveOrder('${o.id}')">Archive</button>
           </div></td>
-        </tr>`;
+        </tr>${subRows}`;
       }).join('');
     } catch(e) { tbody.innerHTML = `<tr><td colspan="9" class="table-empty">Error: ${e.message}</td></tr>`; }
+  }
+
+  function toggleSubOrders(id) {
+    const row = document.getElementById('sub-' + id);
+    if (!row) return;
+    const showing = row.style.display !== 'none';
+    row.style.display = showing ? 'none' : 'table-row';
+    // Update button text
+    const btn = row.previousElementSibling?.querySelector('button[onclick*="toggleSubOrders"]');
+    if (btn) btn.textContent = showing ? btn.textContent.replace('▼','▶') : btn.textContent.replace('▶','▼');
+  }
+
+  function toggleAllOrderChecks(checked) {
+    document.querySelectorAll('.order-check-item').forEach(cb => cb.checked = checked);
+    updateOrderArchiveBtn();
+  }
+
+  function updateOrderArchiveBtn() {
+    const count = document.querySelectorAll('.order-check-item:checked').length;
+    document.getElementById('orders-archive-btn').style.display = count > 0 ? 'inline-block' : 'none';
+  }
+
+  async function archiveSelectedOrders() {
+    const selected = [...document.querySelectorAll('.order-check-item:checked')].map(cb => cb.value);
+    if (!selected.length) return;
+    if (!confirm(`Archive ${selected.length} selected order(s)?`)) return;
+    for (const id of selected) {
+      await fetch(`${SUPA_URL}/rest/v1/manufacturing_orders?id=eq.${id}`, { method: 'PATCH', headers: { 'apikey': SUPA_ANON, 'Authorization': 'Bearer ' + SUPA_ANON, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' }, body: JSON.stringify({ status: 'closed' }) });
+    }
+    document.getElementById('orders-check-all').checked = false;
+    updateOrderArchiveBtn();
+    loadOrders();
+  }
+
+  // SPLIT ORDER
+  let splitOrderId = null;
+  let splitPartCount = 2;
+
+  function openSplitModal(id, code, part, qty) {
+    splitOrderId = id;
+    splitPartCount = 2;
+    document.getElementById('split-order-info').innerHTML = `<strong>${code}</strong> — ${part}${qty ? `<br/><span style="font-size:11px;color:var(--muted);">Qty: ${qty}</span>` : ''}`;
+    updateSplitInputs();
+    document.getElementById('split-modal').style.display = 'flex';
+  }
+
+  function updateSplitInputs() {
+    const method = document.getElementById('split-method').value;
+    const wrap = document.getElementById('split-parts-wrap');
+    const suffix = ['A','B','C','D','E','F'];
+    wrap.innerHTML = Array.from({length: splitPartCount}, (_, i) => `
+      <div style="display:flex;align-items:center;gap:10px;background:var(--surface);padding:12px;border:1px solid var(--faint);">
+        <span style="font-size:11px;color:var(--gold);font-family:monospace;min-width:20px;">${suffix[i]}</span>
+        <input type="text" class="form-input" id="split-mfr-${i}" placeholder="Manufacturer name / email (optional)" style="flex:2;" />
+        <input type="${method==='percent'?'number':'text'}" class="form-input" id="split-val-${i}" placeholder="${method==='percent'?'50':'21000'}" style="flex:1;${method==='percent'?'max-width:90px;':''}" ${method==='percent'?'min="1" max="100"':''} />
+        ${method==='percent'?'<span style="font-size:12px;color:var(--muted);">%</span>':''}
+      </div>
+    `).join('');
+  }
+
+  function addSplitPart() {
+    if (splitPartCount >= 6) { alert('Maximum 6 parts.'); return; }
+    splitPartCount++;
+    updateSplitInputs();
+  }
+
+  async function confirmSplit() {
+    if (!splitOrderId) return;
+    const method = document.getElementById('split-method').value;
+    const suffix = ['A','B','C','D','E','F'];
+    const msg = document.getElementById('split-msg');
+
+    // Get parent order
+    const parentRes = await fetch(`${SUPA_URL}/rest/v1/manufacturing_orders?id=eq.${splitOrderId}&select=*`, { headers: { 'apikey': SUPA_ANON, 'Authorization': 'Bearer ' + SUPA_ANON } });
+    const [parent] = await parentRes.json();
+
+    msg.style.cssText = 'display:block;padding:10px;font-size:12px;border:1px solid;background:rgba(200,134,10,0.08);color:var(--gold);border-color:var(--gold-border);';
+    msg.textContent = 'Creating sub-orders...';
+
+    try {
+      for (let i = 0; i < splitPartCount; i++) {
+        const mfr = document.getElementById(`split-mfr-${i}`)?.value.trim() || null;
+        const val = document.getElementById(`split-val-${i}`)?.value.trim() || null;
+        const subCode = `${parent.order_code}-${suffix[i]}`;
+        const assignment = method === 'percent' ? `${val}% of order` : val ? `${val} units` : null;
+        const subSlug = parent.slug ? `${parent.slug}-${suffix[i].toLowerCase()}` : null;
+
+        await fetch(`${SUPA_URL}/rest/v1/manufacturing_orders`, {
+          method: 'POST', headers: { 'apikey': SUPA_ANON, 'Authorization': 'Bearer ' + SUPA_ANON, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+          body: JSON.stringify({ order_code: subCode, slug: subSlug, part_name: parent.part_name, industry: parent.industry, material: parent.material, primary_process: parent.primary_process, drawing_url: parent.drawing_url, additional_details: assignment, assigned_to: mfr, parent_order_id: splitOrderId, status: 'open' })
+        });
+      }
+      msg.style.background = 'rgba(61,170,110,0.1)'; msg.style.color = '#3DAA6E'; msg.style.borderColor = 'rgba(61,170,110,0.3)';
+      msg.textContent = `${splitPartCount} sub-orders created successfully.`;
+      loadOrders();
+    } catch(e) {
+      msg.style.background = 'rgba(231,76,60,0.1)'; msg.style.color = '#e74c3c'; msg.style.borderColor = 'rgba(231,76,60,0.3)';
+      msg.textContent = 'Error: ' + e.message;
+    }
   }
 
   function copyOrderLink(link) { navigator.clipboard.writeText(link).then(() => alert('Link copied:\n' + link)); }
@@ -2657,10 +2828,56 @@
     window.open(`https://wa.me/?text=${msg}`, '_blank');
   }
 
-  async function closeOrder(id) {
-    if (!confirm('Close this order? No new bids will be accepted.')) return;
+  async function archiveOrder(id) {
+    if (!confirm('Archive this order? It will move to Archived Orders and stop accepting bids.')) return;
     await fetch(`${SUPA_URL}/rest/v1/manufacturing_orders?id=eq.${id}`, { method: 'PATCH', headers: { 'apikey': SUPA_ANON, 'Authorization': 'Bearer ' + SUPA_ANON, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' }, body: JSON.stringify({ status: 'closed' }) });
     loadOrders();
+  }
+
+  async function reopenOrder(id) {
+    if (!confirm('Reopen this order? It will appear in Manufacturing Orders and accept new bids.')) return;
+    await fetch(`${SUPA_URL}/rest/v1/manufacturing_orders?id=eq.${id}`, { method: 'PATCH', headers: { 'apikey': SUPA_ANON, 'Authorization': 'Bearer ' + SUPA_ANON, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' }, body: JSON.stringify({ status: 'open' }) });
+    loadArchivedOrders();
+    loadOrders();
+  }
+
+  async function deleteOrder(id) {
+    if (!confirm('Permanently delete this order and all its bids? This cannot be undone.')) return;
+    await fetch(`${SUPA_URL}/rest/v1/order_bids?order_id=eq.${id}`, { method: 'DELETE', headers: { 'apikey': SUPA_ANON, 'Authorization': 'Bearer ' + SUPA_ANON, 'Prefer': 'return=minimal' } });
+    await fetch(`${SUPA_URL}/rest/v1/manufacturing_orders?id=eq.${id}`, { method: 'DELETE', headers: { 'apikey': SUPA_ANON, 'Authorization': 'Bearer ' + SUPA_ANON, 'Prefer': 'return=minimal' } });
+    loadArchivedOrders();
+  }
+
+  async function loadArchivedOrders() {
+    const tbody = document.getElementById('archive-tbody');
+    const countEl = document.getElementById('archive-count');
+    if (!tbody) return;
+    tbody.innerHTML = '<tr><td colspan="7" class="table-empty">Loading...</td></tr>';
+    try {
+      const res = await fetch(`${SUPA_URL}/rest/v1/manufacturing_orders?status=neq.open&order=created_at.desc`, { headers: { 'apikey': SUPA_ANON, 'Authorization': 'Bearer ' + SUPA_ANON } });
+      const orders = await res.json();
+      if (countEl) countEl.textContent = `(${orders.length})`;
+      if (!orders.length) { tbody.innerHTML = '<tr><td colspan="7" class="table-empty">No archived orders yet.</td></tr>'; return; }
+      const bidsRes = await fetch(`${SUPA_URL}/rest/v1/order_bids?select=order_id`, { headers: { 'apikey': SUPA_ANON, 'Authorization': 'Bearer ' + SUPA_ANON } });
+      const bids = await bidsRes.json();
+      const bidCounts = {};
+      bids.forEach(b => { bidCounts[b.order_id] = (bidCounts[b.order_id]||0)+1; });
+      tbody.innerHTML = orders.map(o => {
+        const sc = o.status === 'awarded' ? 'var(--gold)' : 'var(--muted)';
+        return `<tr>
+          <td><span style="font-family:monospace;font-size:12px;color:var(--muted);">${o.order_code}</span></td>
+          <td><strong>${o.part_name}</strong></td>
+          <td class="td-muted">${o.industry||'—'}</td>
+          <td><span style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;padding:4px 10px;background:rgba(0,0,0,0.2);color:${sc};">${o.status}</span></td>
+          <td style="text-align:center;color:var(--muted);">${bidCounts[o.id]||0}</td>
+          <td class="td-muted" style="font-size:11px;">${new Date(o.created_at).toLocaleDateString('en-IN')}</td>
+          <td><div class="td-actions">
+            <button class="btn-edit" style="color:#3DAA6E;background:rgba(61,170,110,0.10);border-color:rgba(61,170,110,0.3);" onclick="reopenOrder('${o.id}')">Reopen</button>
+            <button class="btn-del" onclick="deleteOrder('${o.id}')">Delete</button>
+          </div></td>
+        </tr>`;
+      }).join('');
+    } catch(e) { tbody.innerHTML = `<tr><td colspan="7" class="table-empty">Error: ${e.message}</td></tr>`; }
   }
 
   async function loadBids() {

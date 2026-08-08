@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
   <link rel="icon" type="image/png" href="/INVICTUS_LOGO.png" />
   <title>Bid for Manufacturing Order — Invictus IMC</title>
   <meta name="robots" content="noindex" />
@@ -15,92 +15,108 @@
       --gold: #C8860A; --gold-light: #E09B12; --gold-border: rgba(200,134,10,0.35); --gold-dim: rgba(200,134,10,0.08);
       --serif: 'Cormorant Garamond', Georgia, serif; --sans: 'Outfit', sans-serif;
     }
-    body { font-family: var(--sans); background: var(--ivory); color: var(--ink); min-height: 100vh; }
+    body { font-family: var(--sans); background: var(--ivory); color: var(--ink); min-height: 100vh; -webkit-text-size-adjust: 100%; }
 
-    .topbar { background: var(--void); padding: 0 24px; height: 52px; display: flex; align-items: center; justify-content: space-between; }
-    .topbar-logo { font-family: var(--serif); font-size: 16px; font-weight: 600; letter-spacing: 2.5px; color: #F5F2EC; text-transform: uppercase; text-decoration: none; display: flex; align-items: center; gap: 10px; }
-    .topbar-sep { width: 1px; height: 18px; background: rgba(255,255,255,0.15); }
-    .topbar-tag { font-size: 9px; letter-spacing: 2px; color: var(--gold); text-transform: uppercase; }
-    .topbar-back { font-size: 11px; color: rgba(255,255,255,0.45); text-decoration: none; border: 1px solid rgba(255,255,255,0.15); padding: 5px 12px; }
+    .topbar { background: var(--void); padding: 0 16px; height: 52px; display: flex; align-items: center; justify-content: space-between; }
+    .topbar-logo { font-family: var(--serif); font-size: 14px; font-weight: 600; letter-spacing: 2px; color: #F5F2EC; text-transform: uppercase; text-decoration: none; display: flex; align-items: center; gap: 8px; }
+    .topbar-tag { font-size: 8px; letter-spacing: 1.5px; color: var(--gold); text-transform: uppercase; display: none; }
+    .topbar-right { display: flex; align-items: center; gap: 10px; }
+    .topbar-back { font-size: 11px; color: rgba(255,255,255,0.45); text-decoration: none; border: 1px solid rgba(255,255,255,0.15); padding: 5px 10px; white-space: nowrap; }
+    .topbar-login { font-size: 11px; color: var(--gold); text-decoration: none; border: 1px solid var(--gold-border); padding: 5px 12px; white-space: nowrap; font-weight: 500; }
+    @media(min-width:600px) { .topbar { padding: 0 24px; } .topbar-logo { font-size: 16px; letter-spacing: 2.5px; } .topbar-tag { display: block; } }
 
-    .hero { background: var(--void); padding: 36px 24px; border-bottom: 1px solid rgba(200,134,10,0.15); }
-    .hero-eyebrow { font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); margin-bottom: 10px; }
-    .hero-h1 { font-family: var(--serif); font-size: 32px; font-weight: 400; color: #F5F2EC; line-height: 1.15; }
+    .hero { background: var(--void); padding: 28px 16px; border-bottom: 1px solid rgba(200,134,10,0.15); }
+    .hero-eyebrow { font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); margin-bottom: 8px; }
+    .hero-h1 { font-family: var(--serif); font-size: 26px; font-weight: 400; color: #F5F2EC; line-height: 1.15; }
     .hero-h1 em { font-style: italic; color: var(--gold); }
+    @media(min-width:600px) { .hero { padding: 36px 24px; } .hero-h1 { font-size: 32px; } }
 
-    .content { max-width: 800px; margin: 0 auto; padding: 32px 24px 60px; }
+    .content { max-width: 760px; margin: 0 auto; padding: 20px 16px 60px; }
+    @media(min-width:600px) { .content { padding: 32px 24px 60px; } }
 
-    /* ORDER DETAILS */
-    .order-loading { text-align: center; padding: 60px; color: var(--ink-mid); font-size: 14px; }
-    .order-not-found { text-align: center; padding: 60px; }
-    .order-not-found h2 { font-family: var(--serif); font-size: 28px; color: var(--ink); margin-bottom: 10px; }
+    .order-loading { text-align: center; padding: 60px 20px; color: var(--ink-mid); font-size: 14px; }
+    .order-not-found { text-align: center; padding: 60px 20px; }
+    .order-not-found h2 { font-family: var(--serif); font-size: 26px; color: var(--ink); margin-bottom: 10px; }
 
-    .order-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 24px; flex-wrap: wrap; }
+    .order-header { margin-bottom: 20px; }
     .order-code { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); margin-bottom: 6px; }
-    .order-title { font-family: var(--serif); font-size: 28px; font-weight: 400; color: var(--ink); }
-    .order-status { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; padding: 6px 14px; border: 1px solid; }
+    .order-title { font-family: var(--serif); font-size: 24px; font-weight: 400; color: var(--ink); margin-bottom: 10px; line-height: 1.2; }
+    .order-status { display: inline-block; font-size: 9px; letter-spacing: 2px; text-transform: uppercase; padding: 5px 12px; border: 1px solid; }
     .status-open { color: #2E7D32; border-color: rgba(46,125,50,0.4); background: rgba(46,125,50,0.08); }
     .status-closed { color: var(--ink-mid); border-color: var(--border); background: var(--white); }
+    @media(min-width:600px) { .order-title { font-size: 28px; } }
 
-    .order-drawing { width: 100%; max-height: 400px; object-fit: contain; border: 1px solid var(--border); background: #fff; margin-bottom: 24px; }
+    .order-drawing { width: 100%; max-height: 320px; object-fit: contain; border: 1px solid var(--border); background: #fff; margin-bottom: 20px; }
+    @media(min-width:600px) { .order-drawing { max-height: 420px; } }
 
-    .specs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--border); border: 1px solid var(--border); margin-bottom: 24px; }
-    .spec-cell { background: var(--white); padding: 14px 16px; }
+    .specs-grid { display: grid; grid-template-columns: 1fr; gap: 1px; background: var(--border); border: 1px solid var(--border); margin-bottom: 20px; }
+    @media(min-width:500px) { .specs-grid { grid-template-columns: 1fr 1fr; } }
+    .spec-cell { background: var(--white); padding: 12px 14px; }
+    .spec-cell-full { background: var(--white); padding: 12px 14px; grid-column: 1 / -1; }
     .spec-label { font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-mid); margin-bottom: 4px; }
-    .spec-val { font-size: 14px; color: var(--ink); font-weight: 400; line-height: 1.5; }
-    .spec-cell-full { grid-column: 1 / -1; background: var(--white); padding: 14px 16px; }
+    .spec-val { font-size: 13px; color: var(--ink); line-height: 1.5; }
 
-    /* AUTH / BID SECTION */
-    .section-card { background: var(--white); border: 1px solid var(--border); border-left: 3px solid var(--gold); padding: 28px; margin-bottom: 20px; }
-    .section-title { font-family: var(--serif); font-size: 22px; font-weight: 400; color: var(--ink); margin-bottom: 6px; }
-    .section-sub { font-size: 13px; color: var(--ink-mid); margin-bottom: 24px; line-height: 1.6; }
+    .section-card { background: var(--white); border: 1px solid var(--border); border-left: 3px solid var(--gold); padding: 20px 16px; margin-bottom: 16px; }
+    @media(min-width:600px) { .section-card { padding: 28px; } }
+    .section-card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 6px; }
+    .section-title { font-family: var(--serif); font-size: 20px; font-weight: 400; color: var(--ink); }
+    @media(min-width:600px) { .section-title { font-size: 22px; } }
+    .section-sub { font-size: 13px; color: var(--ink-mid); margin-bottom: 20px; line-height: 1.6; }
+
+    .auth-toggle { flex-shrink: 0; padding-top: 4px; text-align: right; }
+    .auth-toggle span { font-size: 11px; color: var(--ink-mid); display: block; }
+    .auth-toggle button { font-family: var(--sans); font-size: 12px; font-weight: 600; color: var(--gold); background: none; border: none; cursor: pointer; text-decoration: underline; padding: 0; }
+
     .field-label { font-size: 10px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--ink); display: block; margin-bottom: 6px; margin-top: 14px; }
-    .field-input { width: 100%; font-family: var(--sans); font-size: 14px; color: var(--ink); background: var(--ivory); border: 1px solid var(--border); padding: 12px 14px; outline: none; transition: border-color 0.2s; }
-    .field-input:focus { border-color: var(--gold-border); }
-    .field-input::placeholder { color: rgba(26,26,26,0.3); }
-    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .btn-gold { width: 100%; margin-top: 20px; font-family: var(--sans); font-size: 12px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--void); background: var(--gold); border: none; padding: 15px; cursor: pointer; transition: background 0.2s; }
-    .btn-gold:hover { background: var(--gold-light); }
-    .btn-gold:disabled { opacity: 0.6; cursor: not-allowed; }
-    .btn-outline { width: 100%; margin-top: 10px; font-family: var(--sans); font-size: 12px; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gold); background: transparent; border: 1px solid var(--gold-border); padding: 13px; cursor: pointer; }
+    .field-opt { font-size: 9px; font-weight: 400; color: var(--ink-mid); }
+    .field-input { width: 100%; font-family: var(--sans); font-size: 15px; color: var(--ink); background: var(--ivory); border: 1px solid var(--border); padding: 13px 14px; outline: none; transition: border-color 0.2s; -webkit-appearance: none; border-radius: 0; }
+    .field-input:focus { border-color: var(--gold-border); background: var(--white); }
+    .field-input::placeholder { color: rgba(26,26,26,0.3); font-size: 13px; }
+    textarea.field-input { resize: vertical; min-height: 80px; font-size: 14px; }
+    .field-row { display: grid; grid-template-columns: 1fr; gap: 0; }
+    @media(min-width:500px) { .field-row { grid-template-columns: 1fr 1fr; gap: 12px; } }
+
+    .partial-note { background: var(--gold-dim); border: 1px solid var(--gold-border); padding: 12px 14px; margin-top: 16px; font-size: 12px; color: var(--ink-mid); line-height: 1.6; display: flex; gap: 10px; }
+    .partial-note-icon { color: var(--gold); font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+
     .msg { font-size: 13px; padding: 12px 14px; margin-top: 14px; border: 1px solid; line-height: 1.6; display: none; }
     .msg.success { background: rgba(46,125,50,0.08); border-color: rgba(46,125,50,0.3); color: #2E7D32; display: block; }
     .msg.error { background: rgba(231,76,60,0.08); border-color: rgba(231,76,60,0.3); color: #c0392b; display: block; }
-    .tab-btns { display: flex; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
-    .tab-btn { font-family: var(--sans); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 20px; background: none; border: none; border-bottom: 2px solid transparent; color: var(--ink-mid); cursor: pointer; margin-bottom: -1px; }
-    .tab-btn.active { color: var(--gold); border-bottom-color: var(--gold); }
+
+    .btn-gold { width: 100%; margin-top: 20px; font-family: var(--sans); font-size: 12px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--void); background: var(--gold); border: none; padding: 16px; cursor: pointer; transition: background 0.2s; -webkit-appearance: none; border-radius: 0; touch-action: manipulation; }
+    .btn-gold:hover, .btn-gold:active { background: var(--gold-light); }
+    .btn-gold:disabled { opacity: 0.6; cursor: not-allowed; }
+    .btn-outline { width: 100%; margin-top: 10px; font-family: var(--sans); font-size: 12px; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gold); background: transparent; border: 1px solid var(--gold-border); padding: 14px; cursor: pointer; -webkit-appearance: none; border-radius: 0; touch-action: manipulation; }
+
+    .bid-record { background: var(--ivory); border: 1px solid var(--border); padding: 16px; margin-bottom: 16px; }
+    .bid-record-label { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--ink-mid); margin-bottom: 8px; }
+    .bid-price { font-size: 32px; font-family: var(--serif); font-weight: 400; color: var(--gold); margin-bottom: 4px; }
+    .bid-meta { font-size: 12px; color: var(--ink-mid); line-height: 1.6; }
+
+    .closed-banner { background: var(--white); border: 1px solid var(--border); padding: 24px; text-align: center; }
+    .closed-banner p { font-size: 14px; color: var(--ink-mid); }
+
     .tab-pane { display: none; }
     .tab-pane.active { display: block; }
 
-    .bid-record { background: var(--ivory); border: 1px solid var(--border); padding: 16px; margin-top: 16px; }
-    .bid-record-label { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--ink-mid); margin-bottom: 8px; }
-    .bid-price { font-size: 28px; font-family: var(--serif); font-weight: 400; color: var(--gold); margin-bottom: 4px; }
-    .bid-meta { font-size: 12px; color: var(--ink-mid); }
-
-    .closed-banner { background: rgba(26,26,26,0.06); border: 1px solid var(--border); padding: 20px; text-align: center; }
-    .closed-banner p { font-size: 14px; color: var(--ink-mid); }
-
-    footer { background: var(--void); padding: 18px 24px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+    footer { background: var(--void); padding: 18px 16px; }
+    .footer-inner { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 6px; }
     .footer-text { font-size: 10px; color: rgba(255,255,255,0.25); }
     .footer-contact { font-size: 11px; color: rgba(200,134,10,0.6); }
-
-    @media (max-width: 600px) {
-      .specs-grid { grid-template-columns: 1fr; }
-      .field-row { grid-template-columns: 1fr; }
-      .order-header { flex-direction: column; }
-    }
   </style>
 </head>
 <body>
 
 <div class="topbar">
   <a href="/" class="topbar-logo">
-    <img src="/INVICTUS_LOGO.png" style="width:26px;height:26px;object-fit:contain;" alt="" />
+    <img src="/INVICTUS_LOGO.png" style="width:24px;height:24px;object-fit:contain;" alt="" />
     <span>Invictus IMC</span>
-    <div class="topbar-sep"></div>
     <span class="topbar-tag">India Manufacturing Company</span>
   </a>
-  <a href="/" class="topbar-back">← Main Website</a>
+  <div class="topbar-right">
+    <span id="topbar-login-btn"></span>
+    <a href="/" class="topbar-back">← Website</a>
+  </div>
 </div>
 
 <div class="hero">
@@ -113,8 +129,10 @@
 </div>
 
 <footer>
-  <span class="footer-text">© 2025 Invictus IMC · SKYLabs India Private Limited</span>
-  <span class="footer-contact">connect@invictusimc.com · +91 82173 67948</span>
+  <div class="footer-inner">
+    <span class="footer-text">© 2025 Invictus IMC · SKYLabs India Private Limited</span>
+    <span class="footer-contact">connect@invictusimc.com</span>
+  </div>
 </footer>
 
 <script>
@@ -125,6 +143,7 @@
   let orderId = null;
   let orderData = null;
   let currentUser = null;
+  let showingLogin = false;
 
   function simpleHash(str) {
     let h = 0;
@@ -132,34 +151,48 @@
     return Math.abs(h).toString(36);
   }
 
-  // Get order ID from URL
   window.onload = async () => {
     const path = window.location.pathname;
     orderId = path.split('/order/')[1];
     if (!orderId) { showNotFound(); return; }
-
-    // Check if user is logged in
     try {
       const stored = sessionStorage.getItem('mfr_user');
       if (stored) currentUser = JSON.parse(stored);
     } catch(e) {}
-
+    updateTopbarLogin();
     await loadOrder();
   };
 
+  function updateTopbarLogin() {
+    const el = document.getElementById('topbar-login-btn');
+    if (!el) return;
+    if (currentUser) {
+      el.innerHTML = `<span style="font-size:11px;color:rgba(255,255,255,0.6);">${currentUser.company_name}</span>`;
+    } else {
+      el.innerHTML = `<a href="#" class="topbar-login" onclick="showLoginPanel(); return false;">Login</a>`;
+    }
+  }
+
+  function showLoginPanel() {
+    showingLogin = true;
+    renderPage();
+    setTimeout(() => { document.getElementById('l-email')?.focus(); }, 100);
+  }
+
   async function loadOrder() {
     try {
-      // Try slug first, then UUID
       const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(orderId);
       const query = isUUID
         ? `${SUPA_URL}/rest/v1/manufacturing_orders?id=eq.${orderId}&select=*`
-        : `${SUPA_URL}/rest/v1/manufacturing_orders?slug=eq.${orderId}&select=*`;
+        : `${SUPA_URL}/rest/v1/manufacturing_orders?slug=eq.${encodeURIComponent(orderId)}&select=*`;
       const res = await fetch(query, { headers: H });
       const orders = await res.json();
       if (!orders || !orders.length) { showNotFound(); return; }
       orderData = orders[0];
       renderPage();
-    } catch(e) { document.getElementById('main-content').innerHTML = `<div class="order-loading">Error loading order: ${e.message}</div>`; }
+    } catch(e) {
+      document.getElementById('main-content').innerHTML = `<div class="order-loading">Error loading order: ${e.message}</div>`;
+    }
   }
 
   function renderPage() {
@@ -170,13 +203,10 @@
 
     let html = `
       <div class="order-header">
-        <div>
-          <div class="order-code">${o.order_code}</div>
-          <div class="order-title">${o.part_name}</div>
-        </div>
+        <div class="order-code">${o.order_code}</div>
+        <div class="order-title">${o.part_name}</div>
         <span class="order-status ${isOpen ? 'status-open' : 'status-closed'}">${isOpen ? 'Open for Bids' : 'Closed'}</span>
-      </div>
-    `;
+      </div>`;
 
     if (o.drawing_url) {
       html += `<img src="${o.drawing_url}" class="order-drawing" alt="Technical Drawing" />`;
@@ -193,188 +223,234 @@
 
     if (!isOpen) {
       html += `<div class="closed-banner"><p>This order is no longer accepting bids.</p></div>`;
+    } else if (showingLogin) {
+      html += renderLoginSection();
     } else if (currentUser) {
       html += renderBidSection();
     } else {
-      html += renderAuthSection();
+      html += renderSignupSection();
     }
 
     document.getElementById('main-content').innerHTML = html;
-    if (currentUser) loadMyBid();
+    if (currentUser && !showingLogin) loadMyBid();
   }
 
-  function renderAuthSection() {
+  function renderSignupSection() {
     return `
       <div class="section-card">
-        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:6px;">
-          <div class="section-title">Create an account to bid</div>
-          <div id="auth-toggle-wrap" style="flex-shrink:0;padding-top:4px;">
-            <span style="font-size:12px;color:var(--ink-mid);">Already have an account?</span>
-            <button onclick="switchTab('login')" style="font-family:var(--sans);font-size:12px;font-weight:600;color:var(--gold);background:none;border:none;cursor:pointer;text-decoration:underline;padding:0 0 0 4px;">Login</button>
+        <div class="section-card-header">
+          <div class="section-title">Create account to bid</div>
+          <div class="auth-toggle">
+            <span>Have an account?</span>
+            <button onclick="showingLogin=true; renderPage();">Login →</button>
           </div>
         </div>
-        <div class="section-sub">Takes 30 seconds. Your details are kept confidential — Invictus IMC manages all buyer communication on your behalf.</div>
-        <div class="tab-btns" style="display:none;">
-          <button class="tab-btn active" onclick="switchTab('signup')">New Account</button>
-          <button class="tab-btn" onclick="switchTab('login')">Already have an account</button>
-        </div>
-
-        <div class="tab-pane active" id="tab-signup">
-          <label class="field-label">Company / Factory Name *</label>
-          <input type="text" class="field-input" id="s-company" placeholder="Precision Parts Pvt Ltd" />
-          <div class="field-row">
-            <div>
-              <label class="field-label">Mobile Number *</label>
-              <input type="tel" class="field-input" id="s-mobile" placeholder="+91 98765 43210" />
-            </div>
-            <div>
-              <label class="field-label">Email *</label>
-              <input type="email" class="field-input" id="s-email" placeholder="you@factory.com" />
-            </div>
+        <p class="section-sub">Takes 30 seconds. Invictus IMC manages all buyer communication — your details stay confidential.</p>
+        <label class="field-label">Company / Factory Name *</label>
+        <input type="text" class="field-input" id="s-company" placeholder="Precision Parts Pvt Ltd" autocomplete="organization" />
+        <div class="field-row">
+          <div>
+            <label class="field-label">Mobile *</label>
+            <input type="tel" class="field-input" id="s-mobile" placeholder="+91 98765 43210" autocomplete="tel" />
           </div>
-          <label class="field-label">Set a Password *</label>
-          <input type="password" class="field-input" id="s-password" placeholder="Minimum 6 characters" />
-          <div id="signup-msg" class="msg"></div>
-          <button class="btn-gold" onclick="signup()">Create Account & Continue →</button>
+          <div>
+            <label class="field-label">Email <span class="field-opt">(optional)</span></label>
+            <input type="email" class="field-input" id="s-email" placeholder="you@factory.com" autocomplete="email" />
+          </div>
         </div>
+        <label class="field-label">Password *</label>
+        <input type="password" class="field-input" id="s-password" placeholder="Minimum 6 characters" autocomplete="new-password" />
+        <div id="signup-msg" class="msg"></div>
+        <button class="btn-gold" onclick="signup()">Create Account & Submit Bid →</button>
+      </div>`;
+  }
 
-        <div class="tab-pane" id="tab-login">
-          <label class="field-label">Email</label>
-          <input type="email" class="field-input" id="l-email" placeholder="you@factory.com" />
-          <label class="field-label">Password</label>
-          <input type="password" class="field-input" id="l-password" placeholder="Your password" />
-          <div id="login-msg" class="msg"></div>
-          <button class="btn-gold" onclick="login()">Login & Continue →</button>
+  function renderLoginSection() {
+    return `
+      <div class="section-card">
+        <div class="section-card-header">
+          <div class="section-title">Login to bid</div>
+          <div class="auth-toggle">
+            <span>New here?</span>
+            <button onclick="showingLogin=false; renderPage();">Create account →</button>
+          </div>
         </div>
-      </div>
-    `;
+        <p class="section-sub">Use the email and password you set when you first bid on an Invictus IMC order.</p>
+        <label class="field-label">Mobile or Email</label>
+        <input type="text" class="field-input" id="l-email" placeholder="+91 98765 43210 or you@factory.com" autocomplete="username" />
+        <label class="field-label">Password</label>
+        <input type="password" class="field-input" id="l-password" placeholder="Your password" autocomplete="current-password" />
+        <div id="login-msg" class="msg"></div>
+        <button class="btn-gold" onclick="login()">Login & Continue →</button>
+      </div>`;
   }
 
   function renderBidSection() {
     return `
       <div class="section-card">
-        <div class="section-title">Submit Your Bid</div>
-        <div class="section-sub">Welcome, <strong>${currentUser.company_name}</strong>. Submit your price per unit for this order. Invictus IMC will review all bids and reach out to discuss further.</div>
+        <div class="section-card-header">
+          <div class="section-title">Submit Your Bid</div>
+          <div class="auth-toggle">
+            <span>Not you?</span>
+            <button onclick="logout()">Sign out</button>
+          </div>
+        </div>
+        <p class="section-sub">Welcome, <strong>${currentUser.company_name}</strong>. Submit your best price per unit. The IMC team will review all bids and contact you.</p>
         <div id="my-bid-record"></div>
         <label class="field-label">Your Price Per Unit (₹) *</label>
-        <input type="number" class="field-input" id="bid-price" placeholder="e.g. 850" min="0" step="0.01" />
-        <label class="field-label">Notes <span style="font-size:9px;font-weight:400;color:var(--ink-mid);">(optional)</span></label>
-        <textarea class="field-input" id="bid-notes" rows="3" placeholder="Any relevant details — lead time, certifications, capacity, tooling..."></textarea>
+        <input type="number" class="field-input" id="bid-price" placeholder="e.g. 850" min="0" step="0.01" inputmode="decimal" />
+        <label class="field-label">Notes <span class="field-opt">(optional)</span></label>
+        <textarea class="field-input" id="bid-notes" placeholder="Lead time, certifications, capacity, tooling details..."></textarea>
+        <div class="partial-note">
+          <span class="partial-note-icon">ℹ</span>
+          <span>If selected, Invictus IMC decides whether you receive the complete order or a portion of it based on capacity and requirements.</span>
+        </div>
         <div id="bid-msg" class="msg"></div>
         <button class="btn-gold" id="bid-btn" onclick="submitBid()">Submit Bid →</button>
-        <button class="btn-outline" onclick="logout()">Not you? Sign out</button>
-      </div>
-    `;
-  }
-
-  function switchTab(tab) {
-    document.querySelectorAll('.tab-btn').forEach((btn, i) => btn.classList.toggle('active', i === (tab === 'signup' ? 0 : 1)));
-    document.getElementById('tab-signup').classList.toggle('active', tab === 'signup');
-    document.getElementById('tab-login').classList.toggle('active', tab === 'login');
-    const wrap = document.getElementById('auth-toggle-wrap');
-    if (wrap) {
-      if (tab === 'login') {
-        wrap.innerHTML = `<span style="font-size:12px;color:var(--ink-mid);">New here?</span><button onclick="switchTab('signup')" style="font-family:var(--sans);font-size:12px;font-weight:600;color:var(--gold);background:none;border:none;cursor:pointer;text-decoration:underline;padding:0 0 0 4px;">Create account</button>`;
-      } else {
-        wrap.innerHTML = `<span style="font-size:12px;color:var(--ink-mid);">Already have an account?</span><button onclick="switchTab('login')" style="font-family:var(--sans);font-size:12px;font-weight:600;color:var(--gold);background:none;border:none;cursor:pointer;text-decoration:underline;padding:0 0 0 4px;">Login</button>`;
-      }
-    }
+      </div>`;
   }
 
   async function signup() {
-    const company = document.getElementById('s-company').value.trim();
-    const mobile = document.getElementById('s-mobile').value.trim();
-    const email = document.getElementById('s-email').value.trim().toLowerCase();
-    const password = document.getElementById('s-password').value;
+    const company = document.getElementById('s-company')?.value.trim();
+    const mobile = document.getElementById('s-mobile')?.value.trim();
+    const email = (document.getElementById('s-email')?.value.trim() || '').toLowerCase();
+    const password = document.getElementById('s-password')?.value;
     const msg = document.getElementById('signup-msg');
 
-    if (!company || !mobile || !email || !password) { showMsg(msg, 'error', 'Please fill in all fields.'); return; }
+    if (!company || !mobile || !password) { showMsg(msg, 'error', 'Company name, mobile and password are required.'); return; }
     if (password.length < 6) { showMsg(msg, 'error', 'Password must be at least 6 characters.'); return; }
 
     showMsg(msg, 'success', 'Creating your account...');
     try {
       const hash = simpleHash(password);
+      // Check if mobile already exists
+      const checkRes = await fetch(`${SUPA_URL}/rest/v1/manufacturer_accounts?mobile=eq.${encodeURIComponent(mobile)}&select=id,company_name,email`, { headers: H });
+      const existing = await checkRes.json();
+      if (existing?.length) {
+        showMsg(msg, 'error', 'An account with this mobile already exists. Please login instead.');
+        setTimeout(() => { showingLogin = true; renderPage(); }, 1500);
+        return;
+      }
+
+      const body = { company_name: company, mobile, password_hash: hash };
+      if (email) body.email = email;
+
       const res = await fetch(`${SUPA_URL}/rest/v1/manufacturer_accounts`, {
         method: 'POST', headers: { ...H, 'Prefer': 'return=representation' },
-        body: JSON.stringify({ company_name: company, mobile, email, password_hash: hash })
+        body: JSON.stringify(body)
       });
       if (!res.ok) {
         const err = await res.json();
-        if (err.code === '23505') { showMsg(msg, 'error', 'An account with this email already exists. Please login instead.'); return; }
+        if (err.code === '23505') { showMsg(msg, 'error', 'Account already exists. Please login.'); return; }
         throw new Error(err.message);
       }
       const [user] = await res.json();
+
+      // Also add to manufacturers table so it appears in Members tab
+      await fetch(`${SUPA_URL}/rest/v1/manufacturers`, {
+        method: 'POST', headers: { ...H, 'Prefer': 'return=minimal' },
+        body: JSON.stringify({ company_name: company, poc_phone: mobile, poc_email: email||null, status: 'pending', submitted_at: new Date().toISOString() })
+      });
+
       currentUser = { id: user.id, company_name: user.company_name, mobile: user.mobile, email: user.email };
       sessionStorage.setItem('mfr_user', JSON.stringify(currentUser));
+      showingLogin = false;
+      updateTopbarLogin();
       renderPage();
     } catch(e) { showMsg(msg, 'error', 'Error: ' + e.message); }
   }
 
   async function login() {
-    const email = document.getElementById('l-email').value.trim().toLowerCase();
-    const password = document.getElementById('l-password').value;
+    const identifier = document.getElementById('l-email')?.value.trim();
+    const password = document.getElementById('l-password')?.value;
     const msg = document.getElementById('login-msg');
-    if (!email || !password) { showMsg(msg, 'error', 'Enter email and password.'); return; }
+    if (!identifier || !password) { showMsg(msg, 'error', 'Enter your mobile/email and password.'); return; }
     showMsg(msg, 'success', 'Logging in...');
     try {
       const hash = simpleHash(password);
-      const res = await fetch(`${SUPA_URL}/rest/v1/manufacturer_accounts?email=eq.${encodeURIComponent(email)}&is_active=eq.true&select=*`, { headers: H });
+      // Try mobile first, then email
+      const isMobile = /^[+0-9\s-]{7,}$/.test(identifier);
+      const query = isMobile
+        ? `${SUPA_URL}/rest/v1/manufacturer_accounts?mobile=eq.${encodeURIComponent(identifier)}&is_active=eq.true&select=*`
+        : `${SUPA_URL}/rest/v1/manufacturer_accounts?email=eq.${encodeURIComponent(identifier.toLowerCase())}&is_active=eq.true&select=*`;
+      const res = await fetch(query, { headers: H });
       const users = await res.json();
-      if (!users?.length) { showMsg(msg, 'error', 'No account found with this email.'); return; }
+      if (!users?.length) { showMsg(msg, 'error', 'No account found. Please check your details or create a new account.'); return; }
       const u = users[0];
       if (u.password_hash !== hash) { showMsg(msg, 'error', 'Incorrect password.'); return; }
       await fetch(`${SUPA_URL}/rest/v1/manufacturer_accounts?id=eq.${u.id}`, { method: 'PATCH', headers: { ...H, 'Prefer': 'return=minimal' }, body: JSON.stringify({ last_login: new Date().toISOString() }) });
       currentUser = { id: u.id, company_name: u.company_name, mobile: u.mobile, email: u.email };
       sessionStorage.setItem('mfr_user', JSON.stringify(currentUser));
+      showingLogin = false;
+      updateTopbarLogin();
       renderPage();
     } catch(e) { showMsg(msg, 'error', 'Error: ' + e.message); }
   }
 
   function logout() {
     currentUser = null;
+    showingLogin = false;
     sessionStorage.removeItem('mfr_user');
+    updateTopbarLogin();
     renderPage();
   }
 
   async function loadMyBid() {
-    if (!currentUser) return;
-    const res = await fetch(`${SUPA_URL}/rest/v1/order_bids?order_id=eq.${orderId}&manufacturer_id=eq.${currentUser.id}&select=*`, { headers: H });
+    if (!currentUser || !orderId) return;
+    const res = await fetch(`${SUPA_URL}/rest/v1/order_bids?order_id=eq.${orderData.id}&manufacturer_id=eq.${currentUser.id}&select=*`, { headers: H });
     const bids = await res.json();
     const el = document.getElementById('my-bid-record');
-    if (!el) return;
-    if (bids?.length) {
-      const b = bids[0];
-      el.innerHTML = `<div class="bid-record">
-        <div class="bid-record-label">Your Current Bid</div>
-        <div class="bid-price">₹${Number(b.price_per_unit).toLocaleString('en-IN')} / unit</div>
-        ${b.notes ? `<div class="bid-meta">${b.notes}</div>` : ''}
-        <div class="bid-meta" style="margin-top:6px;">Submitted ${new Date(b.submitted_at).toLocaleString('en-IN')}</div>
-      </div>`;
-    }
+    if (!el || !bids?.length) return;
+    const b = bids[0];
+    el.innerHTML = `<div class="bid-record">
+      <div class="bid-record-label">Your Current Bid</div>
+      <div class="bid-price">₹${Number(b.price_per_unit).toLocaleString('en-IN')} / unit</div>
+      ${b.notes ? `<div class="bid-meta" style="margin-bottom:4px;">${b.notes}</div>` : ''}
+      <div class="bid-meta">Submitted ${new Date(b.submitted_at).toLocaleString('en-IN')}</div>
+    </div>`;
+    const btn = document.getElementById('bid-btn');
+    if (btn) { btn.textContent = 'Update Bid →'; }
   }
 
   async function submitBid() {
-    const price = parseFloat(document.getElementById('bid-price').value);
-    const notes = document.getElementById('bid-notes').value.trim();
+    const price = parseFloat(document.getElementById('bid-price')?.value);
+    const notes = document.getElementById('bid-notes')?.value.trim();
     const msg = document.getElementById('bid-msg');
     const btn = document.getElementById('bid-btn');
-    if (!price || price <= 0) { showMsg(msg, 'error', 'Enter a valid price per unit.'); return; }
+    if (!price || price <= 0) { showMsg(msg, 'error', 'Please enter a valid price per unit.'); return; }
     btn.disabled = true; btn.textContent = 'Submitting...';
     try {
-      const res = await fetch(`${SUPA_URL}/rest/v1/order_bids`, {
-        method: 'POST', headers: { ...H, 'Prefer': 'return=minimal' },
-        body: JSON.stringify({ order_id: orderId, manufacturer_id: currentUser.id, company_name: currentUser.company_name, mobile: currentUser.mobile, email: currentUser.email, price_per_unit: price, notes: notes||null })
-      });
-      if (!res.ok) throw new Error(await res.text());
-      showMsg(msg, 'success', `Bid of ₹${price.toLocaleString('en-IN')}/unit submitted successfully! The Invictus IMC team will review all bids and contact you.`);
+      // Check if bid already exists — upsert
+      const existing = await fetch(`${SUPA_URL}/rest/v1/order_bids?order_id=eq.${orderData.id}&manufacturer_id=eq.${currentUser.id}&select=id`, { headers: H });
+      const existingBids = await existing.json();
+
+      if (existingBids?.length) {
+        await fetch(`${SUPA_URL}/rest/v1/order_bids?id=eq.${existingBids[0].id}`, {
+          method: 'PATCH', headers: { ...H, 'Prefer': 'return=minimal' },
+          body: JSON.stringify({ price_per_unit: price, notes: notes||null, submitted_at: new Date().toISOString() })
+        });
+      } else {
+        const res = await fetch(`${SUPA_URL}/rest/v1/order_bids`, {
+          method: 'POST', headers: { ...H, 'Prefer': 'return=minimal' },
+          body: JSON.stringify({ order_id: orderData.id, manufacturer_id: currentUser.id, company_name: currentUser.company_name, mobile: currentUser.mobile, email: currentUser.email||null, price_per_unit: price, notes: notes||null })
+        });
+        if (!res.ok) throw new Error(await res.text());
+      }
+
+      showMsg(msg, 'success', `Bid of ₹${price.toLocaleString('en-IN')}/unit submitted! The Invictus IMC team will review all bids and contact you within 48 hours.`);
       btn.textContent = 'Bid Submitted ✓';
       loadMyBid();
-    } catch(e) { showMsg(msg, 'error', 'Error: ' + e.message); btn.disabled = false; btn.textContent = 'Submit Bid →'; }
+    } catch(e) { showMsg(msg, 'error', 'Error submitting bid: ' + e.message); btn.disabled = false; btn.textContent = 'Submit Bid →'; }
   }
 
-  function showMsg(el, type, text) { el.className = 'msg ' + type; el.textContent = text; }
+  function showMsg(el, type, text) {
+    if (!el) return;
+    el.className = 'msg ' + type; el.textContent = text;
+    el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
   function showNotFound() {
-    document.getElementById('main-content').innerHTML = `<div class="order-not-found"><h2>Order not found</h2><p style="color:var(--ink-mid);font-size:14px;margin-top:8px;">This order may have expired or the link is incorrect.</p></div>`;
+    document.getElementById('main-content').innerHTML = `<div class="order-not-found"><h2>Order not found</h2><p style="color:var(--ink-mid);font-size:14px;margin-top:8px;">This order may have expired or the link may be incorrect. Contact connect@invictusimc.com for help.</p></div>`;
   }
 </script>
 </body>
