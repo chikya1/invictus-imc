@@ -2715,6 +2715,7 @@
             <button class="btn-edit" onclick="copyOrderLink('${link}')">Link</button>
             <button class="btn-edit" onclick="whatsappOrder('${o.order_code}','${o.part_name.replace(/'/g,'')}','${link}')">WhatsApp</button>
             <button class="btn-edit" style="color:var(--gold);background:var(--gold-dim);border-color:var(--gold-border);" onclick="openSplitModal('${o.id}','${o.order_code}','${o.part_name.replace(/'/g,'')}','${o.monthly_quantity||o.annual_quantity||''}')">Split</button>
+            <button class="btn-edit" style="color:${o.featured?'#3DAA6E':'var(--muted)'};background:${o.featured?'rgba(61,170,110,0.1)':'var(--surface)'};border-color:${o.featured?'rgba(61,170,110,0.3)':'var(--border)'};" onclick="toggleFeatured('${o.id}',${o.featured})">${o.featured?'★ Featured':'☆ Feature'}</button>
             <button class="btn-del" onclick="archiveOrder('${o.id}')">Archive</button>
           </div></td>
         </tr>${subRows}`;
@@ -2826,6 +2827,14 @@
   function whatsappOrder(code, part, link) {
     const msg = encodeURIComponent(`*Bid for Manufacturing Order — ${code}*\n\nPart: ${part}\n\nTo view full specs and submit your bid:\n${link}\n\n_Invictus IMC — India Manufacturing Company_`);
     window.open(`https://wa.me/?text=${msg}`, '_blank');
+  }
+
+  async function toggleFeatured(id, currentlyFeatured) {
+    await fetch(`${SUPA_URL}/rest/v1/manufacturing_orders?id=eq.${id}`, {
+      method: 'PATCH', headers: { 'apikey': SUPA_ANON, 'Authorization': 'Bearer ' + SUPA_ANON, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ featured: !currentlyFeatured })
+    });
+    loadOrders();
   }
 
   async function archiveOrder(id) {

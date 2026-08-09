@@ -470,6 +470,7 @@
   </div>
 
   <div class="nav-right">
+    <a href="/my-account" style="font-family:var(--sans);font-size:11px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);text-decoration:none;border:1px solid var(--gold-border);padding:8px 16px;margin-right:8px;">My Account</a>
     <a href="/buyers-club" class="btn-nav-gold">Request Membership</a>
   </div>
 
@@ -485,6 +486,7 @@
   <a href="/product-analyser" style="color:var(--gold);">✦ AI Product Analysis</a>
   <a href="#industries" onclick="closeMobileMenu()">Industries</a>
   <a href="#clubs" onclick="closeMobileMenu()">About</a>
+  <a href="/my-account" class="mob-gold">My Account →</a>
   <a href="/buyers-club" class="mob-gold">Request Membership →</a>
 </div>
 
@@ -846,12 +848,15 @@
         headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
         body: JSON.stringify({ company_name: company, what_they_need: product, contact_name: name, mobile, email, source: 'buyer', also_manufacturer: alsoMfg, also_buyer: false })
       });
-      if (!res.ok) throw new Error('Failed');
+      if (!res.ok) {
+        const errText = await res.text();
+        throw new Error(errText);
+      }
       showMsg('buyer-msg', 'success', 'Interest received. An IMC account manager will contact you within 48 hours to understand your requirements and get you started.');
       ['b-company','b-product','b-name','b-mobile','b-email'].forEach(id => document.getElementById(id).value = '');
       document.getElementById('b-also-mfg').checked = false;
     } catch(e) {
-      showMsg('buyer-msg', 'error', 'Something went wrong. Please try again or email connect@invictusimc.com');
+      showMsg('buyer-msg', 'error', 'Something went wrong: ' + e.message + ' — or email connect@invictusimc.com');
     }
     btn.disabled = false; btn.textContent = 'Get a Callback';
   }
@@ -879,12 +884,15 @@
         headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
         body: JSON.stringify({ company_name: company, what_they_need: product, contact_name: name, city, email, mobile, source: 'manufacturer', also_buyer: alsoBuyer, also_manufacturer: false })
       });
-      if (!res.ok) throw new Error('Failed');
+      if (!res.ok) {
+        const errText = await res.text();
+        throw new Error(errText);
+      }
       showMsg('mfg-msg', 'success', 'Interest received. An IMC account manager will visit or call you within 48 hours to understand your capacity and discuss how we can fill your order book.');
       ['m-company','m-product','m-name','m-city','m-email','m-mobile'].forEach(id => document.getElementById(id).value = '');
       document.getElementById('m-also-buyer').checked = false;
     } catch(e) {
-      showMsg('mfg-msg', 'error', 'Something went wrong. Please try again or email connect@invictusimc.com');
+      showMsg('mfg-msg', 'error', 'Something went wrong: ' + e.message + ' — or email connect@invictusimc.com');
     }
     btn.disabled = false; btn.textContent = 'Get a Callback';
   }

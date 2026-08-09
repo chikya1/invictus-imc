@@ -301,6 +301,25 @@
         <input type="number" class="field-input" id="bid-price" placeholder="e.g. 850" min="0" step="0.01" inputmode="decimal" />
         <label class="field-label">Notes <span class="field-opt">(optional)</span></label>
         <textarea class="field-input" id="bid-notes" placeholder="Lead time, certifications, capacity, tooling details..."></textarea>
+
+        <!-- Partial bid toggle -->
+        <div style="margin-top:16px;background:var(--ivory);border:1px solid var(--border);padding:14px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
+            <div>
+              <div style="font-size:12px;font-weight:500;color:var(--ink);margin-bottom:2px;">Can you fulfil a partial quantity?</div>
+              <div style="font-size:11px;color:var(--ink-mid);">Default is 100% of the order. Toggle if you can only take part of it.</div>
+            </div>
+            <label style="position:relative;display:inline-block;width:44px;height:24px;flex-shrink:0;">
+              <input type="checkbox" id="partial-toggle" onchange="togglePartial()" style="opacity:0;width:0;height:0;" />
+              <span id="partial-slider" style="position:absolute;cursor:pointer;inset:0;background:var(--border);transition:0.2s;border-radius:24px;"></span>
+            </label>
+          </div>
+          <div id="partial-fields" style="display:none;margin-top:12px;border-top:1px solid var(--border);padding-top:12px;">
+            <label class="field-label">Quantity I can supply</label>
+            <input type="text" class="field-input" id="partial-qty" placeholder="e.g. 1,500 units/month or 40%" />
+          </div>
+        </div>
+
         <div class="partial-note">
           <span class="partial-note-icon">ℹ</span>
           <span>If selected, Invictus IMC decides whether you receive the complete order or a portion of it based on capacity and requirements.</span>
@@ -412,35 +431,42 @@
     if (btn) { btn.textContent = 'Update Bid →'; }
   }
 
+  function togglePartial() {
+    const checked = document.getElementById('partial-toggle').checked;
+    const slider = document.getElementById('partial-slider');
+    const fields = document.getElementById('partial-fields');
+    slider.style.background = checked ? 'var(--gold)' : 'var(--border)';
+    fields.style.display = checked ? 'block' : 'none';
+  }
+
   async function submitBid() {
     const price = parseFloat(document.getElementById('bid-price')?.value);
     const notes = document.getElementById('bid-notes')?.value.trim();
+    const isPartial = document.getElementById('partial-toggle')?.checked;
+    const partialQty = document.getElementById('partial-qty')?.value.trim();
     const msg = document.getElementById('bid-msg');
     const btn = document.getElementById('bid-btn');
     if (!price || price <= 0) { showMsg(msg, 'error', 'Please enter a valid price per unit.'); return; }
+    if (isPartial && !partialQty) { showMsg(msg, 'error', 'Please specify the quantity you can supply.'); return; }
     btn.disabled = true; btn.textContent = 'Submitting...';
     try {
-      // Check if bid already exists — upsert
       const existing = await fetch(`${SUPA_URL}/rest/v1/order_bids?order_id=eq.${orderData.id}&manufacturer_id=eq.${currentUser.id}&select=id`, { headers: H });
       const existingBids = await existing.json();
+      const bidData = { price_per_unit: price, notes: notes||null, partial_bid: isPartial||false, partial_quantity: isPartial ? partialQty : null, submitted_at: new Date().toISOString() };
 
       if (existingBids?.length) {
-        await fetch(`${SUPA_URL}/rest/v1/order_bids?id=eq.${existingBids[0].id}`, {
-          method: 'PATCH', headers: { ...H, 'Prefer': 'return=minimal' },
-          body: JSON.stringify({ price_per_unit: price, notes: notes||null, submitted_at: new Date().toISOString() })
-        });
+        await fetch(`${SUPA_URL}/rest/v1/order_bids?id=eq.${existingBids[0].id}`, { method: 'PATCH', headers: { ...H, 'Prefer': 'return=minimal' }, body: JSON.stringify(bidData) });
       } else {
         const res = await fetch(`${SUPA_URL}/rest/v1/order_bids`, {
           method: 'POST', headers: { ...H, 'Prefer': 'return=minimal' },
-          body: JSON.stringify({ order_id: orderData.id, manufacturer_id: currentUser.id, company_name: currentUser.company_name, mobile: currentUser.mobile, email: currentUser.email||null, price_per_unit: price, notes: notes||null })
+          body: JSON.stringify({ order_id: orderData.id, manufacturer_id: currentUser.id, company_name: currentUser.company_name, mobile: currentUser.mobile, email: currentUser.email||null, ...bidData })
         });
         if (!res.ok) throw new Error(await res.text());
       }
-
-      showMsg(msg, 'success', `Bid of ₹${price.toLocaleString('en-IN')}/unit submitted! The Invictus IMC team will review all bids and contact you within 48 hours.`);
+      showMsg(msg, 'success', `Bid of ₹${price.toLocaleString('en-IN')}/unit submitted! The Invictus IMC team will review and contact you within 48 hours.`);
       btn.textContent = 'Bid Submitted ✓';
       loadMyBid();
-    } catch(e) { showMsg(msg, 'error', 'Error submitting bid: ' + e.message); btn.disabled = false; btn.textContent = 'Submit Bid →'; }
+    } catch(e) { showMsg(msg, 'error', 'Error: ' + e.message); btn.disabled = false; btn.textContent = 'Submit Bid →'; }
   }
 
   function showMsg(el, type, text) {

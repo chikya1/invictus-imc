@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/png" href="/INVICTUS_LOGO.png" />
+  <title>My Account — Invictus IMC</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --ivory: #F7F6F3; --white: #FFFFFF; --void: #0A0A0A;
+      --ink: #1A1A1A; --ink-mid: #555; --border: #E2E0DC;
+      --gold: #C8860A; --gold-light: #E09B12; --gold-border: rgba(200,134,10,0.35); --gold-dim: rgba(200,134,10,0.08);
+      --serif: 'Cormorant Garamond', Georgia, serif; --sans: 'Outfit', sans-serif;
+      --success: #2E7D32; --error: #c0392b;
+    }
+    body { font-family: var(--sans); background: var(--ivory); color: var(--ink); min-height: 100vh; -webkit-text-size-adjust: 100%; }
+
+    .topbar { background: var(--void); padding: 0 16px; height: 52px; display: flex; align-items: center; justify-content: space-between; }
+    .topbar-logo { font-family: var(--serif); font-size: 14px; font-weight: 600; letter-spacing: 2px; color: #F5F2EC; text-transform: uppercase; text-decoration: none; display: flex; align-items: center; gap: 8px; }
+    .topbar-back { font-size: 11px; color: rgba(255,255,255,0.45); text-decoration: none; border: 1px solid rgba(255,255,255,0.15); padding: 5px 10px; }
+    @media(min-width:600px) { .topbar { padding: 0 24px; } }
+
+    .hero { background: var(--void); padding: 28px 16px; border-bottom: 1px solid rgba(200,134,10,0.15); }
+    .hero-eyebrow { font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); margin-bottom: 8px; }
+    .hero-h1 { font-family: var(--serif); font-size: 28px; font-weight: 400; color: #F5F2EC; }
+    .hero-h1 em { font-style: italic; color: var(--gold); }
+    @media(min-width:600px) { .hero { padding: 36px 24px; } .hero-h1 { font-size: 34px; } }
+
+    .content { max-width: 720px; margin: 0 auto; padding: 24px 16px 60px; }
+    @media(min-width:600px) { .content { padding: 36px 24px 60px; } }
+
+    /* AUTH CARD */
+    .auth-card { background: var(--white); border: 1px solid var(--border); border-left: 3px solid var(--gold); padding: 24px 20px; margin-bottom: 16px; }
+    @media(min-width:600px) { .auth-card { padding: 32px 28px; } }
+    .auth-card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 6px; }
+    .auth-title { font-family: var(--serif); font-size: 22px; font-weight: 400; color: var(--ink); }
+    .auth-toggle { flex-shrink: 0; text-align: right; padding-top: 4px; }
+    .auth-toggle span { font-size: 11px; color: var(--ink-mid); display: block; }
+    .auth-toggle button { font-family: var(--sans); font-size: 12px; font-weight: 600; color: var(--gold); background: none; border: none; cursor: pointer; text-decoration: underline; padding: 0; }
+    .auth-sub { font-size: 13px; color: var(--ink-mid); margin-bottom: 20px; line-height: 1.6; }
+
+    /* ACCOUNT TYPE TOGGLE */
+    .type-toggle { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--border); border: 1px solid var(--border); margin-bottom: 20px; }
+    .type-btn { font-family: var(--sans); font-size: 12px; font-weight: 500; letter-spacing: 1px; text-transform: uppercase; padding: 12px; background: var(--ivory); border: none; cursor: pointer; color: var(--ink-mid); transition: all 0.15s; }
+    .type-btn.active { background: var(--gold); color: var(--void); font-weight: 600; }
+
+    .field-label { font-size: 10px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--ink); display: block; margin-bottom: 6px; margin-top: 14px; }
+    .field-opt { font-size: 9px; font-weight: 400; color: var(--ink-mid); }
+    .field-input { width: 100%; font-family: var(--sans); font-size: 15px; color: var(--ink); background: var(--ivory); border: 1px solid var(--border); padding: 13px 14px; outline: none; transition: border-color 0.2s; -webkit-appearance: none; border-radius: 0; }
+    .field-input:focus { border-color: var(--gold-border); background: var(--white); }
+    .field-input::placeholder { color: rgba(26,26,26,0.3); font-size: 13px; }
+    .field-row { display: grid; grid-template-columns: 1fr; gap: 0; }
+    @media(min-width:500px) { .field-row { grid-template-columns: 1fr 1fr; gap: 12px; } }
+    .field-hint { font-size: 10px; color: var(--ink-mid); margin-top: 4px; }
+
+    .msg { font-size: 13px; padding: 12px 14px; margin-top: 14px; border: 1px solid; line-height: 1.6; display: none; }
+    .msg.success { background: rgba(46,125,50,0.08); border-color: rgba(46,125,50,0.3); color: var(--success); display: block; }
+    .msg.error { background: rgba(231,76,60,0.08); border-color: rgba(231,76,60,0.3); color: var(--error); display: block; }
+
+    .btn-gold { width: 100%; margin-top: 20px; font-family: var(--sans); font-size: 12px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--void); background: var(--gold); border: none; padding: 16px; cursor: pointer; -webkit-appearance: none; border-radius: 0; touch-action: manipulation; }
+    .btn-gold:hover { background: var(--gold-light); }
+    .btn-gold:disabled { opacity: 0.6; cursor: not-allowed; }
+    .btn-outline { width: 100%; margin-top: 10px; font-family: var(--sans); font-size: 12px; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gold); background: transparent; border: 1px solid var(--gold-border); padding: 14px; cursor: pointer; -webkit-appearance: none; border-radius: 0; }
+
+    /* ACCOUNT DASHBOARD */
+    .account-header { background: var(--white); border: 1px solid var(--border); border-left: 3px solid var(--gold); padding: 20px; margin-bottom: 16px; display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+    .account-name { font-family: var(--serif); font-size: 24px; color: var(--ink); margin-bottom: 4px; }
+    .account-type-badge { display: inline-block; font-size: 9px; letter-spacing: 2px; text-transform: uppercase; padding: 4px 10px; background: var(--gold-dim); border: 1px solid var(--gold-border); color: var(--gold); margin-bottom: 8px; }
+    .account-meta { font-size: 12px; color: var(--ink-mid); line-height: 1.8; }
+    .account-status { font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; padding: 4px 10px; border: 1px solid; }
+    .status-pending { color: var(--gold); border-color: var(--gold-border); background: var(--gold-dim); }
+    .status-approved { color: var(--success); border-color: rgba(46,125,50,0.3); background: rgba(46,125,50,0.08); }
+
+    .section-title { font-family: var(--serif); font-size: 20px; font-weight: 400; color: var(--ink); margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+    .section-wrap { margin-bottom: 24px; }
+
+    .order-card { background: var(--white); border: 1px solid var(--border); padding: 16px; margin-bottom: 10px; }
+    .order-card-code { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); margin-bottom: 4px; }
+    .order-card-title { font-size: 15px; font-weight: 500; color: var(--ink); margin-bottom: 6px; }
+    .order-card-meta { font-size: 12px; color: var(--ink-mid); line-height: 1.7; }
+    .order-card-footer { margin-top: 12px; display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+    .bid-amount { font-size: 18px; font-family: var(--serif); color: var(--gold); font-weight: 400; }
+    .btn-small-gold { font-family: var(--sans); font-size: 10px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--void); background: var(--gold); border: none; padding: 8px 16px; cursor: pointer; text-decoration: none; display: inline-block; }
+    .btn-small-outline { font-family: var(--sans); font-size: 10px; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gold); background: transparent; border: 1px solid var(--gold-border); padding: 8px 16px; cursor: pointer; text-decoration: none; display: inline-block; }
+    .empty-state { text-align: center; padding: 32px 20px; background: var(--white); border: 1px solid var(--border); }
+    .empty-state p { font-size: 13px; color: var(--ink-mid); }
+
+    footer { background: var(--void); padding: 18px 16px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 6px; }
+    .footer-text { font-size: 10px; color: rgba(255,255,255,0.25); }
+    .footer-contact { font-size: 11px; color: rgba(200,134,10,0.6); }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="/" class="topbar-logo">
+    <img src="/INVICTUS_LOGO.png" style="width:24px;height:24px;object-fit:contain;" alt="" />
+    <span>Invictus IMC</span>
+  </a>
+  <a href="/" class="topbar-back">← Website</a>
+</div>
+
+<div class="hero">
+  <div class="hero-eyebrow">Member Area</div>
+  <h1 class="hero-h1">My <em>Account</em></h1>
+</div>
+
+<div class="content" id="main-content">
+  <div style="text-align:center;padding:40px;color:var(--ink-mid);">Loading...</div>
+</div>
+
+<footer>
+  <span class="footer-text">© 2025 Invictus IMC · SKYLabs India Private Limited</span>
+  <span class="footer-contact">connect@invictusimc.com</span>
+</footer>
+
+<script>
+  const SUPA_URL = 'https://nmjkzhquoxuuebzyotnx.supabase.co';
+  const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5tamt6aHF1b3h1dWVienlvdG54Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwNzY0MDEsImV4cCI6MjA5MTY1MjQwMX0.6uwyWMSLGhG259TY9x-vpUxNiENkYAXOqFEUI3aSv5M';
+  const H = { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY, 'Content-Type': 'application/json' };
+
+  let currentUser = null;
+  let accountType = null; // 'manufacturer' or 'buyer'
+  let showLogin = false;
+  let selectedType = 'manufacturer';
+
+  function simpleHash(str) {
+    let h = 0;
+    for (let i = 0; i < str.length; i++) { h = ((h << 5) - h) + str.charCodeAt(i); h = h & h; }
+    return Math.abs(h).toString(36);
+  }
+
+  window.onload = () => {
+    try {
+      const mfr = sessionStorage.getItem('mfr_user');
+      const buyer = sessionStorage.getItem('buyer_user');
+      if (mfr) { currentUser = JSON.parse(mfr); accountType = 'manufacturer'; }
+      else if (buyer) { currentUser = JSON.parse(buyer); accountType = 'buyer'; }
+    } catch(e) {}
+    render();
+  };
+
+  function render() {
+    if (currentUser) renderDashboard();
+    else renderAuth();
+  }
+
+  function renderAuth() {
+    document.getElementById('main-content').innerHTML = `
+      <div class="auth-card">
+        <div class="auth-card-header">
+          <div class="auth-title">${showLogin ? 'Login to your account' : 'Sign Up or Login'}</div>
+          <div class="auth-toggle">
+            <span>${showLogin ? 'New here?' : 'Already registered?'}</span>
+            <button onclick="showLogin=${!showLogin}; render();">${showLogin ? 'Create account' : 'Login →'}</button>
+          </div>
+        </div>
+        <p class="auth-sub">${showLogin ? 'Use your mobile number and password.' : 'One account for all your activity on Invictus IMC.'}</p>
+
+        <div class="type-toggle">
+          <button class="type-btn ${selectedType==='manufacturer'?'active':''}" onclick="selectedType='manufacturer'; render();">Manufacturer</button>
+          <button class="type-btn ${selectedType==='buyer'?'active':''}" onclick="selectedType='buyer'; render();">Buyer</button>
+        </div>
+
+        ${showLogin ? renderLoginForm() : renderSignupForm()}
+      </div>`;
+  }
+
+  function renderLoginForm() {
+    return `
+      <label class="field-label">Mobile Number</label>
+      <input type="tel" class="field-input" id="l-mobile" placeholder="+91 98765 43210" autocomplete="tel" />
+      <label class="field-label">Password</label>
+      <input type="password" class="field-input" id="l-password" placeholder="Your password" autocomplete="current-password" />
+      <div id="auth-msg" class="msg"></div>
+      <button class="btn-gold" onclick="login()">Login →</button>`;
+  }
+
+  function renderSignupForm() {
+    const isMfr = selectedType === 'manufacturer';
+    return `
+      <label class="field-label">Company ${isMfr ? '/ Factory' : ''} Name *</label>
+      <input type="text" class="field-input" id="s-company" placeholder="${isMfr ? 'Precision Parts Pvt Ltd' : 'Acme Industries Pvt Ltd'}" autocomplete="organization" />
+      <div class="field-row">
+        <div>
+          <label class="field-label">Mobile Number *</label>
+          <input type="tel" class="field-input" id="s-mobile" placeholder="+91 98765 43210" autocomplete="tel" />
+        </div>
+        <div>
+          <label class="field-label">Email <span class="field-opt">(optional)</span></label>
+          <input type="email" class="field-input" id="s-email" placeholder="you@company.com" autocomplete="email" />
+        </div>
+      </div>
+      <label class="field-label">Set Password *</label>
+      <input type="password" class="field-input" id="s-password" placeholder="6–15 characters" autocomplete="new-password" minlength="6" maxlength="15" />
+      <div class="field-hint">6 to 15 characters. No special character restrictions.</div>
+      <div id="auth-msg" class="msg"></div>
+      <button class="btn-gold" onclick="signup()">Create Account →</button>`;
+  }
+
+  async function signup() {
+    const company = document.getElementById('s-company')?.value.trim();
+    const mobile = document.getElementById('s-mobile')?.value.trim();
+    const email = (document.getElementById('s-email')?.value.trim()||'').toLowerCase();
+    const password = document.getElementById('s-password')?.value;
+    const msg = document.getElementById('auth-msg');
+
+    if (!company || !mobile || !password) { showMsg(msg,'error','Company name, mobile and password are required.'); return; }
+    if (password.length < 6 || password.length > 15) { showMsg(msg,'error','Password must be 6–15 characters.'); return; }
+
+    showMsg(msg,'success','Creating your account...');
+    const hash = simpleHash(password);
+    const table = selectedType === 'manufacturer' ? 'manufacturers' : 'buyers';
+    const sessionKey = selectedType === 'manufacturer' ? 'mfr_user' : 'buyer_user';
+
+    try {
+      // Check if mobile exists
+      const checkRes = await fetch(`${SUPA_URL}/rest/v1/${table}?poc_phone=eq.${encodeURIComponent(mobile)}&select=id`, { headers: H });
+      const existing = await checkRes.json();
+
+      let userId;
+      if (existing?.length) {
+        // Update existing record with password
+        userId = existing[0].id;
+        await fetch(`${SUPA_URL}/rest/v1/${table}?id=eq.${userId}`, {
+          method: 'PATCH', headers: { ...H, 'Prefer': 'return=minimal' },
+          body: JSON.stringify({ password_hash: hash, company_name: company, poc_email: email||null })
+        });
+      } else {
+        // Create new record
+        const res = await fetch(`${SUPA_URL}/rest/v1/${table}`, {
+          method: 'POST', headers: { ...H, 'Prefer': 'return=representation' },
+          body: JSON.stringify({ company_name: company, poc_phone: mobile, poc_email: email||null, mobile: mobile, password_hash: hash, status: 'pending', submitted_at: new Date().toISOString() })
+        });
+        if (!res.ok) throw new Error(await res.text());
+        const [rec] = await res.json();
+        userId = rec.id;
+      }
+
+      // Also create/update manufacturer_accounts for mfr (for order bidding)
+      if (selectedType === 'manufacturer') {
+        const maCheck = await fetch(`${SUPA_URL}/rest/v1/manufacturer_accounts?mobile=eq.${encodeURIComponent(mobile)}&select=id`, { headers: H });
+        const maExisting = await maCheck.json();
+        if (!maExisting?.length) {
+          await fetch(`${SUPA_URL}/rest/v1/manufacturer_accounts`, {
+            method: 'POST', headers: { ...H, 'Prefer': 'return=minimal' },
+            body: JSON.stringify({ company_name: company, mobile, email: email||null, password_hash: hash })
+          });
+        }
+      }
+
+      currentUser = { id: userId, company_name: company, mobile, email, type: selectedType };
+      accountType = selectedType;
+      sessionStorage.setItem(sessionKey, JSON.stringify(currentUser));
+      render();
+    } catch(e) { showMsg(msg,'error','Error: ' + e.message); }
+  }
+
+  async function login() {
+    const mobile = document.getElementById('l-mobile')?.value.trim();
+    const password = document.getElementById('l-password')?.value;
+    const msg = document.getElementById('auth-msg');
+    if (!mobile || !password) { showMsg(msg,'error','Enter your mobile and password.'); return; }
+
+    showMsg(msg,'success','Logging in...');
+    const hash = simpleHash(password);
+    const table = selectedType === 'manufacturer' ? 'manufacturers' : 'buyers';
+    const mobileField = selectedType === 'manufacturer' ? 'poc_phone' : 'poc_phone';
+    const sessionKey = selectedType === 'manufacturer' ? 'mfr_user' : 'buyer_user';
+
+    try {
+      const res = await fetch(`${SUPA_URL}/rest/v1/${table}?${mobileField}=eq.${encodeURIComponent(mobile)}&select=*`, { headers: H });
+      const users = await res.json();
+      if (!users?.length) { showMsg(msg,'error','No account found. Please sign up first.'); return; }
+      const u = users[0];
+      if (!u.password_hash) { showMsg(msg,'error','No password set for this account. Please sign up to set a password.'); return; }
+      if (u.password_hash !== hash) { showMsg(msg,'error','Incorrect password.'); return; }
+      await fetch(`${SUPA_URL}/rest/v1/${table}?id=eq.${u.id}`, { method: 'PATCH', headers: { ...H, 'Prefer': 'return=minimal' }, body: JSON.stringify({ last_login: new Date().toISOString() }) });
+      currentUser = { id: u.id, company_name: u.company_name, mobile: u.poc_phone||mobile, email: u.poc_email, status: u.status, type: selectedType };
+      accountType = selectedType;
+      sessionStorage.setItem(sessionKey, JSON.stringify(currentUser));
+      render();
+    } catch(e) { showMsg(msg,'error','Error: ' + e.message); }
+  }
+
+  async function renderDashboard() {
+    const isMfr = accountType === 'manufacturer';
+    let html = `
+      <div class="account-header">
+        <div>
+          <div class="account-type-badge">${isMfr ? 'Manufacturer' : 'Buyer'}</div>
+          <div class="account-name">${currentUser.company_name}</div>
+          <div class="account-meta">
+            ${currentUser.mobile ? `📱 ${currentUser.mobile}<br/>` : ''}
+            ${currentUser.email ? `✉ ${currentUser.email}<br/>` : ''}
+          </div>
+          ${currentUser.status ? `<span class="account-status status-${currentUser.status}">${currentUser.status}</span>` : ''}
+        </div>
+        <button class="btn-small-outline" onclick="logout()">Sign Out</button>
+      </div>`;
+
+    if (isMfr) {
+      html += await renderMfrDashboard();
+    } else {
+      html += await renderBuyerDashboard();
+    }
+
+    document.getElementById('main-content').innerHTML = html;
+  }
+
+  async function renderMfrDashboard() {
+    let html = '';
+
+    // My Bids
+    try {
+      // Get manufacturer_accounts id by mobile
+      const maRes = await fetch(`${SUPA_URL}/rest/v1/manufacturer_accounts?mobile=eq.${encodeURIComponent(currentUser.mobile)}&select=id`, { headers: H });
+      const maUsers = await maRes.json();
+
+      if (maUsers?.length) {
+        const maId = maUsers[0].id;
+        const bidsRes = await fetch(`${SUPA_URL}/rest/v1/order_bids?manufacturer_id=eq.${maId}&order=submitted_at.desc&select=*`, { headers: H });
+        const bids = await bidsRes.json();
+
+        html += `<div class="section-wrap"><div class="section-title">My Bids (${bids.length})</div>`;
+        if (!bids.length) {
+          html += `<div class="empty-state"><p>No bids submitted yet.</p></div>`;
+        } else {
+          // Get order details
+          const orderIds = [...new Set(bids.map(b => b.order_id))];
+          const ordersRes = await fetch(`${SUPA_URL}/rest/v1/manufacturing_orders?id=in.(${orderIds.join(',')})&select=id,order_code,part_name,status,slug`, { headers: H });
+          const orders = await ordersRes.json();
+          const orderMap = {};
+          orders.forEach(o => { orderMap[o.id] = o; });
+
+          bids.forEach(b => {
+            const o = orderMap[b.order_id] || {};
+            html += `<div class="order-card">
+              <div class="order-card-code">${o.order_code||'—'}</div>
+              <div class="order-card-title">${o.part_name||'—'}</div>
+              <div class="order-card-meta">Status: ${o.status||'—'} &nbsp;·&nbsp; Submitted ${new Date(b.submitted_at).toLocaleDateString('en-IN')}</div>
+              <div class="order-card-footer">
+                <div class="bid-amount">₹${Number(b.price_per_unit).toLocaleString('en-IN')}/unit ${b.partial_bid ? `<span style="font-size:12px;color:var(--ink-mid);">(${b.partial_quantity})</span>` : ''}</div>
+                ${o.status === 'open' ? `<a href="/order/${o.slug||o.id}" class="btn-small-gold">View Order</a>` : '<span style="font-size:11px;color:var(--ink-mid);">Order Closed</span>'}
+              </div>
+              ${b.notes ? `<div style="font-size:12px;color:var(--ink-mid);margin-top:8px;padding-top:8px;border-top:1px solid var(--border);">${b.notes}</div>` : ''}
+            </div>`;
+          });
+        }
+        html += `</div>`;
+      }
+    } catch(e) { html += `<div class="empty-state"><p>Error loading bids: ${e.message}</p></div>`; }
+
+    // Open Orders to Bid On
+    try {
+      const ordersRes = await fetch(`${SUPA_URL}/rest/v1/manufacturing_orders?status=eq.open&parent_order_id=is.null&order=created_at.desc&select=*`, { headers: H });
+      const orders = await ordersRes.json();
+      html += `<div class="section-wrap"><div class="section-title">Open Orders (${orders.length})</div>`;
+      if (!orders.length) {
+        html += `<div class="empty-state"><p>No open orders right now. Check back soon.</p></div>`;
+      } else {
+        orders.forEach(o => {
+          html += `<div class="order-card">
+            <div class="order-card-code">${o.order_code}</div>
+            <div class="order-card-title">${o.part_name}</div>
+            <div class="order-card-meta">
+              ${o.industry ? `Industry: ${o.industry}<br/>` : ''}
+              ${o.monthly_quantity ? `Qty/month: ${o.monthly_quantity}<br/>` : ''}
+              ${o.material ? `Material: ${o.material}` : ''}
+            </div>
+            <div class="order-card-footer">
+              <span></span>
+              <a href="/order/${o.slug||o.id}" class="btn-small-gold">View &amp; Bid →</a>
+            </div>
+          </div>`;
+        });
+      }
+      html += `</div>`;
+    } catch(e) {}
+
+    return html;
+  }
+
+  async function renderBuyerDashboard() {
+    return `<div class="empty-state"><p>Your buyer application has been received. Our team will reach out within 48 hours.<br/><br/>Questions? Email <a href="mailto:connect@invictusimc.com" style="color:var(--gold);">connect@invictusimc.com</a></p></div>`;
+  }
+
+  function logout() {
+    currentUser = null; accountType = null; showLogin = false;
+    sessionStorage.removeItem('mfr_user');
+    sessionStorage.removeItem('buyer_user');
+    render();
+  }
+
+  function showMsg(el, type, text) {
+    if (!el) return;
+    el.className = 'msg ' + type; el.textContent = text;
+    el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+</script>
+</body>
+</html>
