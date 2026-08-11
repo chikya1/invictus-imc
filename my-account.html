@@ -142,6 +142,9 @@
     render();
   };
 
+  function toggleAuthMode() { showLogin = !showLogin; render(); }
+  function setType(t) { selectedType = t; render(); }
+
   function render() {
     if (currentUser) renderDashboard();
     else renderAuth();
@@ -154,14 +157,14 @@
           <div class="auth-title">${showLogin ? 'Login to your account' : 'Sign Up or Login'}</div>
           <div class="auth-toggle">
             <span>${showLogin ? 'New here?' : 'Already registered?'}</span>
-            <button onclick="showLogin=${!showLogin}; render();">${showLogin ? 'Create account' : 'Login →'}</button>
+            <button onclick="toggleAuthMode()">${showLogin ? 'Create account' : 'Login →'}</button>
           </div>
         </div>
         <p class="auth-sub">${showLogin ? 'Use your mobile number and password.' : 'One account for all your activity on Invictus IMC.'}</p>
 
         <div class="type-toggle">
-          <button class="type-btn ${selectedType==='manufacturer'?'active':''}" onclick="selectedType='manufacturer'; render();">Manufacturer</button>
-          <button class="type-btn ${selectedType==='buyer'?'active':''}" onclick="selectedType='buyer'; render();">Buyer</button>
+          <button class="type-btn ${selectedType==='manufacturer'?'active':''}" onclick="setType('manufacturer')">Manufacturer</button>
+          <button class="type-btn ${selectedType==='buyer'?'active':''}" onclick="setType('buyer')">Buyer</button>
         </div>
 
         ${showLogin ? renderLoginForm() : renderSignupForm()}

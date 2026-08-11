@@ -777,6 +777,19 @@
     </div>
   </section>
 
+  <!-- FEATURED MANUFACTURING ORDERS — shown first -->
+  <div class="divider reveal">
+    <div class="divider-line"></div>
+    <div class="divider-text">Open Manufacturing Orders — Bid Now</div>
+    <div class="divider-line"></div>
+  </div>
+
+  <section class="mi-section reveal">
+    <div id="featured-orders-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;">
+      <div style="text-align:center;padding:40px;color:var(--ink-mid);font-size:14px;grid-column:1/-1;">Loading orders...</div>
+    </div>
+  </section>
+
   <!-- DPIIT 102 PRODUCTS SECTION -->
   <div class="divider reveal">
     <div class="divider-line"></div>
@@ -889,17 +902,6 @@
   <!-- MARKET INTELLIGENCE -->
   <div class="divider reveal">
     <div class="divider-line"></div>
-    <div class="divider-text">Open Manufacturing Orders — Bid Now</div>
-    <div class="divider-line"></div>
-  </div>
-
-  <!-- FEATURED ORDERS SECTION -->
-  <section class="mi-section reveal">
-    <div id="featured-orders-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;">
-      <div style="text-align:center;padding:40px;color:var(--ink-mid);font-size:14px;grid-column:1/-1;">Loading orders...</div>
-    </div>
-  </section>
-
   <!-- LIVE REQUIREMENTS -->
   <div class="divider reveal">
     <div class="divider-line"></div>
@@ -1037,7 +1039,8 @@
       const data = getMIData();
       const grid = document.getElementById('mi-grid');
       const filtered = filter ? data.filter(d => d.sector === filter) : data;
-      document.getElementById('mi-count').textContent = filtered.length + ' datasets';
+      const miCountEl = document.getElementById('mi-count');
+      if (miCountEl) miCountEl.textContent = filtered.length + ' datasets';
 
       if (filtered.length === 0) {
         grid.innerHTML = '<div class="empty-state"><p>No market intelligence data available in this sector yet.</p></div>';
@@ -1167,7 +1170,7 @@
     async function loadDPIITProducts() {
       try {
         const res = await fetch(
-          `${SUPABASE_URL}/rest/v1/market_intelligence?dpiit_cohort=not.is.null&is_active=eq.true&order=dpiit_cohort.asc,product.asc&select=*`,
+          `${SUPABASE_URL}/rest/v1/market_intelligence?dpiit_cohort=not.is.null&order=dpiit_cohort.asc,product.asc&select=*`,
           { headers: { 'apikey': SUPABASE_ANON, 'Authorization': 'Bearer ' + SUPABASE_ANON } }
         );
         if (!res.ok) throw new Error('Failed to fetch');
