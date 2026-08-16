@@ -1084,7 +1084,7 @@
       const data = getReqData();
       const grid = document.getElementById('req-grid');
       const filtered = filter && filter !== 'all' ? data.filter(d => d.industry === filter) : data;
-      document.getElementById('req-count').textContent = filtered.length + ' open requirements';
+      const reqEl = document.getElementById('req-count'); if(reqEl) reqEl.textContent = filtered.length + ' open requirements';
 
       if (filtered.length === 0) {
         grid.innerHTML = '<div class="empty-state"><p>No live requirements in this category right now.</p></div>';
@@ -1210,8 +1210,8 @@
       });
 
       dpiitCurrentPage = 1;
-      document.getElementById('dpiit-result-count').textContent = dpiitFiltered.length + ' products';
-      document.getElementById('dpiit-divider-count').textContent = dpiitAllProducts.length + ' products';
+      const drEl = document.getElementById('dpiit-result-count'); if(drEl) drEl.textContent = dpiitFiltered.length + ' products';
+      const ddEl = document.getElementById('dpiit-divider-count'); if(ddEl) ddEl.textContent = dpiitAllProducts.length + ' products';
       renderDPIITPage();
     }
 
@@ -1222,7 +1222,7 @@
 
       if (dpiitFiltered.length === 0) {
         list.innerHTML = '<div class="dpiit-empty"><p>No products match your search.</p></div>';
-        document.getElementById('dpiit-pagination').innerHTML = '';
+        const dpEl = document.getElementById('dpiit-pagination'); if(dpEl) dpEl.innerHTML = '';
         return;
       }
 
