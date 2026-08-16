@@ -1036,6 +1036,7 @@
     function renderMI(filter) {
       const data = getMIData();
       const grid = document.getElementById('mi-grid');
+      if (!grid) return;
       const filtered = filter ? data.filter(d => d.sector === filter) : data;
       const miCountEl = document.getElementById('mi-count');
       if (miCountEl) miCountEl.textContent = filtered.length + ' datasets';
