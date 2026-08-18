@@ -966,15 +966,22 @@
       <!-- ARCHIVED ORDERS TAB -->
       <div class="tab-panel" id="tab-order-archive">
         <div class="page-title">Archived <em>Orders</em></div>
-        <div class="page-subtitle">Closed and awarded orders. Reopen any order to accept new bids.</div>
+        <div class="page-subtitle">Closed and awarded orders. Restore to reopen for bidding, or delete permanently.</div>
         <div class="section-header">
           <div class="section-title">Archived <span id="archive-count" style="font-size:11px;color:var(--muted);margin-left:8px;"></span></div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn-edit" id="archive-restore-btn" onclick="bulkRestoreOrders()" style="display:none;padding:10px 16px;color:#3DAA6E;background:rgba(61,170,110,0.10);border-color:rgba(61,170,110,0.3);">Restore Selected</button>
+            <button class="btn-del" id="archive-delete-btn" onclick="bulkDeleteOrders()" style="display:none;padding:10px 16px;">Delete Selected</button>
+          </div>
         </div>
         <table class="admin-table">
           <thead>
-            <tr><th>Order Code</th><th>Part Name</th><th>Industry</th><th>Status</th><th>Bids</th><th>Archived</th><th>Actions</th></tr>
+            <tr>
+              <th><input type="checkbox" id="archive-check-all" onchange="toggleAllArchiveChecks(this.checked)" /></th>
+              <th>Order Code</th><th>Part Name</th><th>Industry</th><th>Status</th><th>Bids</th><th>Archived</th><th>Actions</th>
+            </tr>
           </thead>
-          <tbody id="archive-tbody"><tr><td colspan="7" class="table-empty">Loading...</td></tr></tbody>
+          <tbody id="archive-tbody"><tr><td colspan="8" class="table-empty">Loading...</td></tr></tbody>
         </table>
       </div>
 
@@ -2843,6 +2850,39 @@
     loadOrders();
   }
 
+  function toggleAllArchiveChecks(checked) {
+    document.querySelectorAll('.archive-check-item').forEach(cb => cb.checked = checked);
+    updateArchiveBtns();
+  }
+
+  function updateArchiveBtns() {
+    const count = document.querySelectorAll('.archive-check-item:checked').length;
+    document.getElementById('archive-restore-btn').style.display = count > 0 ? 'inline-block' : 'none';
+    document.getElementById('archive-delete-btn').style.display = count > 0 ? 'inline-block' : 'none';
+  }
+
+  async function bulkRestoreOrders() {
+    const selected = [...document.querySelectorAll('.archive-check-item:checked')].map(cb => cb.value);
+    if (!selected.length) return;
+    if (!confirm(`Restore ${selected.length} order(s)? They will move back to Manufacturing Orders and accept new bids.`)) return;
+    for (const id of selected) {
+      await fetch(`${SUPA_URL}/rest/v1/manufacturing_orders?id=eq.${id}`, { method: 'PATCH', headers: { 'apikey': SUPA_ANON, 'Authorization': 'Bearer ' + SUPA_ANON, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' }, body: JSON.stringify({ status: 'open' }) });
+    }
+    loadArchivedOrders();
+    loadOrders();
+  }
+
+  async function bulkDeleteOrders() {
+    const selected = [...document.querySelectorAll('.archive-check-item:checked')].map(cb => cb.value);
+    if (!selected.length) return;
+    if (!confirm(`Permanently delete ${selected.length} order(s) and all their bids? This cannot be undone.`)) return;
+    for (const id of selected) {
+      await fetch(`${SUPA_URL}/rest/v1/order_bids?order_id=eq.${id}`, { method: 'DELETE', headers: { 'apikey': SUPA_ANON, 'Authorization': 'Bearer ' + SUPA_ANON, 'Prefer': 'return=minimal' } });
+      await fetch(`${SUPA_URL}/rest/v1/manufacturing_orders?id=eq.${id}`, { method: 'DELETE', headers: { 'apikey': SUPA_ANON, 'Authorization': 'Bearer ' + SUPA_ANON, 'Prefer': 'return=minimal' } });
+    }
+    loadArchivedOrders();
+  }
+
   async function reopenOrder(id) {
     if (!confirm('Reopen this order? It will appear in Manufacturing Orders and accept new bids.')) return;
     await fetch(`${SUPA_URL}/rest/v1/manufacturing_orders?id=eq.${id}`, { method: 'PATCH', headers: { 'apikey': SUPA_ANON, 'Authorization': 'Bearer ' + SUPA_ANON, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' }, body: JSON.stringify({ status: 'open' }) });
@@ -2874,6 +2914,7 @@
       tbody.innerHTML = orders.map(o => {
         const sc = o.status === 'awarded' ? 'var(--gold)' : 'var(--muted)';
         return `<tr>
+          <td><input type="checkbox" class="archive-check-item" value="${o.id}" onchange="updateArchiveBtns()" /></td>
           <td><span style="font-family:monospace;font-size:12px;color:var(--muted);">${o.order_code}</span></td>
           <td><strong>${o.part_name}</strong></td>
           <td class="td-muted">${o.industry||'—'}</td>
@@ -2881,7 +2922,7 @@
           <td style="text-align:center;color:var(--muted);">${bidCounts[o.id]||0}</td>
           <td class="td-muted" style="font-size:11px;">${new Date(o.created_at).toLocaleDateString('en-IN')}</td>
           <td><div class="td-actions">
-            <button class="btn-edit" style="color:#3DAA6E;background:rgba(61,170,110,0.10);border-color:rgba(61,170,110,0.3);" onclick="reopenOrder('${o.id}')">Reopen</button>
+            <button class="btn-edit" style="color:#3DAA6E;background:rgba(61,170,110,0.10);border-color:rgba(61,170,110,0.3);" onclick="reopenOrder('${o.id}')">Restore</button>
             <button class="btn-del" onclick="deleteOrder('${o.id}')">Delete</button>
           </div></td>
         </tr>`;
