@@ -96,8 +96,28 @@
     .hero h1 { font-family: var(--serif); font-size: 64px; font-weight: 400; line-height: 1.06; letter-spacing: -1px; color: #FFFFFF; }
     .hero h1 em { font-style: italic; color: var(--gold); }
 
-    /* FLOW BAR — below hero, separate dark section */
-    .flow-bar { display: grid; grid-template-columns: 1fr 1fr 1fr; background: rgba(8,6,4,0.96); border-bottom: 1px solid rgba(200,134,10,0.15); }
+    /* CAROUSEL */
+    .carousel-section { background: var(--void); padding: 32px 0; border-bottom: 1px solid rgba(200,134,10,0.12); overflow: hidden; }
+    .carousel-header { display: flex; align-items: center; justify-content: space-between; padding: 0 40px; margin-bottom: 20px; }
+    .carousel-label { font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); }
+    .carousel-link { font-size: 11px; color: rgba(255,255,255,0.4); text-decoration: none; letter-spacing: 1px; border: 1px solid rgba(255,255,255,0.1); padding: 5px 12px; transition: all 0.2s; }
+    .carousel-link:hover { color: var(--gold); border-color: var(--gold-border); }
+    .carousel-track-wrap { position: relative; }
+    .carousel-track { display: flex; gap: 16px; padding: 0 40px; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none; transition: transform 0.4s ease; }
+    .carousel-track::-webkit-scrollbar { display: none; }
+    .carousel-card { flex: 0 0 280px; background: rgba(255,255,255,0.04); border: 1px solid rgba(200,134,10,0.18); border-top: 2px solid var(--gold); scroll-snap-align: start; overflow: hidden; transition: border-color 0.2s; }
+    .carousel-card:hover { border-color: rgba(200,134,10,0.5); }
+    .carousel-card-img { width: 100%; height: 140px; object-fit: contain; background: #fff; display: block; }
+    .carousel-card-img-placeholder { width: 100%; height: 140px; background: rgba(255,255,255,0.04); display: flex; align-items: center; justify-content: center; }
+    .carousel-card-body { padding: 14px 16px; }
+    .carousel-card-code { font-size: 8px; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); margin-bottom: 4px; }
+    .carousel-card-title { font-family: var(--serif); font-size: 15px; color: #F5F2EC; line-height: 1.3; margin-bottom: 8px; }
+    .carousel-card-meta { font-size: 11px; color: rgba(255,255,255,0.4); line-height: 1.6; margin-bottom: 12px; }
+    .carousel-card-btn { display: inline-block; font-family: var(--sans); font-size: 9px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--void); background: var(--gold); padding: 8px 14px; text-decoration: none; }
+    .carousel-nav { display: flex; justify-content: center; gap: 6px; margin-top: 16px; padding: 0 40px; }
+    .carousel-dot { width: 6px; height: 6px; background: rgba(255,255,255,0.2); border: none; cursor: pointer; padding: 0; transition: background 0.2s; border-radius: 50%; }
+    .carousel-dot.active { background: var(--gold); }
+    @media(max-width:600px) { .carousel-header { padding: 0 20px; } .carousel-track { padding: 0 20px; } .carousel-card { flex: 0 0 240px; } }
     .flow-cell { padding: 16px 28px; border-right: 1px solid rgba(255,255,255,0.07); }
     .flow-cell:last-child { border-right: none; }
     .flow-cell-imc { padding: 16px 28px; background: rgba(200,134,10,0.07); border-left: 1px solid rgba(200,134,10,0.25); border-right: 1px solid rgba(200,134,10,0.25); }
@@ -520,6 +540,18 @@
   </div>
 </div>
 
+<!-- LIVE ORDERS CAROUSEL -->
+<div class="carousel-section" id="live-orders-carousel" style="display:none;">
+  <div class="carousel-header">
+    <span class="carousel-label">⟳ Live Manufacturing Orders</span>
+    <a href="/the-opportunity" class="carousel-link">View All Orders →</a>
+  </div>
+  <div class="carousel-track-wrap">
+    <div class="carousel-track" id="carousel-track"></div>
+  </div>
+  <div class="carousel-nav" id="carousel-nav"></div>
+</div>
+
 <!-- WRITEUP SECTION -->
 <div class="writeup-sec reveal">
   <div class="writeup-grid">
@@ -866,6 +898,42 @@
       showMsg('mfg-msg', 'error', 'Something went wrong: ' + e.message + ' — or email connect@invictusimc.com');
     }
     btn.disabled = false; btn.textContent = 'Get a Callback';
+  }
+
+  // LIVE ORDERS CAROUSEL
+  (async function loadCarousel() {
+    try {
+      const res = await fetch('https://nmjkzhquoxuuebzyotnx.supabase.co/rest/v1/manufacturing_orders?carousel=eq.true&status=eq.open&order=created_at.desc&select=*', {
+        headers: { 'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5tamt6aHF1b3h1dWVienlvdG54Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwNzY0MDEsImV4cCI6MjA5MTY1MjQwMX0.6uwyWMSLGhG259TY9x-vpUxNiENkYAXOqFEUI3aSv5M', 'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5tamt6aHF1b3h1dWVienlvdG54Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwNzY0MDEsImV4cCI6MjA5MTY1MjQwMX0.6uwyWMSLGhG259TY9x-vpUxNiENkYAXOqFEUI3aSv5M' }
+      });
+      const orders = await res.json();
+      if (!orders || !orders.length) return;
+      const section = document.getElementById('live-orders-carousel');
+      const track = document.getElementById('carousel-track');
+      const nav = document.getElementById('carousel-nav');
+      section.style.display = 'block';
+      track.innerHTML = orders.map(o => `
+        <div class="carousel-card">
+          ${o.drawing_url ? `<img src="${o.drawing_url}" class="carousel-card-img" alt="${o.part_name}" />` : `<div class="carousel-card-img-placeholder"><span style="font-size:11px;color:rgba(255,255,255,0.2);">No drawing</span></div>`}
+          <div class="carousel-card-body">
+            <div class="carousel-card-code">${o.order_code}</div>
+            <div class="carousel-card-title">${o.part_name}</div>
+            <div class="carousel-card-meta">${[o.industry, o.monthly_quantity ? o.monthly_quantity+'/mo' : null].filter(Boolean).join(' · ')}</div>
+            <a href="/order/${o.slug||o.id}" class="carousel-card-btn">Bid for This Order →</a>
+          </div>
+        </div>`).join('');
+      nav.innerHTML = orders.map((_,i) => `<button class="carousel-dot ${i===0?'active':''}" onclick="scrollCarousel(${i})"></button>`).join('');
+      let cur = 0;
+      setInterval(() => { cur = (cur + 1) % orders.length; scrollCarousel(cur); }, 4000);
+    } catch(e) {}
+  })();
+
+  function scrollCarousel(idx) {
+    const track = document.getElementById('carousel-track');
+    const cards = track.querySelectorAll('.carousel-card');
+    if (!cards[idx]) return;
+    track.scrollTo({ left: cards[idx].offsetLeft - 40, behavior: 'smooth' });
+    document.querySelectorAll('.carousel-dot').forEach((d,i) => d.classList.toggle('active', i===idx));
   }
 </script>
 </body>

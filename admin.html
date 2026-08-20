@@ -2723,6 +2723,7 @@
             <button class="btn-edit" onclick="whatsappOrder('${o.order_code}','${o.part_name.replace(/'/g,'')}','${link}')">WhatsApp</button>
             <button class="btn-edit" style="color:var(--gold);background:var(--gold-dim);border-color:var(--gold-border);" onclick="openSplitModal('${o.id}','${o.order_code}','${o.part_name.replace(/'/g,'')}','${o.monthly_quantity||o.annual_quantity||''}')">Split</button>
             <button class="btn-edit" style="color:${o.featured?'#3DAA6E':'var(--muted)'};background:${o.featured?'rgba(61,170,110,0.1)':'var(--surface)'};border-color:${o.featured?'rgba(61,170,110,0.3)':'var(--border)'};" onclick="toggleFeatured('${o.id}',${o.featured})">${o.featured?'★ Featured':'☆ Feature'}</button>
+            <button class="btn-edit" style="color:${o.carousel?'#4A90D9':'var(--muted)'};background:${o.carousel?'rgba(74,144,217,0.1)':'var(--surface)'};border-color:${o.carousel?'rgba(74,144,217,0.3)':'var(--border)'};" onclick="toggleCarousel('${o.id}',${o.carousel||false})">${o.carousel?'⟳ Carousel':'○ Carousel'}</button>
             <button class="btn-del" onclick="archiveOrder('${o.id}')">Archive</button>
           </div></td>
         </tr>${subRows}`;
@@ -2876,10 +2877,13 @@
     const selected = [...document.querySelectorAll('.archive-check-item:checked')].map(cb => cb.value);
     if (!selected.length) return;
     if (!confirm(`Permanently delete ${selected.length} order(s) and all their bids? This cannot be undone.`)) return;
+    let failed = 0;
     for (const id of selected) {
       await fetch(`${SUPA_URL}/rest/v1/order_bids?order_id=eq.${id}`, { method: 'DELETE', headers: { 'apikey': SUPA_ANON, 'Authorization': 'Bearer ' + SUPA_ANON, 'Prefer': 'return=minimal' } });
-      await fetch(`${SUPA_URL}/rest/v1/manufacturing_orders?id=eq.${id}`, { method: 'DELETE', headers: { 'apikey': SUPA_ANON, 'Authorization': 'Bearer ' + SUPA_ANON, 'Prefer': 'return=minimal' } });
+      const r = await fetch(`${SUPA_URL}/rest/v1/manufacturing_orders?id=eq.${id}`, { method: 'DELETE', headers: { 'apikey': SUPA_ANON, 'Authorization': 'Bearer ' + SUPA_ANON, 'Prefer': 'return=minimal' } });
+      if (!r.ok) failed++;
     }
+    if (failed) alert(`${failed} order(s) could not be deleted. Please check Supabase delete policy.`);
     loadArchivedOrders();
   }
 
@@ -2890,10 +2894,25 @@
     loadOrders();
   }
 
+  async function toggleCarousel(id, currentlyOn) {
+    // Max 6 carousel orders
+    if (!currentlyOn) {
+      const res = await fetch(`${SUPA_URL}/rest/v1/manufacturing_orders?carousel=eq.true&select=id`, { headers: { 'apikey': SUPA_ANON, 'Authorization': 'Bearer ' + SUPA_ANON } });
+      const current = await res.json();
+      if (current.length >= 6) { alert('Maximum 6 orders can be shown in the carousel. Remove one first.'); return; }
+    }
+    await fetch(`${SUPA_URL}/rest/v1/manufacturing_orders?id=eq.${id}`, {
+      method: 'PATCH', headers: { 'apikey': SUPA_ANON, 'Authorization': 'Bearer ' + SUPA_ANON, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ carousel: !currentlyOn })
+    });
+    loadOrders();
+  }
+
   async function deleteOrder(id) {
     if (!confirm('Permanently delete this order and all its bids? This cannot be undone.')) return;
-    await fetch(`${SUPA_URL}/rest/v1/order_bids?order_id=eq.${id}`, { method: 'DELETE', headers: { 'apikey': SUPA_ANON, 'Authorization': 'Bearer ' + SUPA_ANON, 'Prefer': 'return=minimal' } });
-    await fetch(`${SUPA_URL}/rest/v1/manufacturing_orders?id=eq.${id}`, { method: 'DELETE', headers: { 'apikey': SUPA_ANON, 'Authorization': 'Bearer ' + SUPA_ANON, 'Prefer': 'return=minimal' } });
+    const r1 = await fetch(`${SUPA_URL}/rest/v1/order_bids?order_id=eq.${id}`, { method: 'DELETE', headers: { 'apikey': SUPA_ANON, 'Authorization': 'Bearer ' + SUPA_ANON, 'Prefer': 'return=minimal' } });
+    const r2 = await fetch(`${SUPA_URL}/rest/v1/manufacturing_orders?id=eq.${id}`, { method: 'DELETE', headers: { 'apikey': SUPA_ANON, 'Authorization': 'Bearer ' + SUPA_ANON, 'Prefer': 'return=minimal' } });
+    if (!r2.ok) { alert('Delete failed: ' + await r2.text()); return; }
     loadArchivedOrders();
   }
 
