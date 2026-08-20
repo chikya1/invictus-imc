@@ -387,7 +387,52 @@
   }
 
   async function renderBuyerDashboard() {
-    return `<div class="empty-state"><p>Your buyer application has been received. Our team will reach out within 48 hours.<br/><br/>Questions? Email <a href="mailto:connect@invictusimc.com" style="color:var(--gold);">connect@invictusimc.com</a></p></div>`;
+    let html = '';
+    try {
+      // Fetch buyer's full application
+      const res = await fetch(`${SUPA_URL}/rest/v1/buyers?poc_phone=eq.${encodeURIComponent(currentUser.mobile)}&select=*`, { headers: H });
+      const buyers = await res.json();
+      const b = buyers?.[0];
+
+      if (b) {
+        // Application status
+        const statusColor = b.status === 'approved' ? '#2E7D32' : b.status === 'rejected' ? '#c0392b' : 'var(--gold)';
+        html += `<div class="section-wrap">
+          <div class="section-title">Application Status</div>
+          <div class="order-card">
+            <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+              <div>
+                <div class="order-card-title">${b.company_name}</div>
+                <div class="order-card-meta">${b.city||''}${b.state?', '+b.state:''} · ${b.buyer_type||'Buyer'}</div>
+              </div>
+              <span style="font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:6px 14px;border:1px solid;color:${statusColor};border-color:${statusColor};">${b.status||'Pending Review'}</span>
+            </div>
+            ${b.status === 'pending' ? `<p style="font-size:12px;color:var(--ink-mid);margin-top:12px;line-height:1.7;">Your application is under review. Our team will contact you at ${b.poc_email||currentUser.mobile} within 2 business days.</p>` : ''}
+            ${b.status === 'approved' ? `<p style="font-size:12px;color:#2E7D32;margin-top:12px;line-height:1.7;">Your application has been approved. Our team will reach out to discuss your requirements.</p>` : ''}
+          </div>
+        </div>`;
+
+        // Products they need
+        if (b.products && Array.isArray(b.products) && b.products.length) {
+          html += `<div class="section-wrap"><div class="section-title">Your Requirements (${b.products.length})</div>`;
+          b.products.forEach(p => {
+            html += `<div class="order-card">
+              <div class="order-card-title">${p.name||p}</div>
+              ${p.quantity ? `<div class="order-card-meta">Quantity: ${p.quantity}</div>` : ''}
+              ${p.currentSource ? `<div class="order-card-meta">Currently sourcing from: ${p.currentSource}</div>` : ''}
+            </div>`;
+          });
+          html += `</div>`;
+        }
+      } else {
+        html += `<div class="empty-state"><p>Your application details could not be found. Please contact connect@invictusimc.com</p></div>`;
+      }
+    } catch(e) {
+      html += `<div class="empty-state"><p>Error loading your account: ${e.message}</p></div>`;
+    }
+
+    html += `<div class="empty-state" style="margin-top:16px;"><p>Questions? Email <a href="mailto:connect@invictusimc.com" style="color:var(--gold);">connect@invictusimc.com</a> or call <a href="tel:+918217367948" style="color:var(--gold);">+91 82173 67948</a></p></div>`;
+    return html;
   }
 
   function logout() {

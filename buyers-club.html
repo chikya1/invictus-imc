@@ -5,29 +5,7 @@
   <meta charset="UTF-8" />
   <link rel="icon" type="image/png" href="/INVICTUS_LOGO.png" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Buyers Club — Source & Manufacture in India | Invictus IMC</title>
-  <meta name="description" content="Stop importing. Join the Invictus IMC Buyers Club and get your products manufactured in India — better quality, lower MOQ, no supplier management. Tell us what you need. We deliver it." />
-  <meta name="keywords" content="source manufacturing India, import substitution buyers, domestic procurement India, manufacture in India, industrial buyers club, managed sourcing India, localisation mandate India" />
-  <link rel="canonical" href="https://www.invictusimc.com/buyers-club" />
-  <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://www.invictusimc.com/buyers-club" />
-  <meta property="og:title" content="Buyers Club — Manufacture in India Instead of Importing" />
-  <meta property="og:description" content="Join Invictus IMC's Buyers Club. Tell us what you import. We manufacture it in India — end to end, one partner, full accountability." />
-  <meta property="og:image" content="https://www.invictusimc.com/manufacturing-collage.png" />
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Buyers Club — Invictus IMC" />
-  <meta name="twitter:description" content="Stop importing. Get it made in India. Invictus IMC manages everything." />
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "Service",
-    "name": "Invictus IMC Buyers Club",
-    "provider": { "@type": "Organization", "name": "Invictus IMC" },
-    "description": "The Buyers Club is a managed procurement membership for businesses that import or source industrial products. Members submit requirements and Invictus IMC handles manufacturer sourcing, production management, quality control, and delivery.",
-    "serviceType": "Managed Manufacturing Procurement",
-    "areaServed": { "@type": "Country", "name": "India" }
-  }
-  </script>
+  <title>The Buyers Club — Invictus IMC</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
@@ -994,6 +972,11 @@
         <div class="form-section-title">Review Your Application</div>
         <div id="review-content" style="background:var(--ivory);border:1px solid var(--ivory-border);padding:32px;margin-bottom:24px;line-height:2;"></div>
         <p style="font-size:13px;color:var(--ink-mid);line-height:1.7;margin-bottom:24px;">By submitting, you confirm all information is accurate. Our team will review and contact you within 2 business days.</p>
+        <div style="margin-bottom:24px;">
+          <label style="font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--ink);display:block;margin-bottom:8px;">Set a Password for Your Account *</label>
+          <input type="password" id="account-password" placeholder="6–15 characters" minlength="6" maxlength="15" style="width:100%;font-family:var(--sans);font-size:14px;color:var(--ink);background:var(--ivory);border:1px solid var(--ivory-border);padding:12px 14px;outline:none;" />
+          <p style="font-size:11px;color:var(--ink-mid);margin-top:6px;">Use this to log in to your Invictus IMC account at invictusimc.com/my-account</p>
+        </div>
         <div class="form-nav">
           <button class="btn-back" onclick="goToStep(3)">← Edit</button>
           <button class="btn-submit" onclick="submitForm()">Submit Application →</button>
@@ -1198,8 +1181,20 @@
 
   async function submitForm() {
     const btn = document.querySelector('.btn-submit');
+    const password = document.getElementById('account-password')?.value;
+    if (!password || password.length < 6) {
+      alert('Please set a password (minimum 6 characters) to create your account.');
+      return;
+    }
     btn.textContent = 'Submitting...';
     btn.disabled = true;
+
+    function simpleHash(str) {
+      let h = 0;
+      for (let i = 0; i < str.length; i++) { h = ((h << 5) - h) + str.charCodeAt(i); h = h & h; }
+      return Math.abs(h).toString(36);
+    }
+    const passwordHash = simpleHash(password);
 
     const application = {
       buyer_type: selectedBuyerType,
@@ -1214,23 +1209,19 @@
       poc_designation: document.getElementById('poc-designation').value,
       poc_email: document.getElementById('poc-email').value,
       poc_phone: document.getElementById('poc-phone').value,
+      mobile: document.getElementById('poc-phone').value,
       current_source: document.getElementById('current-source').value,
       source: document.getElementById('source').value,
       additional: document.getElementById('additional').value,
-      status: 'pending'
+      status: 'pending',
+      password_hash: passwordHash
     };
 
     try {
       const { error } = await _supa.from('buyers').insert([application]);
       if (error) throw error;
-      const existing = JSON.parse(localStorage.getItem('imc_buyer_apps') || '[]');
-      existing.push({...application, id: Date.now(), submittedAt: new Date().toLocaleString('en-IN')});
-      localStorage.setItem('imc_buyer_apps', JSON.stringify(existing));
     } catch(e) {
       console.error('Supabase error:', e);
-      const existing = JSON.parse(localStorage.getItem('imc_buyer_apps') || '[]');
-      existing.push({...application, id: Date.now(), submittedAt: new Date().toLocaleString('en-IN')});
-      localStorage.setItem('imc_buyer_apps', JSON.stringify(existing));
     }
 
     // Send confirmation email via Resend

@@ -5,29 +5,7 @@
   <meta charset="UTF-8" />
   <link rel="icon" type="image/png" href="/INVICTUS_LOGO.png" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Manufacturers Club — More Orders & On-Time Payments | Invictus IMC</title>
-  <meta name="description" content="Join the Invictus IMC Manufacturers Club. We bring you consistent orders from verified buyers, manage all communication and project timelines, and pay you on time — every time. You just manufacture." />
-  <meta name="keywords" content="manufacturing orders India, Indian factory orders, manufacturer network India, get manufacturing orders, on-time payment manufacturers India, managed manufacturing partner India" />
-  <link rel="canonical" href="https://www.invictusimc.com/manufacturers-club" />
-  <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://www.invictusimc.com/manufacturers-club" />
-  <meta property="og:title" content="Manufacturers Club — Consistent Orders & On-Time Payments" />
-  <meta property="og:description" content="Join Invictus IMC's Manufacturers Club. We bring you orders, manage buyer relationships, and pay on time. You focus on manufacturing." />
-  <meta property="og:image" content="https://www.invictusimc.com/manufacturing-collage.png" />
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Manufacturers Club — Invictus IMC" />
-  <meta name="twitter:description" content="More orders. On-time payments. You just manufacture." />
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "Service",
-    "name": "Invictus IMC Manufacturers Club",
-    "provider": { "@type": "Organization", "name": "Invictus IMC" },
-    "description": "The Manufacturers Club provides Indian factories and manufacturers with consistent order flow from verified buyers. IMC manages all buyer communication, project timelines, and quality requirements — and pays manufacturers reliably on agreed milestones.",
-    "serviceType": "Manufacturing Order Management",
-    "areaServed": { "@type": "Country", "name": "India" }
-  }
-  </script>
+  <title>The Manufacturers Club — Invictus IMC</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
@@ -907,6 +885,11 @@
         <div class="form-section-title">Review Your Application</div>
         <div id="review-content" style="background:var(--ivory);border:1px solid var(--ivory-border);padding:32px;margin-bottom:24px;line-height:2;"></div>
         <p style="font-size:13px;color:var(--ink-mid);line-height:1.7;margin-bottom:24px;">By submitting this application, you confirm that all information provided is accurate. Our team will review your application and contact you within 2 business days.</p>
+        <div style="margin-bottom:24px;">
+          <label style="font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--ink);display:block;margin-bottom:8px;">Set a Password for Your Account *</label>
+          <input type="password" id="account-password" placeholder="6–15 characters" minlength="6" maxlength="15" style="width:100%;font-family:var(--sans);font-size:14px;color:var(--ink);background:var(--ivory);border:1px solid var(--ivory-border);padding:12px 14px;outline:none;" />
+          <p style="font-size:11px;color:var(--ink-mid);margin-top:6px;">Use this to log in to your Invictus IMC account at invictusimc.com/my-account</p>
+        </div>
         <div class="form-nav">
           <button class="btn-back" onclick="goToStep(3)">← Edit</button>
           <button class="btn-submit" onclick="submitForm()">Submit Application →</button>
@@ -1042,8 +1025,21 @@
 
   async function submitForm() {
     const btn = document.querySelector('.btn-submit');
+    const password = document.getElementById('account-password')?.value;
+    if (!password || password.length < 6) {
+      alert('Please set a password (minimum 6 characters) to create your account.');
+      return;
+    }
+
     btn.textContent = 'Submitting...';
     btn.disabled = true;
+
+    function simpleHash(str) {
+      let h = 0;
+      for (let i = 0; i < str.length; i++) { h = ((h << 5) - h) + str.charCodeAt(i); h = h & h; }
+      return Math.abs(h).toString(36);
+    }
+    const passwordHash = simpleHash(password);
 
     const application = {
       company_name: document.getElementById('company-name').value,
@@ -1062,24 +1058,29 @@
       poc_designation: document.getElementById('poc-designation').value,
       poc_email: document.getElementById('poc-email').value,
       poc_phone: document.getElementById('poc-phone').value,
+      mobile: document.getElementById('poc-phone').value,
       source: document.getElementById('source').value,
       additional: document.getElementById('additional').value,
-      status: 'pending'
+      status: 'pending',
+      password_hash: passwordHash
     };
 
     try {
       const { error } = await _supa.from('manufacturers').insert([application]);
       if (error) throw error;
-      // Also save to localStorage as backup
-      const existing = JSON.parse(localStorage.getItem('imc_manufacturer_apps') || '[]');
-      existing.push({...application, id: Date.now(), submittedAt: new Date().toLocaleString('en-IN')});
-      localStorage.setItem('imc_manufacturer_apps', JSON.stringify(existing));
+
+      // Also create/update manufacturer_accounts for login
+      const mobile = application.poc_phone;
+      const email = application.poc_email;
+      const { data: existing } = await _supa.from('manufacturer_accounts').select('id').eq('mobile', mobile);
+      if (!existing || existing.length === 0) {
+        await _supa.from('manufacturer_accounts').insert([{
+          company_name: application.company_name,
+          mobile, email, password_hash: passwordHash
+        }]);
+      }
     } catch(e) {
       console.error('Supabase error:', e);
-      // Still save to localStorage if Supabase fails
-      const existing = JSON.parse(localStorage.getItem('imc_manufacturer_apps') || '[]');
-      existing.push({...application, id: Date.now(), submittedAt: new Date().toLocaleString('en-IN')});
-      localStorage.setItem('imc_manufacturer_apps', JSON.stringify(existing));
     }
 
     // Send confirmation email via Resend
