@@ -118,6 +118,7 @@
     .carousel-dot { width: 6px; height: 6px; background: rgba(255,255,255,0.2); border: none; cursor: pointer; padding: 0; transition: background 0.2s; border-radius: 50%; }
     .carousel-dot.active { background: var(--gold); }
     @media(max-width:600px) { .carousel-header { padding: 0 20px; } .carousel-track { padding: 0 20px; } .carousel-card { flex: 0 0 240px; } }
+    .flow-bar { display: grid; grid-template-columns: 1fr 1fr 1fr; background: #0A0A0A; border-bottom: 1px solid rgba(200,134,10,0.15); }
     .flow-cell { padding: 16px 28px; border-right: 1px solid rgba(255,255,255,0.07); }
     .flow-cell:last-child { border-right: none; }
     .flow-cell-imc { padding: 16px 28px; background: rgba(200,134,10,0.07); border-left: 1px solid rgba(200,134,10,0.25); border-right: 1px solid rgba(200,134,10,0.25); }
@@ -519,7 +520,7 @@
 </section>
 
 <!-- FLOW BAR — below hero -->
-<div class="flow-bar reveal">
+<div class="flow-bar">
   <div class="flow-cell">
     <span class="flow-cell-label">Buyers &amp; Importers</span>
     <div class="flow-cell-title">You tell us<br/>what you need.</div>
