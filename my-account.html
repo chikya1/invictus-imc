@@ -219,64 +219,59 @@
     const sessionKey = selectedType === 'manufacturer' ? 'mfr_user' : 'buyer_user';
 
     try {
-      // Check if mobile exists
+      // Check if mobile exists in manufacturers table
       const checkRes = await fetch(`${SUPA_URL}/rest/v1/${table}?poc_phone=eq.${encodeURIComponent(mobile)}&select=id`, { headers: H });
       const existing = await checkRes.json();
 
       let userId;
       if (existing?.length) {
-        // Update existing record with password
         userId = existing[0].id;
         await fetch(`${SUPA_URL}/rest/v1/${table}?id=eq.${userId}`, {
           method: 'PATCH', headers: { ...H, 'Prefer': 'return=minimal' },
-          body: JSON.stringify({ password_hash: hash, company_name: company, poc_email: email||null })
+          body: JSON.stringify({ password_hash: hash, company_name: company, poc_email: email||null, mobile })
         });
       } else {
-        // Create new record
+        const insertBody = {
+          company_name: company,
+          poc_phone: mobile,
+          mobile,
+          poc_email: email||null,
+          password_hash: hash,
+          status: 'pending',
+          submitted_at: new Date().toISOString()
+        };
         const res = await fetch(`${SUPA_URL}/rest/v1/${table}`, {
           method: 'POST', headers: { ...H, 'Prefer': 'return=representation' },
-          body: JSON.stringify({ company_name: company, poc_phone: mobile, poc_email: email||null, mobile: mobile, password_hash: hash, status: 'pending', submitted_at: new Date().toISOString() })
+          body: JSON.stringify(insertBody)
         });
-        if (!res.ok) throw new Error(await res.text());
+        if (!res.ok) {
+          const errText = await res.text();
+          throw new Error(errText);
+        }
         const [rec] = await res.json();
         userId = rec.id;
       }
 
-      // Also create/update manufacturer_accounts for mfr (for order bidding)
-      if (selectedType === 'manufacturer') {
-        const maCheck = await fetch(`${SUPA_URL}/rest/v1/manufacturer_accounts?mobile=eq.${encodeURIComponent(mobile)}&select=id`, { headers: H });
-        const maExisting = await maCheck.json();
-        if (!maExisting?.length) {
-          await fetch(`${SUPA_URL}/rest/v1/manufacturer_accounts`, {
-            method: 'POST', headers: { ...H, 'Prefer': 'return=minimal' },
-            body: JSON.stringify({ company_name: company, mobile, email: email||null, password_hash: hash })
-          });
-        }
-      }
-
-      currentUser = { id: userId, company_name: company, mobile, email, type: selectedType };
-
-      // For manufacturers, also get/create manufacturer_accounts and store that UUID
+      // For manufacturers: also create/update manufacturer_accounts (for order bidding UUID)
+      let maUUID = null;
       if (selectedType === 'manufacturer') {
         const maCheck = await fetch(`${SUPA_URL}/rest/v1/manufacturer_accounts?mobile=eq.${encodeURIComponent(mobile)}&select=id`, { headers: H });
         const maExisting = await maCheck.json();
         if (maExisting?.length) {
-          currentUser.ma_id = maExisting[0].id;
+          maUUID = maExisting[0].id;
         } else {
           const maRes = await fetch(`${SUPA_URL}/rest/v1/manufacturer_accounts`, {
             method: 'POST', headers: { ...H, 'Prefer': 'return=representation' },
             body: JSON.stringify({ company_name: company, mobile, email: email||null, password_hash: hash })
           });
-          if (maRes.ok) {
-            const [ma] = await maRes.json();
-            currentUser.ma_id = ma.id;
-            // Override id with ma_id so order page bids work
-            currentUser.id = ma.id;
-          }
+          if (maRes.ok) { const [ma] = await maRes.json(); maUUID = ma.id; }
         }
-        if (currentUser.ma_id) currentUser.id = currentUser.ma_id;
       }
 
+      currentUser = {
+        id: maUUID || userId,
+        company_name: company, mobile, email, type: selectedType
+      };
       accountType = selectedType;
       sessionStorage.setItem(sessionKey, JSON.stringify(currentUser));
       render();
@@ -303,15 +298,15 @@
       if (!u.password_hash) { showMsg(msg,'error','No password set for this account. Please sign up to set a password.'); return; }
       if (u.password_hash !== hash) { showMsg(msg,'error','Incorrect password.'); return; }
       await fetch(`${SUPA_URL}/rest/v1/${table}?id=eq.${u.id}`, { method: 'PATCH', headers: { ...H, 'Prefer': 'return=minimal' }, body: JSON.stringify({ last_login: new Date().toISOString() }) });
-      currentUser = { id: u.id, company_name: u.company_name, mobile: u.poc_phone||mobile, email: u.poc_email, status: u.status, type: selectedType };
-
-      // For manufacturers, get manufacturer_accounts UUID
+      let loginId = u.id;
+      // For manufacturers, get manufacturer_accounts UUID for bidding
       if (selectedType === 'manufacturer') {
         const maRes = await fetch(`${SUPA_URL}/rest/v1/manufacturer_accounts?mobile=eq.${encodeURIComponent(mobile)}&select=id`, { headers: H });
         const maUsers = await maRes.json();
-        if (maUsers?.length) currentUser.id = maUsers[0].id;
+        if (maUsers?.length) loginId = maUsers[0].id;
       }
 
+      currentUser = { id: loginId, company_name: u.company_name, mobile: u.poc_phone||mobile, email: u.poc_email, status: u.status, type: selectedType };
       accountType = selectedType;
       sessionStorage.setItem(sessionKey, JSON.stringify(currentUser));
       render();

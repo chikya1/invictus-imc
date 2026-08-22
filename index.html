@@ -97,25 +97,25 @@
     .hero h1 em { font-style: italic; color: var(--gold); }
 
     /* CAROUSEL */
-    .carousel-section { background: var(--void); padding: 32px 0; border-bottom: 1px solid rgba(200,134,10,0.12); overflow: hidden; }
+    .carousel-section { background: var(--ivory); padding: 32px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); overflow: hidden; }
     .carousel-header { display: flex; align-items: center; justify-content: space-between; padding: 0 40px; margin-bottom: 20px; }
     .carousel-label { font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); }
-    .carousel-link { font-size: 11px; color: rgba(255,255,255,0.4); text-decoration: none; letter-spacing: 1px; border: 1px solid rgba(255,255,255,0.1); padding: 5px 12px; transition: all 0.2s; }
+    .carousel-link { font-size: 11px; color: var(--ink-mid); text-decoration: none; letter-spacing: 1px; border: 1px solid var(--border); padding: 5px 12px; transition: all 0.2s; }
     .carousel-link:hover { color: var(--gold); border-color: var(--gold-border); }
     .carousel-track-wrap { position: relative; }
     .carousel-track { display: flex; gap: 16px; padding: 0 40px; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none; transition: transform 0.4s ease; }
     .carousel-track::-webkit-scrollbar { display: none; }
-    .carousel-card { flex: 0 0 280px; background: rgba(255,255,255,0.04); border: 1px solid rgba(200,134,10,0.18); border-top: 2px solid var(--gold); scroll-snap-align: start; overflow: hidden; transition: border-color 0.2s; }
-    .carousel-card:hover { border-color: rgba(200,134,10,0.5); }
-    .carousel-card-img { width: 100%; height: 140px; object-fit: contain; background: #fff; display: block; }
-    .carousel-card-img-placeholder { width: 100%; height: 140px; background: rgba(255,255,255,0.04); display: flex; align-items: center; justify-content: center; }
+    .carousel-card { flex: 0 0 280px; background: var(--white); border: 1px solid var(--border); border-top: 2px solid var(--gold); scroll-snap-align: start; overflow: hidden; transition: border-color 0.2s; }
+    .carousel-card:hover { border-color: var(--gold-border); box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+    .carousel-card-img { width: 100%; height: 140px; object-fit: contain; background: #f8f8f8; display: block; }
+    .carousel-card-img-placeholder { width: 100%; height: 140px; background: var(--ivory); display: flex; align-items: center; justify-content: center; }
     .carousel-card-body { padding: 14px 16px; }
     .carousel-card-code { font-size: 8px; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); margin-bottom: 4px; }
-    .carousel-card-title { font-family: var(--serif); font-size: 15px; color: #F5F2EC; line-height: 1.3; margin-bottom: 8px; }
-    .carousel-card-meta { font-size: 11px; color: rgba(255,255,255,0.4); line-height: 1.6; margin-bottom: 12px; }
+    .carousel-card-title { font-family: var(--serif); font-size: 16px; color: var(--ink); line-height: 1.3; margin-bottom: 8px; }
+    .carousel-card-meta { font-size: 11px; color: var(--ink-mid); line-height: 1.6; margin-bottom: 12px; }
     .carousel-card-btn { display: inline-block; font-family: var(--sans); font-size: 9px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--void); background: var(--gold); padding: 8px 14px; text-decoration: none; }
     .carousel-nav { display: flex; justify-content: center; gap: 6px; margin-top: 16px; padding: 0 40px; }
-    .carousel-dot { width: 6px; height: 6px; background: rgba(255,255,255,0.2); border: none; cursor: pointer; padding: 0; transition: background 0.2s; border-radius: 50%; }
+    .carousel-dot { width: 6px; height: 6px; background: var(--border); border: none; cursor: pointer; padding: 0; transition: background 0.2s; border-radius: 50%; }
     .carousel-dot.active { background: var(--gold); }
     @media(max-width:600px) { .carousel-header { padding: 0 20px; } .carousel-track { padding: 0 20px; } .carousel-card { flex: 0 0 240px; } }
     .flow-bar { display: grid; grid-template-columns: 1fr 1fr 1fr; background: #0A0A0A; border-bottom: 1px solid rgba(200,134,10,0.15); }
