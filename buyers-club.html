@@ -171,7 +171,7 @@
         })
       });
 
-      if (!res.ok) throw new Error(await res.text());
+      if (!res.ok) const et=await res.text(); try { if(JSON.parse(et)?.code==="23505") throw new Error("DUPLICATE"); } catch(_){} throw new Error(et);
 
       // Show success
       document.getElementById('form-card').style.display = 'none';

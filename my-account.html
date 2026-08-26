@@ -256,7 +256,7 @@
         });
         if (!res.ok) {
           const errText = await res.text();
-          throw new Error(errText);
+          if(JSON.parse(errText)?.code==="23505") throw new Error("DUPLICATE"); throw new Error(errText);
         }
         const [rec] = await res.json();
         userId = rec.id;
@@ -285,7 +285,7 @@
       accountType = selectedType;
       sessionStorage.setItem(sessionKey, JSON.stringify(currentUser));
       render();
-    } catch(e) { showMsg(msg,'error','Error: ' + e.message); }
+    } catch(e) { showMsg(msg,'error', e.message==='DUPLICATE' ? 'An account with this email or mobile already exists. Please login instead.' : 'Error: ' + e.message); }
   }
 
   async function login() {

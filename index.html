@@ -938,7 +938,7 @@
         headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
         body: JSON.stringify({ company_name: company, poc_phone: mobile, mobile, poc_email: email||null, password_hash: simpleHash(password), status: 'pending', submitted_at: new Date().toISOString(), products: product ? [{ name: product }] : null })
       });
-      if (!res.ok) throw new Error(await res.text());
+      if (!res.ok) { const et=await res.text(); try{ if(JSON.parse(et)?.code==="23505") throw new Error("DUPLICATE"); }catch(_){} throw new Error(et); }
       // Show login form after successful signup
       document.getElementById('buyer-signup-form').style.display = 'none';
       document.getElementById('buyer-login-form').style.display = 'block';
@@ -947,7 +947,7 @@
       loggedInMsg.style.display = 'block';
       loggedInMsg.innerHTML = `Account created! Welcome, <strong>${company}</strong>. Our team will reach out within 48 hours. <a href="/my-account" style="color:#2E7D32;font-weight:600;">Go to My Account →</a>`;
     } catch(e) {
-      msg.textContent = 'Something went wrong: ' + e.message;
+      msg.textContent = e.message==='DUPLICATE' ? 'An account with this email or mobile already exists. Please login instead.' : 'Something went wrong: ' + e.message;
       msg.className = 'cf-msg error';
       btn.disabled = false; btn.textContent = 'Create Account →';
     }
