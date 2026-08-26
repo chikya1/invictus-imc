@@ -582,21 +582,21 @@
 
 <div class="lead-forms reveal">
 
-  <!-- BUYER ROW — kept, form intact -->
+  <!-- BUYER ROW — simplified account creation -->
   <div class="club-row-buyer">
     <div class="club-copy">
       <span class="club-tag">01 · Buyers Club</span>
       <div class="club-copy-middle">
         <div class="club-headline">You import it.<br/><em>We'll make it here.</em></div>
-        <p class="club-body-text">Tell us what you need. Our team reaches out within 48 hours. No commitment required.</p>
+        <p class="club-body-text">Create your account in 30 seconds. Our team reaches out within 48 hours — no commitment required.</p>
         <p class="club-privacy-text">Your identity and requirements are never shared with manufacturers without your explicit approval.</p>
       </div>
     </div>
     <div class="club-form">
       <div class="cf-msg" id="buyer-msg"></div>
       <div>
-        <label class="cf-label">Company name</label>
-        <input type="text" class="cf-input" id="b-company" placeholder="Acme Industries Pvt Ltd" />
+        <label class="cf-label">Company Name *</label>
+        <input type="text" class="cf-input" id="b-company" placeholder="Acme Industries Pvt Ltd" autocomplete="organization" />
       </div>
       <div>
         <label class="cf-label">What do you need manufactured?</label>
@@ -604,23 +604,19 @@
       </div>
       <div class="cf-row">
         <div>
-          <label class="cf-label">Your name</label>
-          <input type="text" class="cf-input" id="b-name" placeholder="Tejas Patil" />
+          <label class="cf-label">Mobile *</label>
+          <input type="tel" class="cf-input" id="b-mobile" placeholder="+91 98765 43210" autocomplete="tel" />
         </div>
         <div>
-          <label class="cf-label">Mobile</label>
-          <input type="tel" class="cf-input" id="b-mobile" placeholder="+91 98765 43210" />
+          <label class="cf-label">Email</label>
+          <input type="email" class="cf-input" id="b-email" placeholder="you@company.com" autocomplete="email" />
         </div>
       </div>
       <div>
-        <label class="cf-label">Email</label>
-        <input type="email" class="cf-input" id="b-email" placeholder="you@company.com" />
+        <label class="cf-label">Set a Password *</label>
+        <input type="password" class="cf-input" id="b-password" placeholder="6–15 characters" minlength="6" maxlength="15" autocomplete="new-password" />
       </div>
-      <div class="cf-check-row">
-        <input type="checkbox" class="cf-check" id="b-also-mfg" />
-        <label for="b-also-mfg" class="cf-check-label">I also manufacture — add me to the Manufacturers Club too</label>
-      </div>
-      <div><button class="cf-submit" onclick="submitBuyer()">Get a Callback</button></div>
+      <div><button class="cf-submit" onclick="submitBuyer()">Create Account →</button></div>
     </div>
   </div>
 
@@ -832,37 +828,45 @@
 
   async function submitBuyer() {
     const company = document.getElementById('b-company').value.trim();
-    const product = document.getElementById('b-product').value.trim();
-    const name = document.getElementById('b-name').value.trim();
     const mobile = document.getElementById('b-mobile').value.trim();
-    const email = document.getElementById('b-email').value.trim();
-    const alsoMfg = document.getElementById('b-also-mfg').checked;
+    const email = (document.getElementById('b-email').value.trim() || '').toLowerCase();
+    const product = document.getElementById('b-product').value.trim();
+    const password = document.getElementById('b-password').value;
 
-    if (!company || !product || !name || !mobile || !email) {
-      showMsg('buyer-msg', 'error', 'Please fill in all fields before submitting.');
-      return;
-    }
+    if (!company) { showMsg('buyer-msg', 'error', 'Company name is required.'); return; }
+    if (!mobile) { showMsg('buyer-msg', 'error', 'Mobile number is required.'); return; }
+    if (!password || password.length < 6) { showMsg('buyer-msg', 'error', 'Password must be at least 6 characters.'); return; }
 
     const btn = document.querySelectorAll('.cf-submit')[0];
-    btn.disabled = true; btn.textContent = 'Submitting...';
+    btn.disabled = true; btn.textContent = 'Creating account...';
+
+    function simpleHash(str) {
+      let h = 0;
+      for (let i = 0; i < str.length; i++) { h = ((h << 5) - h) + str.charCodeAt(i); h = h & h; }
+      return Math.abs(h).toString(36);
+    }
 
     try {
-      const res = await fetch(`${SUPA_URL}/rest/v1/impressions`, {
+      const check = await fetch(`${SUPA_URL}/rest/v1/buyers?poc_phone=eq.${encodeURIComponent(mobile)}&select=id`, { headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY } });
+      const existing = await check.json();
+      if (existing?.length) {
+        showMsg('buyer-msg', 'error', 'An account with this mobile already exists. Login at /my-account');
+        btn.disabled = false; btn.textContent = 'Create Account →';
+        return;
+      }
+      const res = await fetch(`${SUPA_URL}/rest/v1/buyers`, {
         method: 'POST',
         headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
-        body: JSON.stringify({ company_name: company, what_they_need: product, contact_name: name, mobile, email, source: 'buyer', also_manufacturer: alsoMfg, also_buyer: false })
+        body: JSON.stringify({ company_name: company, poc_phone: mobile, mobile, poc_email: email||null, password_hash: simpleHash(password), status: 'pending', submitted_at: new Date().toISOString(), products: product ? [{ name: product }] : null })
       });
-      if (!res.ok) {
-        const errText = await res.text();
-        throw new Error(errText);
-      }
-      showMsg('buyer-msg', 'success', 'Interest received. An IMC account manager will contact you within 48 hours to understand your requirements and get you started.');
-      ['b-company','b-product','b-name','b-mobile','b-email'].forEach(id => document.getElementById(id).value = '');
-      document.getElementById('b-also-mfg').checked = false;
+      if (!res.ok) throw new Error(await res.text());
+      showMsg('buyer-msg', 'success', 'Account created! Our team will reach out within 48 hours. Login at My Account →');
+      ['b-company','b-mobile','b-email','b-product','b-password'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
+      btn.textContent = 'Account Created ✓';
     } catch(e) {
-      showMsg('buyer-msg', 'error', 'Something went wrong: ' + e.message + ' — or email connect@invictusimc.com');
+      showMsg('buyer-msg', 'error', 'Something went wrong: ' + e.message);
+      btn.disabled = false; btn.textContent = 'Create Account →';
     }
-    btn.disabled = false; btn.textContent = 'Get a Callback';
   }
 
   async function submitMfg() {
