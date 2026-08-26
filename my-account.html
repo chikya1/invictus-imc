@@ -539,6 +539,7 @@
 
           <!-- ORDER FORM -->
           <div id="buyer-order-form" style="display:none;background:var(--white);border:1px solid var(--border);border-left:3px solid var(--gold);padding:24px;margin-bottom:16px;">
+            <input type="hidden" id="bo-buyer-id" value="${b.id}" />
             <div style="font-family:var(--serif);font-size:18px;color:var(--ink);margin-bottom:4px;">Submit a Manufacturing Order</div>
             <p style="font-size:12px;color:var(--ink-mid);margin-bottom:20px;">Our team will review and publish your order within 48 hours. Manufacturers will then be able to bid on it.</p>
             <label class="field-label">Part Name *</label>
@@ -571,7 +572,7 @@
             <input type="file" class="field-input" id="bo-drawing" accept="image/*,.pdf" style="padding:8px;" />
             <div id="bo-msg" class="msg"></div>
             <div style="display:flex;gap:10px;margin-top:16px;">
-              <button class="btn-small-gold" onclick="submitBuyerOrder('${b.id}')" style="padding:12px 24px;font-size:11px;">Submit Order →</button>
+              <button class="btn-small-gold" onclick="submitBuyerOrder()" style="padding:12px 24px;font-size:11px;">Submit Order →</button>
               <button onclick="toggleBuyerOrderForm()" style="font-family:var(--sans);font-size:11px;padding:12px 20px;background:transparent;border:1px solid var(--border);color:var(--ink-mid);cursor:pointer;">Cancel</button>
             </div>
           </div>`;
@@ -617,7 +618,10 @@
     if (show) form.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
-  async function submitBuyerOrder(buyerId) {
+  function toSlug(str) { return str.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''); }
+
+  async function submitBuyerOrder() {
+    const buyerId = document.getElementById('bo-buyer-id')?.value;
     const part = document.getElementById('bo-part')?.value.trim();
     const industry = document.getElementById('bo-industry')?.value.trim();
     const annual = document.getElementById('bo-annual')?.value.trim();
@@ -640,7 +644,6 @@
       const orderCode = 'IMC-' + Date.now().toString(36).toUpperCase().slice(-6);
 
       // Generate slug
-      const toSlug = str => str.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
       const baseSlug = [industry, part].map(toSlug).join('-').substring(0, 80);
       let slug = baseSlug, suffix = 2;
       while (true) {
