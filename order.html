@@ -361,6 +361,16 @@
         setTimeout(() => { showingLogin = true; renderPage(); }, 1500);
         return;
       }
+      // Check email uniqueness if provided
+      if (email) {
+        const emailCheck = await fetch(`${SUPA_URL}/rest/v1/manufacturer_accounts?email=eq.${encodeURIComponent(email)}&select=id`, { headers: H });
+        const emailExisting = await emailCheck.json();
+        if (emailExisting?.length) {
+          showMsg(msg, 'error', 'An account with this email already exists. Please login instead.');
+          setTimeout(() => { showingLogin = true; renderPage(); }, 1500);
+          return;
+        }
+      }
 
       const body = { company_name: company, mobile, password_hash: hash };
       if (email) body.email = email;

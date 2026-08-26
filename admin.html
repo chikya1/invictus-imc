@@ -1645,7 +1645,18 @@
     if (!selected.length) return;
     if (!confirm(`Delete ${selected.length} selected application(s)? This cannot be undone.`)) return;
     for (const id of selected) {
-      await fetch(`https://nmjkzhquoxuuebzyotnx.supabase.co/rest/v1/${table}?id=eq.${id}`, {
+      // For manufacturers, also delete from manufacturer_accounts by mobile
+      if (type === 'manufacturer') {
+        const mfr = await fetch(`${SUPA_URL}/rest/v1/manufacturers?id=eq.${id}&select=mobile,poc_phone`, { headers: { 'apikey': SUPA_ANON, 'Authorization': 'Bearer ' + SUPA_ANON } });
+        const rows = await mfr.json();
+        if (rows?.length) {
+          const mobile = rows[0].mobile || rows[0].poc_phone;
+          if (mobile) {
+            await fetch(`${SUPA_URL}/rest/v1/manufacturer_accounts?mobile=eq.${encodeURIComponent(mobile)}`, { method: 'DELETE', headers: { 'apikey': SUPA_ANON, 'Authorization': 'Bearer ' + SUPA_ANON, 'Prefer': 'return=minimal' } });
+          }
+        }
+      }
+      await fetch(`${SUPA_URL}/rest/v1/${table}?id=eq.${id}`, {
         method: 'DELETE', headers: { 'apikey': SUPA_ANON, 'Authorization': 'Bearer ' + SUPA_ANON, 'Prefer': 'return=minimal' }
       });
     }
