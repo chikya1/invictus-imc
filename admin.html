@@ -940,9 +940,53 @@
             </div>
           </div>
         </div>
+        <!-- Edit Order Modal -->
+        <div class="modal-overlay" id="edit-order-modal" style="display:none;">
+          <div class="modal" style="max-width:600px;">
+            <div class="modal-header">
+              <div class="modal-title">Edit Order</div>
+              <button class="modal-close" onclick="closeEditOrderModal()">✕</button>
+            </div>
+            <div style="padding:24px;display:flex;flex-direction:column;gap:14px;max-height:70vh;overflow-y:auto;">
+              <input type="hidden" id="eo-id" />
+              <div class="form-row-2">
+                <div>
+                  <label class="form-label">Part Name *</label>
+                  <input type="text" class="form-input" id="eo-part" />
+                </div>
+                <div>
+                  <label class="form-label">Industry</label>
+                  <input type="text" class="form-input" id="eo-industry" />
+                </div>
+              </div>
+              <div class="form-row-2">
+                <div>
+                  <label class="form-label">Annual Quantity</label>
+                  <input type="text" class="form-input" id="eo-annual-qty" />
+                </div>
+                <div>
+                  <label class="form-label">Monthly Quantity</label>
+                  <input type="text" class="form-input" id="eo-monthly-qty" />
+                </div>
+              </div>
+              <div>
+                <label class="form-label">Material</label>
+                <input type="text" class="form-input" id="eo-material" />
+              </div>
+              <div>
+                <label class="form-label">Primary Process</label>
+                <input type="text" class="form-input" id="eo-process" />
+              </div>
+              <div>
+                <label class="form-label">Additional Details</label>
+                <textarea class="form-input" id="eo-details" rows="3"></textarea>
+              </div>
+              <div id="eo-msg" style="display:none;font-size:12px;padding:10px;border:1px solid;"></div>
+              <button class="btn-save" onclick="saveEditOrder()" style="width:100%;">Save Changes</button>
+            </div>
+          </div>
+        </div>
       </div>
-
-      <!-- BIDS RECEIVED TAB -->
       <div class="tab-panel" id="tab-order-bids">
         <div class="page-title">Bids <em>Received</em></div>
         <div class="page-subtitle">All bids submitted by manufacturers across all open orders.</div>
@@ -2737,6 +2781,7 @@
             <button class="btn-edit" style="color:${o.featured?'#3DAA6E':'var(--muted)'};background:${o.featured?'rgba(61,170,110,0.1)':'var(--surface)'};border-color:${o.featured?'rgba(61,170,110,0.3)':'var(--border)'};" onclick="toggleFeatured('${o.id}',${o.featured})">${o.featured?'★ Featured':'☆ Feature'}</button>
             <button class="btn-edit" style="color:${o.carousel?'#4A90D9':'var(--muted)'};background:${o.carousel?'rgba(74,144,217,0.1)':'var(--surface)'};border-color:${o.carousel?'rgba(74,144,217,0.3)':'var(--border)'};" onclick="toggleCarousel('${o.id}',${o.carousel||false})">${o.carousel?'⟳ Carousel':'○ Carousel'}</button>
             ${o.review_status === 'pending_review' ? `<button class="btn-edit" style="color:#3DAA6E;background:rgba(61,170,110,0.1);border-color:rgba(61,170,110,0.3);" onclick="publishOrder('${o.id}')">✓ Publish</button>` : ''}
+            <button class="btn-edit" onclick="openEditOrderModal('${o.id}')">Edit</button>
             <button class="btn-del" onclick="archiveOrder('${o.id}')">Archive</button>
           </div></td>
         </tr>${subRows}`;
@@ -2858,11 +2903,51 @@
     });
   }
 
+  function openEditOrderModal(id) {
+    // Fetch order details
+    fetch(`${SUPA_URL}/rest/v1/manufacturing_orders?id=eq.${id}&select=*`, { headers: { 'apikey': SUPA_ANON, 'Authorization': 'Bearer ' + SUPA_ANON } })
+      .then(r => r.json()).then(orders => {
+        if (!orders?.length) return;
+        const o = orders[0];
+        document.getElementById('eo-id').value = o.id;
+        document.getElementById('eo-part').value = o.part_name || '';
+        document.getElementById('eo-industry').value = o.industry || '';
+        document.getElementById('eo-annual-qty').value = o.annual_quantity || '';
+        document.getElementById('eo-monthly-qty').value = o.monthly_quantity || '';
+        document.getElementById('eo-material').value = o.material || '';
+        document.getElementById('eo-process').value = o.primary_process || '';
+        document.getElementById('eo-details').value = o.additional_details || '';
+        document.getElementById('edit-order-modal').style.display = 'flex';
+      });
+  }
+
+  function closeEditOrderModal() {
+    document.getElementById('edit-order-modal').style.display = 'none';
+    const msg = document.getElementById('eo-msg'); msg.style.display = 'none';
+  }
+
+  async function saveEditOrder() {
+    const id = document.getElementById('eo-id').value;
+    const part = document.getElementById('eo-part').value.trim();
+    const msg = document.getElementById('eo-msg');
+    if (!part) { msg.style.cssText = 'display:block;padding:10px;font-size:12px;border:1px solid rgba(231,76,60,0.3);background:rgba(231,76,60,0.1);color:#c0392b;'; msg.textContent = 'Part name is required.'; return; }
+    try {
+      const res = await fetch(`${SUPA_URL}/rest/v1/manufacturing_orders?id=eq.${id}`, {
+        method: 'PATCH', headers: { 'apikey': SUPA_ANON, 'Authorization': 'Bearer ' + SUPA_ANON, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+        body: JSON.stringify({ part_name: part, industry: document.getElementById('eo-industry').value.trim()||null, annual_quantity: document.getElementById('eo-annual-qty').value.trim()||null, monthly_quantity: document.getElementById('eo-monthly-qty').value.trim()||null, material: document.getElementById('eo-material').value.trim()||null, primary_process: document.getElementById('eo-process').value.trim()||null, additional_details: document.getElementById('eo-details').value.trim()||null })
+      });
+      if (!res.ok) throw new Error(await res.text());
+      msg.style.cssText = 'display:block;padding:10px;font-size:12px;border:1px solid rgba(61,170,110,0.3);background:rgba(61,170,110,0.08);color:#2E7D32;';
+      msg.textContent = 'Order updated successfully.';
+      setTimeout(() => { closeEditOrderModal(); loadOrders(); }, 1000);
+    } catch(e) { msg.style.cssText = 'display:block;padding:10px;font-size:12px;border:1px solid rgba(231,76,60,0.3);background:rgba(231,76,60,0.1);color:#c0392b;'; msg.textContent = 'Error: ' + e.message; }
+  }
+
   async function publishOrder(id) {
-    if (!confirm('Publish this order? It will become visible to manufacturers for bidding.')) return;
+    if (!confirm('Publish this order? It will become visible to manufacturers for bidding and appear on the Opportunity page.')) return;
     await fetch(`${SUPA_URL}/rest/v1/manufacturing_orders?id=eq.${id}`, {
       method: 'PATCH', headers: { 'apikey': SUPA_ANON, 'Authorization': 'Bearer ' + SUPA_ANON, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
-      body: JSON.stringify({ review_status: 'open', status: 'open' })
+      body: JSON.stringify({ review_status: 'open', status: 'open', featured: true })
     });
     loadOrders();
   }
