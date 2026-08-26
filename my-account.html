@@ -325,10 +325,6 @@
       render();
     } catch(e) { showMsg(msg,'error','Error: ' + e.message); }
   }
-      sessionStorage.setItem(sessionKey, JSON.stringify(currentUser));
-      render();
-    } catch(e) { showMsg(msg,'error','Error: ' + e.message); }
-  }
 
   async function renderDashboard() {
     const isMfr = accountType === 'manufacturer';
