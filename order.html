@@ -353,20 +353,25 @@
     showMsg(msg, 'success', 'Creating your account...');
     try {
       const hash = simpleHash(password);
-      // Check if mobile already exists
-      const checkRes = await fetch(`${SUPA_URL}/rest/v1/manufacturer_accounts?mobile=eq.${encodeURIComponent(mobile)}&select=id,company_name,email`, { headers: H });
-      const existing = await checkRes.json();
-      if (existing?.length) {
-        showMsg(msg, 'error', 'An account with this mobile already exists. Please login instead.');
+      // Check mobile uniqueness across all tables
+      const mobChecks = await Promise.all([
+        fetch(`${SUPA_URL}/rest/v1/manufacturers?poc_phone=eq.${encodeURIComponent(mobile)}&select=id`, { headers: H }).then(r=>r.json()),
+        fetch(`${SUPA_URL}/rest/v1/manufacturer_accounts?mobile=eq.${encodeURIComponent(mobile)}&select=id`, { headers: H }).then(r=>r.json()),
+        fetch(`${SUPA_URL}/rest/v1/buyers?poc_phone=eq.${encodeURIComponent(mobile)}&select=id`, { headers: H }).then(r=>r.json())
+      ]);
+      if (mobChecks.some(r => r?.length)) {
+        showMsg(msg, 'error', 'This mobile number is already registered. Please login instead.');
         setTimeout(() => { showingLogin = true; renderPage(); }, 1500);
         return;
       }
-      // Check email uniqueness if provided
       if (email) {
-        const emailCheck = await fetch(`${SUPA_URL}/rest/v1/manufacturer_accounts?email=eq.${encodeURIComponent(email)}&select=id`, { headers: H });
-        const emailExisting = await emailCheck.json();
-        if (emailExisting?.length) {
-          showMsg(msg, 'error', 'An account with this email already exists. Please login instead.');
+        const emailChecks = await Promise.all([
+          fetch(`${SUPA_URL}/rest/v1/manufacturers?poc_email=eq.${encodeURIComponent(email)}&select=id`, { headers: H }).then(r=>r.json()),
+          fetch(`${SUPA_URL}/rest/v1/manufacturer_accounts?email=eq.${encodeURIComponent(email)}&select=id`, { headers: H }).then(r=>r.json()),
+          fetch(`${SUPA_URL}/rest/v1/buyers?poc_email=eq.${encodeURIComponent(email)}&select=id`, { headers: H }).then(r=>r.json())
+        ]);
+        if (emailChecks.some(r => r?.length)) {
+          showMsg(msg, 'error', 'This email is already registered. Please login instead.');
           setTimeout(() => { showingLogin = true; renderPage(); }, 1500);
           return;
         }

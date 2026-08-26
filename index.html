@@ -924,10 +924,11 @@
     }
 
     try {
-      const check = await fetch(`${SUPA_URL}/rest/v1/buyers?poc_phone=eq.${encodeURIComponent(mobile)}&select=id`, { headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY } });
-      const existing = await check.json();
-      if (existing?.length) {
-        msg.textContent = 'An account with this mobile already exists.';
+      // Check mobile uniqueness within buyers
+      const mobCheck = await fetch(`${SUPA_URL}/rest/v1/buyers?poc_phone=eq.${encodeURIComponent(mobile)}&select=id`, { headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY } });
+      const mobExisting = await mobCheck.json();
+      if (mobExisting?.length) {
+        msg.textContent = 'This mobile number is already registered. Please login to your existing account.';
         msg.className = 'cf-msg error';
         btn.disabled = false; btn.textContent = 'Create Account →';
         setTimeout(() => showBuyerLogin(), 1200);

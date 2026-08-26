@@ -148,11 +148,11 @@
     const hash = simpleHash(password);
 
     try {
-      // Check if mobile already exists
-      const check = await fetch(`${SUPA_URL}/rest/v1/buyers?poc_phone=eq.${encodeURIComponent(mobile)}&select=id`, { headers: H });
-      const existing = await check.json();
-      if (existing?.length) {
-        showMsg(msg, 'error', 'An account with this mobile already exists. Please login instead.');
+      // Check mobile uniqueness within buyers
+      const mobCheck = await fetch(`${SUPA_URL}/rest/v1/buyers?poc_phone=eq.${encodeURIComponent(mobile)}&select=id`, { headers: H });
+      const mobExisting = await mobCheck.json();
+      if (mobExisting?.length) {
+        showMsg(msg, 'error', 'This mobile number is already registered. Please login instead.');
         btn.disabled = false; btn.textContent = 'Create Account & Join Buyers Club →';
         return;
       }

@@ -219,19 +219,33 @@
     const sessionKey = selectedType === 'manufacturer' ? 'mfr_user' : 'buyer_user';
 
     try {
-      // Check if mobile exists in manufacturers table
-      const checkRes = await fetch(`${SUPA_URL}/rest/v1/${table}?poc_phone=eq.${encodeURIComponent(mobile)}&select=id`, { headers: H });
-      const existing = await checkRes.json();
-
-      // Also check email uniqueness if provided
+      // Check mobile uniqueness within business line
+      const mfrTables = selectedType === 'manufacturer'
+        ? [
+            fetch(`${SUPA_URL}/rest/v1/manufacturers?poc_phone=eq.${encodeURIComponent(mobile)}&select=id`, { headers: H }).then(r=>r.json()),
+            fetch(`${SUPA_URL}/rest/v1/manufacturer_accounts?mobile=eq.${encodeURIComponent(mobile)}&select=id`, { headers: H }).then(r=>r.json())
+          ]
+        : [fetch(`${SUPA_URL}/rest/v1/buyers?poc_phone=eq.${encodeURIComponent(mobile)}&select=id`, { headers: H }).then(r=>r.json())];
+      const mobResults = await Promise.all(mfrTables);
+      if (mobResults.some(r => r?.length)) {
+        showMsg(msg, 'error', 'This mobile number is already registered. Please login to your existing account.');
+        return;
+      }
       if (email) {
-        const emailCheck = await fetch(`${SUPA_URL}/rest/v1/${table}?poc_email=eq.${encodeURIComponent(email)}&select=id`, { headers: H });
-        const emailExisting = await emailCheck.json();
-        if (emailExisting?.length) {
-          showMsg(msg, 'error', 'An account with this email already exists. Please login instead.');
+        const emailTables = selectedType === 'manufacturer'
+          ? [
+              fetch(`${SUPA_URL}/rest/v1/manufacturers?poc_email=eq.${encodeURIComponent(email)}&select=id`, { headers: H }).then(r=>r.json()),
+              fetch(`${SUPA_URL}/rest/v1/manufacturer_accounts?email=eq.${encodeURIComponent(email)}&select=id`, { headers: H }).then(r=>r.json())
+            ]
+          : [fetch(`${SUPA_URL}/rest/v1/buyers?poc_email=eq.${encodeURIComponent(email)}&select=id`, { headers: H }).then(r=>r.json())];
+        const emailResults = await Promise.all(emailTables);
+        if (emailResults.some(r => r?.length)) {
+          showMsg(msg, 'error', 'This email is already registered. Please login to your existing account.');
           return;
         }
       }
+
+      const existing = []; // No existing record since we checked above
 
       let userId;
       if (existing?.length) {
