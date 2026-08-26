@@ -508,50 +508,181 @@
   async function renderBuyerDashboard() {
     let html = '';
     try {
-      // Fetch buyer's full application
       const res = await fetch(`${SUPA_URL}/rest/v1/buyers?poc_phone=eq.${encodeURIComponent(currentUser.mobile)}&select=*`, { headers: H });
       const buyers = await res.json();
       const b = buyers?.[0];
 
       if (b) {
-        // Application status
         const statusColor = b.status === 'approved' ? '#2E7D32' : b.status === 'rejected' ? '#c0392b' : 'var(--gold)';
         html += `<div class="section-wrap">
-          <div class="section-title">Application Status</div>
+          <div class="section-title">Account Status</div>
           <div class="order-card">
             <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
               <div>
                 <div class="order-card-title">${b.company_name}</div>
-                <div class="order-card-meta">${b.city||''}${b.state?', '+b.state:''} · ${b.buyer_type||'Buyer'}</div>
+                <div class="order-card-meta">${b.city||''}${b.state?', '+b.state:''}</div>
               </div>
               <span style="font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:6px 14px;border:1px solid;color:${statusColor};border-color:${statusColor};">${b.status||'Pending Review'}</span>
             </div>
-            ${b.status === 'pending' ? `<p style="font-size:12px;color:var(--ink-mid);margin-top:12px;line-height:1.7;">Your application is under review. Our team will contact you at ${b.poc_email||currentUser.mobile} within 2 business days.</p>` : ''}
-            ${b.status === 'approved' ? `<p style="font-size:12px;color:#2E7D32;margin-top:12px;line-height:1.7;">Your application has been approved. Our team will reach out to discuss your requirements.</p>` : ''}
           </div>
         </div>`;
 
-        // Products they need
-        if (b.products && Array.isArray(b.products) && b.products.length) {
-          html += `<div class="section-wrap"><div class="section-title">Your Requirements (${b.products.length})</div>`;
-          b.products.forEach(p => {
-            html += `<div class="order-card">
-              <div class="order-card-title">${p.name||p}</div>
-              ${p.quantity ? `<div class="order-card-meta">Quantity: ${p.quantity}</div>` : ''}
-              ${p.currentSource ? `<div class="order-card-meta">Currently sourcing from: ${p.currentSource}</div>` : ''}
+        // My submitted orders
+        const ordersRes = await fetch(`${SUPA_URL}/rest/v1/manufacturing_orders?buyer_id=eq.${b.id}&order=created_at.desc&select=*`, { headers: H });
+        const myOrders = await ordersRes.json();
+
+        html += `<div class="section-wrap">
+          <div class="section-title" style="display:flex;align-items:center;justify-content:space-between;">
+            <span>My Orders (${myOrders.length})</span>
+            <button class="btn-small-gold" onclick="toggleBuyerOrderForm()" id="add-order-btn" style="font-size:10px;padding:8px 16px;">+ Add Order</button>
+          </div>
+
+          <!-- ORDER FORM -->
+          <div id="buyer-order-form" style="display:none;background:var(--white);border:1px solid var(--border);border-left:3px solid var(--gold);padding:24px;margin-bottom:16px;">
+            <div style="font-family:var(--serif);font-size:18px;color:var(--ink);margin-bottom:4px;">Submit a Manufacturing Order</div>
+            <p style="font-size:12px;color:var(--ink-mid);margin-bottom:20px;">Our team will review and publish your order within 48 hours. Manufacturers will then be able to bid on it.</p>
+            <label class="field-label">Part Name *</label>
+            <input type="text" class="field-input" id="bo-part" placeholder="e.g. Injection Moulded Plastic Casing" />
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+              <div>
+                <label class="field-label">Industry *</label>
+                <input type="text" class="field-input" id="bo-industry" placeholder="e.g. Consumer Electronics" />
+              </div>
+              <div>
+                <label class="field-label">Annual Quantity *</label>
+                <input type="text" class="field-input" id="bo-annual" placeholder="e.g. 50,000 units/year" />
+              </div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+              <div>
+                <label class="field-label">Monthly Quantity</label>
+                <input type="text" class="field-input" id="bo-monthly" placeholder="e.g. 4,000 units/month" />
+              </div>
+              <div>
+                <label class="field-label">Material *</label>
+                <input type="text" class="field-input" id="bo-material" placeholder="e.g. ABS Plastic" />
+              </div>
+            </div>
+            <label class="field-label">Primary Process</label>
+            <input type="text" class="field-input" id="bo-process" placeholder="e.g. Injection Moulding" />
+            <label class="field-label">Additional Details</label>
+            <textarea class="field-input" id="bo-details" rows="3" placeholder="Any certifications, tolerances, surface finish requirements..."></textarea>
+            <label class="field-label">Technical Drawing * <span style="font-size:9px;font-weight:400;color:var(--ink-mid);">(image or PDF)</span></label>
+            <input type="file" class="field-input" id="bo-drawing" accept="image/*,.pdf" style="padding:8px;" />
+            <div id="bo-msg" class="msg"></div>
+            <div style="display:flex;gap:10px;margin-top:16px;">
+              <button class="btn-small-gold" onclick="submitBuyerOrder('${b.id}')" style="padding:12px 24px;font-size:11px;">Submit Order →</button>
+              <button onclick="toggleBuyerOrderForm()" style="font-family:var(--sans);font-size:11px;padding:12px 20px;background:transparent;border:1px solid var(--border);color:var(--ink-mid);cursor:pointer;">Cancel</button>
+            </div>
+          </div>`;
+
+        // Orders list
+        if (!myOrders.length) {
+          html += `<div class="empty-state"><p>No orders submitted yet. Click "+ Add Order" to submit your first manufacturing requirement.</p></div>`;
+        } else {
+          myOrders.forEach(o => {
+            const rs = o.review_status || 'pending_review';
+            const rsColor = rs === 'open' ? '#2E7D32' : rs === 'rejected' ? '#c0392b' : 'var(--gold)';
+            const rsLabel = rs === 'open' ? 'Open for Bids' : rs === 'rejected' ? 'Rejected' : 'Pending Review';
+            html += `<div class="order-card" style="display:grid;grid-template-columns:${o.drawing_url?'80px 1fr':'1fr'};gap:12px;align-items:start;margin-bottom:10px;">
+              ${o.drawing_url ? `<img src="${o.drawing_url}" style="width:80px;height:64px;object-fit:contain;background:#f8f8f8;border:1px solid var(--border);" alt="${o.part_name}" />` : ''}
+              <div>
+                <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;flex-wrap:wrap;">
+                  <div>
+                    <div class="order-card-code">${o.order_code||'Pending'}</div>
+                    <div class="order-card-title">${o.part_name}</div>
+                    <div class="order-card-meta">${o.industry||''} ${o.annual_quantity?'· '+o.annual_quantity:''}</div>
+                  </div>
+                  <span style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;padding:4px 10px;border:1px solid;color:${rsColor};border-color:${rsColor};white-space:nowrap;">${rsLabel}</span>
+                </div>
+              </div>
             </div>`;
           });
-          html += `</div>`;
         }
-      } else {
-        html += `<div class="empty-state"><p>Your application details could not be found. Please contact connect@invictusimc.com</p></div>`;
+        html += `</div>`;
       }
     } catch(e) {
-      html += `<div class="empty-state"><p>Error loading your account: ${e.message}</p></div>`;
+      html += `<div class="empty-state"><p>Error loading account: ${e.message}</p></div>`;
     }
-
-    html += `<div class="empty-state" style="margin-top:16px;"><p>Questions? Email <a href="mailto:connect@invictusimc.com" style="color:var(--gold);">connect@invictusimc.com</a> or call <a href="tel:+918217367948" style="color:var(--gold);">+91 82173 67948</a></p></div>`;
+    html += `<div class="empty-state" style="margin-top:8px;"><p>Questions? <a href="mailto:connect@invictusimc.com" style="color:var(--gold);">connect@invictusimc.com</a> · <a href="tel:+918217367948" style="color:var(--gold);">+91 82173 67948</a></p></div>`;
     return html;
+  }
+
+  function toggleBuyerOrderForm() {
+    const form = document.getElementById('buyer-order-form');
+    const btn = document.getElementById('add-order-btn');
+    const show = form.style.display === 'none';
+    form.style.display = show ? 'block' : 'none';
+    btn.textContent = show ? '✕ Cancel' : '+ Add Order';
+    if (show) form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  async function submitBuyerOrder(buyerId) {
+    const part = document.getElementById('bo-part')?.value.trim();
+    const industry = document.getElementById('bo-industry')?.value.trim();
+    const annual = document.getElementById('bo-annual')?.value.trim();
+    const material = document.getElementById('bo-material')?.value.trim();
+    const monthly = document.getElementById('bo-monthly')?.value.trim();
+    const process = document.getElementById('bo-process')?.value.trim();
+    const details = document.getElementById('bo-details')?.value.trim();
+    const fileInput = document.getElementById('bo-drawing');
+    const msg = document.getElementById('bo-msg');
+
+    if (!part) { showMsg(msg, 'error', 'Part name is required.'); return; }
+    if (!industry) { showMsg(msg, 'error', 'Industry is required.'); return; }
+    if (!annual) { showMsg(msg, 'error', 'Annual quantity is required.'); return; }
+    if (!material) { showMsg(msg, 'error', 'Material is required.'); return; }
+    if (!fileInput?.files?.[0]) { showMsg(msg, 'error', 'Technical drawing is required.'); return; }
+
+    showMsg(msg, 'success', 'Uploading drawing...');
+
+    try {
+      const orderCode = 'IMC-' + Date.now().toString(36).toUpperCase().slice(-6);
+
+      // Generate slug
+      const toSlug = str => str.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+      const baseSlug = [industry, part].map(toSlug).join('-').substring(0, 80);
+      let slug = baseSlug, suffix = 2;
+      while (true) {
+        const check = await fetch(`${SUPA_URL}/rest/v1/manufacturing_orders?slug=eq.${slug}&select=id`, { headers: H });
+        const ex = await check.json();
+        if (!ex.length) break;
+        slug = `${baseSlug}-${suffix++}`;
+      }
+
+      // Upload drawing
+      let drawingUrl = null;
+      const file = fileInput.files[0];
+      const ext = file.name.split('.').pop();
+      const fileName = `${orderCode}.${ext}`;
+      const uploadRes = await fetch(`${SUPA_URL}/storage/v1/object/order-drawings/${fileName}`, {
+        method: 'POST', headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY, 'Content-Type': file.type }, body: file
+      });
+      if (uploadRes.ok) drawingUrl = `${SUPA_URL}/storage/v1/object/public/order-drawings/${fileName}`;
+      else { showMsg(msg, 'error', 'Drawing upload failed. Please try again.'); return; }
+
+      showMsg(msg, 'success', 'Creating order...');
+
+      const res = await fetch(`${SUPA_URL}/rest/v1/manufacturing_orders`, {
+        method: 'POST',
+        headers: { ...H, 'Prefer': 'return=representation' },
+        body: JSON.stringify({
+          order_code: orderCode, slug, part_name: part, industry, annual_quantity: annual,
+          monthly_quantity: monthly||null, material, primary_process: process||null,
+          additional_details: details||null, drawing_url: drawingUrl,
+          status: 'open', review_status: 'pending_review', buyer_id: parseInt(buyerId)
+        })
+      });
+      if (!res.ok) throw new Error(await res.text());
+
+      showMsg(msg, 'success', '✓ Order submitted! Our team will review and publish it within 48 hours.');
+      ['bo-part','bo-industry','bo-annual','bo-monthly','bo-material','bo-process','bo-details'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
+      fileInput.value = '';
+      // Reload dashboard to show new order
+      setTimeout(() => renderDashboard(), 1500);
+    } catch(e) {
+      showMsg(msg, 'error', 'Error: ' + e.message);
+    }
   }
 
   function logout() {

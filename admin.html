@@ -2727,6 +2727,7 @@
           <td class="td-muted">${o.industry||'—'}</td>
           <td class="td-muted" style="font-size:11px;">${o.monthly_quantity||o.annual_quantity||'—'}</td>
           <td><span style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;padding:4px 10px;background:rgba(61,170,110,0.1);color:#3DAA6E;">Open</span></td>
+          <td><span style="font-size:9px;text-transform:uppercase;padding:3px 8px;${o.review_status==='pending_review'?'background:rgba(200,134,10,0.1);color:var(--gold);':'background:rgba(61,170,110,0.1);color:#3DAA6E;'}">${o.review_status==='pending_review'?'Pending Review':o.buyer_id?'Buyer Order':'Admin'}</span></td>
           <td style="text-align:center;font-weight:600;color:var(--gold);">${bidCounts[o.id]||0}</td>
           <td class="td-muted" style="font-size:11px;">${new Date(o.created_at).toLocaleDateString('en-IN')}</td>
           <td><div class="td-actions">
@@ -2735,6 +2736,7 @@
             <button class="btn-edit" style="color:var(--gold);background:var(--gold-dim);border-color:var(--gold-border);" onclick="openSplitModal('${o.id}','${o.order_code}','${o.part_name.replace(/'/g,'')}','${o.monthly_quantity||o.annual_quantity||''}')">Split</button>
             <button class="btn-edit" style="color:${o.featured?'#3DAA6E':'var(--muted)'};background:${o.featured?'rgba(61,170,110,0.1)':'var(--surface)'};border-color:${o.featured?'rgba(61,170,110,0.3)':'var(--border)'};" onclick="toggleFeatured('${o.id}',${o.featured})">${o.featured?'★ Featured':'☆ Feature'}</button>
             <button class="btn-edit" style="color:${o.carousel?'#4A90D9':'var(--muted)'};background:${o.carousel?'rgba(74,144,217,0.1)':'var(--surface)'};border-color:${o.carousel?'rgba(74,144,217,0.3)':'var(--border)'};" onclick="toggleCarousel('${o.id}',${o.carousel||false})">${o.carousel?'⟳ Carousel':'○ Carousel'}</button>
+            ${o.review_status === 'pending_review' ? `<button class="btn-edit" style="color:#3DAA6E;background:rgba(61,170,110,0.1);border-color:rgba(61,170,110,0.3);" onclick="publishOrder('${o.id}')">✓ Publish</button>` : ''}
             <button class="btn-del" onclick="archiveOrder('${o.id}')">Archive</button>
           </div></td>
         </tr>${subRows}`;
@@ -2854,6 +2856,15 @@
       document.execCommand('copy'); document.body.removeChild(ta);
       alert('Message copied! Paste it in WhatsApp.');
     });
+  }
+
+  async function publishOrder(id) {
+    if (!confirm('Publish this order? It will become visible to manufacturers for bidding.')) return;
+    await fetch(`${SUPA_URL}/rest/v1/manufacturing_orders?id=eq.${id}`, {
+      method: 'PATCH', headers: { 'apikey': SUPA_ANON, 'Authorization': 'Bearer ' + SUPA_ANON, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ review_status: 'open', status: 'open' })
+    });
+    loadOrders();
   }
 
   async function toggleFeatured(id, currentlyFeatured) {
