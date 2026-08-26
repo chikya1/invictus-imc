@@ -592,31 +592,55 @@
         <p class="club-privacy-text">Your identity and requirements are never shared with manufacturers without your explicit approval.</p>
       </div>
     </div>
-    <div class="club-form">
+    <div class="club-form" id="buyer-form-wrap">
       <div class="cf-msg" id="buyer-msg"></div>
-      <div>
-        <label class="cf-label">Company Name *</label>
-        <input type="text" class="cf-input" id="b-company" placeholder="Acme Industries Pvt Ltd" autocomplete="organization" />
-      </div>
-      <div>
-        <label class="cf-label">What do you need manufactured?</label>
-        <input type="text" class="cf-input" id="b-product" placeholder="e.g. Plastic enclosures, currently importing from China" />
-      </div>
-      <div class="cf-row">
+      <!-- SIGNUP FORM -->
+      <div id="buyer-signup-form">
         <div>
-          <label class="cf-label">Mobile *</label>
-          <input type="tel" class="cf-input" id="b-mobile" placeholder="+91 98765 43210" autocomplete="tel" />
+          <label class="cf-label">Company Name *</label>
+          <input type="text" class="cf-input" id="b-company" placeholder="Acme Industries Pvt Ltd" autocomplete="organization" />
         </div>
         <div>
-          <label class="cf-label">Email</label>
-          <input type="email" class="cf-input" id="b-email" placeholder="you@company.com" autocomplete="email" />
+          <label class="cf-label">What do you need manufactured?</label>
+          <input type="text" class="cf-input" id="b-product" placeholder="e.g. Plastic enclosures, currently importing from China" />
+        </div>
+        <div class="cf-row">
+          <div>
+            <label class="cf-label">Mobile *</label>
+            <input type="tel" class="cf-input" id="b-mobile" placeholder="+91 98765 43210" autocomplete="tel" />
+          </div>
+          <div>
+            <label class="cf-label">Email</label>
+            <input type="email" class="cf-input" id="b-email" placeholder="you@company.com" autocomplete="email" />
+          </div>
+        </div>
+        <div>
+          <label class="cf-label">Set a Password *</label>
+          <input type="password" class="cf-input" id="b-password" placeholder="6–15 characters" minlength="6" maxlength="15" autocomplete="new-password" />
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:14px;flex-wrap:wrap;">
+          <button class="cf-submit" id="buyer-submit-btn" onclick="submitBuyer()" style="flex:1;">Create Account →</button>
+          <a href="#" onclick="showBuyerLogin(); return false;" style="font-size:11px;color:var(--gold);white-space:nowrap;">Have an account? Login →</a>
         </div>
       </div>
-      <div>
-        <label class="cf-label">Set a Password *</label>
-        <input type="password" class="cf-input" id="b-password" placeholder="6–15 characters" minlength="6" maxlength="15" autocomplete="new-password" />
+      <!-- LOGIN FORM (shown after signup or via link) -->
+      <div id="buyer-login-form" style="display:none;">
+        <div style="font-size:13px;color:var(--ink-mid);margin-bottom:14px;line-height:1.6;">Login to your Buyers Club account.</div>
+        <div>
+          <label class="cf-label">Mobile or Email</label>
+          <input type="text" class="cf-input" id="bl-identifier" placeholder="+91 98765 43210 or you@company.com" autocomplete="username" />
+        </div>
+        <div>
+          <label class="cf-label">Password</label>
+          <input type="password" class="cf-input" id="bl-password" placeholder="Your password" autocomplete="current-password" />
+        </div>
+        <div id="buyer-login-msg" class="cf-msg"></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:14px;flex-wrap:wrap;">
+          <button class="cf-submit" id="buyer-login-btn" onclick="loginBuyer()" style="flex:1;">Login →</button>
+          <a href="#" onclick="showBuyerSignup(); return false;" style="font-size:11px;color:var(--gold);white-space:nowrap;">New here? Create account →</a>
+        </div>
+        <div id="buyer-loggedin-msg" style="display:none;margin-top:14px;padding:12px;background:rgba(46,125,50,0.08);border:1px solid rgba(46,125,50,0.3);font-size:13px;color:#2E7D32;"></div>
       </div>
-      <div><button class="cf-submit" onclick="submitBuyer()">Create Account →</button></div>
     </div>
   </div>
 
@@ -826,18 +850,71 @@
     el.textContent = text;
   }
 
+  function showBuyerLogin() {
+    document.getElementById('buyer-signup-form').style.display = 'none';
+    document.getElementById('buyer-login-form').style.display = 'block';
+    document.getElementById('buyer-msg').textContent = '';
+  }
+
+  function showBuyerSignup() {
+    document.getElementById('buyer-login-form').style.display = 'none';
+    document.getElementById('buyer-signup-form').style.display = 'block';
+  }
+
+  async function loginBuyer() {
+    const identifier = document.getElementById('bl-identifier').value.trim();
+    const password = document.getElementById('bl-password').value;
+    const btn = document.getElementById('buyer-login-btn');
+    const msg = document.getElementById('buyer-login-msg');
+
+    if (!identifier || !password) { msg.textContent = 'Enter your mobile/email and password.'; msg.className = 'cf-msg error'; return; }
+    btn.disabled = true; btn.textContent = 'Logging in...';
+
+    function simpleHash(str) {
+      let h = 0;
+      for (let i = 0; i < str.length; i++) { h = ((h << 5) - h) + str.charCodeAt(i); h = h & h; }
+      return Math.abs(h).toString(36);
+    }
+
+    try {
+      const isEmail = identifier.includes('@');
+      let users = [];
+      if (!isEmail) {
+        const r = await fetch(`${SUPA_URL}/rest/v1/buyers?poc_phone=eq.${encodeURIComponent(identifier)}&select=id,company_name,status,poc_phone,poc_email`, { headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY } });
+        users = await r.json();
+      }
+      if (!users?.length) {
+        const r = await fetch(`${SUPA_URL}/rest/v1/buyers?poc_email=eq.${encodeURIComponent(identifier.toLowerCase())}&select=id,company_name,status,poc_phone,poc_email,password_hash`, { headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY } });
+        users = await r.json();
+      } else {
+        const r = await fetch(`${SUPA_URL}/rest/v1/buyers?poc_phone=eq.${encodeURIComponent(identifier)}&select=*`, { headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY } });
+        users = await r.json();
+      }
+      if (!users?.length) { msg.textContent = 'No account found. Please sign up first.'; msg.className = 'cf-msg error'; btn.disabled = false; btn.textContent = 'Login →'; return; }
+      const u = users[0];
+      if (!u.password_hash) { msg.textContent = 'No password set. Please sign up again.'; msg.className = 'cf-msg error'; btn.disabled = false; btn.textContent = 'Login →'; return; }
+      if (u.password_hash !== simpleHash(password)) { msg.textContent = 'Incorrect password.'; msg.className = 'cf-msg error'; btn.disabled = false; btn.textContent = 'Login →'; return; }
+
+      const loggedInMsg = document.getElementById('buyer-loggedin-msg');
+      loggedInMsg.style.display = 'block';
+      loggedInMsg.innerHTML = `Welcome back, <strong>${u.company_name}</strong>! <a href="/my-account" style="color:var(--gold);font-weight:600;">Go to My Account →</a>`;
+      btn.textContent = 'Logged In ✓';
+    } catch(e) { msg.textContent = 'Error: ' + e.message; msg.className = 'cf-msg error'; btn.disabled = false; btn.textContent = 'Login →'; }
+  }
+
   async function submitBuyer() {
     const company = document.getElementById('b-company').value.trim();
     const mobile = document.getElementById('b-mobile').value.trim();
     const email = (document.getElementById('b-email').value.trim() || '').toLowerCase();
     const product = document.getElementById('b-product').value.trim();
     const password = document.getElementById('b-password').value;
+    const msg = document.getElementById('buyer-msg');
+    const btn = document.getElementById('buyer-submit-btn');
 
-    if (!company) { showMsg('buyer-msg', 'error', 'Company name is required.'); return; }
-    if (!mobile) { showMsg('buyer-msg', 'error', 'Mobile number is required.'); return; }
-    if (!password || password.length < 6) { showMsg('buyer-msg', 'error', 'Password must be at least 6 characters.'); return; }
+    if (!company) { msg.textContent = 'Company name is required.'; msg.className = 'cf-msg error'; return; }
+    if (!mobile) { msg.textContent = 'Mobile number is required.'; msg.className = 'cf-msg error'; return; }
+    if (!password || password.length < 6) { msg.textContent = 'Password must be at least 6 characters.'; msg.className = 'cf-msg error'; return; }
 
-    const btn = document.querySelectorAll('.cf-submit')[0];
     btn.disabled = true; btn.textContent = 'Creating account...';
 
     function simpleHash(str) {
@@ -850,8 +927,10 @@
       const check = await fetch(`${SUPA_URL}/rest/v1/buyers?poc_phone=eq.${encodeURIComponent(mobile)}&select=id`, { headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY } });
       const existing = await check.json();
       if (existing?.length) {
-        showMsg('buyer-msg', 'error', 'An account with this mobile already exists. Login at /my-account');
+        msg.textContent = 'An account with this mobile already exists.';
+        msg.className = 'cf-msg error';
         btn.disabled = false; btn.textContent = 'Create Account →';
+        setTimeout(() => showBuyerLogin(), 1200);
         return;
       }
       const res = await fetch(`${SUPA_URL}/rest/v1/buyers`, {
@@ -860,11 +939,16 @@
         body: JSON.stringify({ company_name: company, poc_phone: mobile, mobile, poc_email: email||null, password_hash: simpleHash(password), status: 'pending', submitted_at: new Date().toISOString(), products: product ? [{ name: product }] : null })
       });
       if (!res.ok) throw new Error(await res.text());
-      showMsg('buyer-msg', 'success', 'Account created! Our team will reach out within 48 hours. Login at My Account →');
-      ['b-company','b-mobile','b-email','b-product','b-password'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
-      btn.textContent = 'Account Created ✓';
+      // Show login form after successful signup
+      document.getElementById('buyer-signup-form').style.display = 'none';
+      document.getElementById('buyer-login-form').style.display = 'block';
+      document.getElementById('buyer-login-msg').textContent = '';
+      const loggedInMsg = document.getElementById('buyer-loggedin-msg');
+      loggedInMsg.style.display = 'block';
+      loggedInMsg.innerHTML = `Account created! Welcome, <strong>${company}</strong>. Our team will reach out within 48 hours. <a href="/my-account" style="color:#2E7D32;font-weight:600;">Go to My Account →</a>`;
     } catch(e) {
-      showMsg('buyer-msg', 'error', 'Something went wrong: ' + e.message);
+      msg.textContent = 'Something went wrong: ' + e.message;
+      msg.className = 'cf-msg error';
       btn.disabled = false; btn.textContent = 'Create Account →';
     }
   }
