@@ -397,7 +397,7 @@
       showingLogin = false;
       updateTopbarLogin();
       renderPage();
-    } catch(e) { showMsg(msg, 'error', e.message==='DUPLICATE' ? 'An account with this email or mobile already exists. Please login instead.' : 'Error: ' + e.message); }
+    } catch(e) { showMsg(msg, 'error', e.message==='DUPLICATE' ? 'This mobile number or email is already registered. Please login instead.' : 'Error: ' + e.message); }
   }
 
   async function login() {

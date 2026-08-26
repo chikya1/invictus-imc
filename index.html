@@ -947,7 +947,7 @@
       loggedInMsg.style.display = 'block';
       loggedInMsg.innerHTML = `Account created! Welcome, <strong>${company}</strong>. Our team will reach out within 48 hours. <a href="/my-account" style="color:#2E7D32;font-weight:600;">Go to My Account →</a>`;
     } catch(e) {
-      msg.textContent = e.message==='DUPLICATE' ? 'An account with this email or mobile already exists. Please login instead.' : 'Something went wrong: ' + e.message;
+      msg.textContent = e.message==='DUPLICATE' ? 'This mobile number or email is already registered. Please login to your existing account.' : 'Something went wrong: ' + e.message;
       msg.className = 'cf-msg error';
       btn.disabled = false; btn.textContent = 'Create Account →';
     }

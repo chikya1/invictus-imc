@@ -244,7 +244,7 @@
         const insertBody = {
           company_name: company,
           poc_phone: mobile,
-          mobile,
+          mobile: mobile,
           poc_email: email||null,
           password_hash: hash,
           status: 'pending',
@@ -285,7 +285,7 @@
       accountType = selectedType;
       sessionStorage.setItem(sessionKey, JSON.stringify(currentUser));
       render();
-    } catch(e) { showMsg(msg,'error', e.message==='DUPLICATE' ? 'An account with this email or mobile already exists. Please login instead.' : 'Error: ' + e.message); }
+    } catch(e) { showMsg(msg,'error', e.message==='DUPLICATE' ? 'This mobile number or email is already registered. Please login to your existing account.' : 'Error: ' + e.message); }
   }
 
   async function login() {
