@@ -286,8 +286,8 @@
             <button onclick="showingLogin=false; renderPage();">Create account →</button>
           </div>
         </div>
-        <p class="section-sub">Use the email and password you set when you first bid on an Invictus IMC order.</p>
-        <label class="field-label">Mobile or Email</label>
+        <p class="section-sub">Use your mobile number or email and the password you set when creating your account.</p>
+        <label class="field-label">Mobile Number or Email</label>
         <input type="text" class="field-input" id="l-email" placeholder="+91 98765 43210 or you@factory.com" autocomplete="username" />
         <label class="field-label">Password</label>
         <input type="password" class="field-input" id="l-password" placeholder="Your password" autocomplete="current-password" />
@@ -476,6 +476,11 @@
       }
       showMsg(msg, 'success', `Bid of ₹${price.toLocaleString('en-IN')}/unit submitted! The Invictus IMC team will review and contact you within 48 hours.`);
       btn.textContent = 'Bid Submitted ✓';
+      // Show My Account CTA
+      const ctaDiv = document.createElement('div');
+      ctaDiv.style.cssText = 'margin-top:16px;padding:16px;background:var(--gold-dim);border:1px solid var(--gold-border);';
+      ctaDiv.innerHTML = `<p style="font-size:13px;color:var(--ink);margin-bottom:10px;line-height:1.6;">Want to explore more open orders? Your account dashboard shows all available orders and your bids.</p><a href="/my-account" style="display:inline-block;font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--void);background:var(--gold);padding:10px 20px;text-decoration:none;">Browse More Orders on My Account →</a>`;
+      msg.parentNode.insertBefore(ctaDiv, msg.nextSibling);
       loadMyBid();
     } catch(e) { showMsg(msg, 'error', 'Error: ' + e.message); btn.disabled = false; btn.textContent = 'Submit Bid →'; }
   }

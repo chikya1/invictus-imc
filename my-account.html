@@ -173,8 +173,8 @@
 
   function renderLoginForm() {
     return `
-      <label class="field-label">Mobile Number</label>
-      <input type="tel" class="field-input" id="l-mobile" placeholder="+91 98765 43210" autocomplete="tel" />
+      <label class="field-label">Mobile Number or Email</label>
+      <input type="text" class="field-input" id="l-mobile" placeholder="+91 98765 43210 or you@company.com" autocomplete="username" />
       <label class="field-label">Password</label>
       <input type="password" class="field-input" id="l-password" placeholder="Your password" autocomplete="current-password" />
       <div id="auth-msg" class="msg"></div>
@@ -279,35 +279,52 @@
   }
 
   async function login() {
-    const mobile = document.getElementById('l-mobile')?.value.trim();
+    const identifier = document.getElementById('l-mobile')?.value.trim();
     const password = document.getElementById('l-password')?.value;
     const msg = document.getElementById('auth-msg');
-    if (!mobile || !password) { showMsg(msg,'error','Enter your mobile and password.'); return; }
+    if (!identifier || !password) { showMsg(msg,'error','Enter your mobile/email and password.'); return; }
 
     showMsg(msg,'success','Logging in...');
     const hash = simpleHash(password);
     const table = selectedType === 'manufacturer' ? 'manufacturers' : 'buyers';
-    const mobileField = selectedType === 'manufacturer' ? 'poc_phone' : 'poc_phone';
     const sessionKey = selectedType === 'manufacturer' ? 'mfr_user' : 'buyer_user';
 
     try {
-      const res = await fetch(`${SUPA_URL}/rest/v1/${table}?${mobileField}=eq.${encodeURIComponent(mobile)}&select=*`, { headers: H });
-      const users = await res.json();
+      // Try mobile first, then email
+      const isEmail = identifier.includes('@');
+      let users = [];
+
+      if (!isEmail) {
+        const res = await fetch(`${SUPA_URL}/rest/v1/${table}?poc_phone=eq.${encodeURIComponent(identifier)}&select=*`, { headers: H });
+        users = await res.json();
+      }
+      // If not found by mobile or it's an email, try email
+      if (!users?.length) {
+        const res = await fetch(`${SUPA_URL}/rest/v1/${table}?poc_email=eq.${encodeURIComponent(identifier.toLowerCase())}&select=*`, { headers: H });
+        users = await res.json();
+      }
+
       if (!users?.length) { showMsg(msg,'error','No account found. Please sign up first.'); return; }
       const u = users[0];
-      if (!u.password_hash) { showMsg(msg,'error','No password set for this account. Please sign up to set a password.'); return; }
+      if (!u.password_hash) { showMsg(msg,'error','No password set. Please sign up to set a password.'); return; }
       if (u.password_hash !== hash) { showMsg(msg,'error','Incorrect password.'); return; }
+
       await fetch(`${SUPA_URL}/rest/v1/${table}?id=eq.${u.id}`, { method: 'PATCH', headers: { ...H, 'Prefer': 'return=minimal' }, body: JSON.stringify({ last_login: new Date().toISOString() }) });
+
       let loginId = u.id;
-      // For manufacturers, get manufacturer_accounts UUID for bidding
       if (selectedType === 'manufacturer') {
+        const mobile = u.poc_phone || identifier;
         const maRes = await fetch(`${SUPA_URL}/rest/v1/manufacturer_accounts?mobile=eq.${encodeURIComponent(mobile)}&select=id`, { headers: H });
         const maUsers = await maRes.json();
         if (maUsers?.length) loginId = maUsers[0].id;
       }
 
-      currentUser = { id: loginId, company_name: u.company_name, mobile: u.poc_phone||mobile, email: u.poc_email, status: u.status, type: selectedType };
+      currentUser = { id: loginId, company_name: u.company_name, mobile: u.poc_phone||identifier, email: u.poc_email, status: u.status, type: selectedType };
       accountType = selectedType;
+      sessionStorage.setItem(sessionKey, JSON.stringify(currentUser));
+      render();
+    } catch(e) { showMsg(msg,'error','Error: ' + e.message); }
+  }
       sessionStorage.setItem(sessionKey, JSON.stringify(currentUser));
       render();
     } catch(e) { showMsg(msg,'error','Error: ' + e.message); }
@@ -386,31 +403,86 @@
     // Open Orders to Bid On
     try {
       const ordersRes = await fetch(`${SUPA_URL}/rest/v1/manufacturing_orders?status=eq.open&parent_order_id=is.null&order=created_at.desc&select=*`, { headers: H });
-      const orders = await ordersRes.json();
-      html += `<div class="section-wrap"><div class="section-title">Open Orders (${orders.length})</div>`;
-      if (!orders.length) {
-        html += `<div class="empty-state"><p>No open orders right now. Check back soon.</p></div>`;
-      } else {
-        orders.forEach(o => {
-          html += `<div class="order-card">
-            <div class="order-card-code">${o.order_code}</div>
-            <div class="order-card-title">${o.part_name}</div>
-            <div class="order-card-meta">
-              ${o.industry ? `Industry: ${o.industry}<br/>` : ''}
-              ${o.monthly_quantity ? `Qty/month: ${o.monthly_quantity}<br/>` : ''}
-              ${o.material ? `Material: ${o.material}` : ''}
-            </div>
-            <div class="order-card-footer">
-              <span></span>
-              <a href="/order/${o.slug||o.id}" class="btn-small-gold">View &amp; Bid →</a>
-            </div>
-          </div>`;
-        });
-      }
-      html += `</div>`;
-    } catch(e) {}
+      const allOrders = await ordersRes.json();
+
+      html += `<div class="section-wrap">
+        <div class="section-title">Open Orders (${allOrders.length})</div>
+        <input type="text" id="order-search" class="field-input" placeholder="Search by part name, industry, material..." oninput="filterOrders()" style="margin-bottom:16px;" />
+        <div id="orders-list"></div>
+        <div id="orders-pagination" style="display:flex;gap:8px;margin-top:16px;flex-wrap:wrap;"></div>
+      </div>`;
+
+      // Store orders globally for filtering/pagination
+      window._allOrders = allOrders;
+      window._ordersPage = 0;
+      window._ordersPerPage = 8;
+
+      setTimeout(() => { filterOrders(); }, 50);
+    } catch(e) {
+      html += `<div class="empty-state"><p>Could not load orders: ${e.message}</p></div>`;
+    }
 
     return html;
+  }
+
+  function filterOrders() {
+    const q = (document.getElementById('order-search')?.value || '').toLowerCase();
+    const filtered = (window._allOrders || []).filter(o =>
+      !q || (o.part_name||'').toLowerCase().includes(q) ||
+      (o.industry||'').toLowerCase().includes(q) ||
+      (o.material||'').toLowerCase().includes(q) ||
+      (o.order_code||'').toLowerCase().includes(q)
+    );
+    window._filteredOrders = filtered;
+    window._ordersPage = 0;
+    renderOrdersPage();
+  }
+
+  function renderOrdersPage() {
+    const orders = window._filteredOrders || window._allOrders || [];
+    const page = window._ordersPage || 0;
+    const perPage = window._ordersPerPage || 8;
+    const start = page * perPage;
+    const pageOrders = orders.slice(start, start + perPage);
+    const totalPages = Math.ceil(orders.length / perPage);
+
+    const list = document.getElementById('orders-list');
+    const pag = document.getElementById('orders-pagination');
+    if (!list) return;
+
+    if (!pageOrders.length) {
+      list.innerHTML = `<div class="empty-state"><p>No orders match your search.</p></div>`;
+      if (pag) pag.innerHTML = '';
+      return;
+    }
+
+    list.innerHTML = pageOrders.map(o => `
+      <div class="order-card" style="display:grid;grid-template-columns:${o.drawing_url?'100px 1fr':'1fr'};gap:12px;align-items:start;margin-bottom:10px;">
+        ${o.drawing_url ? `<img src="${o.drawing_url}" style="width:100px;height:80px;object-fit:contain;background:#f8f8f8;border:1px solid var(--border);" alt="${o.part_name}" />` : ''}
+        <div>
+          <div class="order-card-code">${o.order_code}</div>
+          <div class="order-card-title">${o.part_name}</div>
+          <div class="order-card-meta">
+            ${o.industry ? `${o.industry} · ` : ''}${o.monthly_quantity ? o.monthly_quantity+'/mo' : o.annual_quantity || ''}
+          </div>
+          <div class="order-card-footer" style="margin-top:8px;">
+            <span></span>
+            <a href="/order/${o.slug||o.id}" class="btn-small-gold">View &amp; Bid →</a>
+          </div>
+        </div>
+      </div>`).join('');
+
+    // Pagination
+    if (pag) {
+      pag.innerHTML = '';
+      for (let i = 0; i < totalPages; i++) {
+        const btn = document.createElement('button');
+        btn.textContent = i + 1;
+        btn.style.cssText = `font-family:var(--sans);font-size:11px;padding:6px 12px;border:1px solid ${i===page?'var(--gold)':'var(--border)'};background:${i===page?'var(--gold)':'transparent'};color:${i===page?'var(--void)':'var(--ink-mid)'};cursor:pointer;`;
+        btn.onclick = () => { window._ordersPage = i; renderOrdersPage(); };
+        pag.appendChild(btn);
+      }
+    }
   }
 
   async function renderBuyerDashboard() {
