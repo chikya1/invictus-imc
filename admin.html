@@ -174,6 +174,9 @@
     }
     .dropdown-menu button:hover { background: var(--faint); }
     .dropdown-menu button.danger { color: #e74c3c; }
+    .bid-status { font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; padding: 3px 8px; display: inline-block; }
+    .link-btn { background: none; border: none; color: var(--gold); cursor: pointer; font-family: var(--sans); font-size: inherit; padding: 0; text-decoration: underline; text-underline-offset: 2px; }
+    .link-btn:hover { color: var(--gold-light); }
     .live-dot { display: inline-flex; align-items: center; gap: 5px; font-size: 10px; color: var(--green); }
     .live-dot::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--green); display: inline-block; }
 
@@ -1026,24 +1029,54 @@
             </div>
           </div>
         </div>
+        <!-- Bid Compare Modal -->
+        <div class="modal-overlay" id="bid-compare-modal" style="display:none;">
+          <div class="modal" style="max-width:680px;">
+            <div class="modal-header">
+              <div>
+                <div class="modal-title" id="bc-order-title">Compare Bids</div>
+                <div id="bc-order-sub" style="font-size:11px;color:var(--muted);margin-top:4px;"></div>
+              </div>
+              <button class="modal-close" onclick="closeBidCompareModal()">✕</button>
+            </div>
+            <div style="padding:24px;max-height:70vh;overflow-y:auto;" id="bc-body">Loading...</div>
+          </div>
+        </div>
+        <!-- Manufacturer Quick View Modal -->
+        <div class="modal-overlay" id="mfr-view-modal" style="display:none;">
+          <div class="modal" style="max-width:440px;">
+            <div class="modal-header">
+              <div class="modal-title">Manufacturer</div>
+              <button class="modal-close" onclick="document.getElementById('mfr-view-modal').style.display='none';">✕</button>
+            </div>
+            <div style="padding:24px;" id="mfr-view-body">Loading...</div>
+          </div>
+        </div>
       </div>
       <div class="tab-panel" id="tab-order-bids">
         <div class="page-title">Bids <em>Received</em></div>
-        <div class="page-subtitle">All bids submitted by manufacturers across all open orders.</div>
+        <div class="page-subtitle">All bids submitted by manufacturers. Click an order name to compare its bids and award.</div>
         <div class="section-header">
           <div class="section-title">All Bids <span id="bids-count" style="font-size:11px;color:var(--muted);margin-left:8px;"></span></div>
-          <div style="display:flex;gap:8px;align-items:center;">
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
             <select id="bids-order-filter" class="form-input" style="padding:8px 12px;font-size:12px;width:auto;" onchange="loadBids()">
               <option value="">All Orders</option>
             </select>
+            <label style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);cursor:pointer;"><input type="checkbox" id="bids-show-archived" onchange="loadBids()" /> Show archived</label>
+            <button class="btn-edit" id="bids-stop-btn" onclick="bulkStopAcceptingBids()" style="display:none;color:var(--gold);background:var(--gold-dim);border-color:var(--gold-border);">Stop Accepting Bids</button>
+            <button class="btn-edit" id="bids-archive-btn" onclick="bulkArchiveBids()" style="display:none;">Archive Selected</button>
+            <button class="btn-del" id="bids-delete-btn" onclick="bulkDeleteBids()" style="display:none;">Delete Selected</button>
             <button class="btn-edit" onclick="exportBids()" style="padding:10px 16px;">Export CSV</button>
           </div>
         </div>
         <table class="admin-table">
           <thead>
-            <tr><th>Order</th><th>Company</th><th>Mobile</th><th>Email</th><th>Price / Unit</th><th>Notes</th><th>Submitted</th><th>Actions</th></tr>
+            <tr>
+              <th><input type="checkbox" id="bids-check-all" onchange="toggleAllBidChecks(this.checked)" /></th>
+              <th>Order</th><th>Company</th><th>Status</th><th>Price / Unit</th><th>Submitted</th><th>Actions</th>
+            </tr>
           </thead>
-          <tbody id="bids-tbody"><tr><td colspan="8" class="table-empty">Loading...</td></tr></tbody>
+          <tbody id="bids-tbody"><tr><td colspan="7" class="table-empty">Loading...</td></tr></tbody>
         </table>
       </div>
 
@@ -2822,7 +2855,7 @@
             <span style="display:block;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;padding:4px 10px;background:rgba(61,170,110,0.1);color:#3DAA6E;margin-bottom:4px;">Open</span>
             <span style="font-size:9px;text-transform:uppercase;padding:3px 8px;${isPublished?'background:rgba(61,170,110,0.1);color:#3DAA6E;':isPending?'background:rgba(200,134,10,0.1);color:var(--gold);':'background:var(--faint);color:var(--muted);'}">${isPublished?'Live · Published':isPending?'Pending Review':o.buyer_id?'Buyer Order':'Admin'}</span>
           </td>
-          <td style="text-align:center;font-weight:600;color:var(--gold);">${bidCounts[o.id]||0}</td>
+          <td style="text-align:center;">${bidCounts[o.id] ? `<button class="link-btn" style="font-weight:600;" onclick="openBidCompareModal('${o.id}')">${bidCounts[o.id]}</button>` : `<span style="color:var(--muted);">0</span>`}</td>
           <td class="td-muted" style="font-size:11px;">${new Date(o.created_at).toLocaleDateString('en-IN')}</td>
           <td><div class="td-actions" style="align-items:center;">
             <button class="btn-icon" title="${o.featured?'Featured on homepage — click to unfeature':'Not featured — click to feature'}" style="${o.featured?'color:#3DAA6E;border-color:rgba(61,170,110,0.4);':''}" onclick="toggleFeatured('${o.id}',${o.featured})">${o.featured?'★':'☆'}</button>
@@ -3143,14 +3176,29 @@
     } catch(e) { tbody.innerHTML = `<tr><td colspan="7" class="table-empty">Error: ${e.message}</td></tr>`; }
   }
 
+  function bidStatusBadge(status) {
+    const s = status || 'submitted';
+    const map = {
+      submitted:   { label: 'Submitted',   bg: 'rgba(255,255,255,0.06)', color: 'var(--muted)' },
+      shortlisted: { label: 'Shortlisted', bg: 'rgba(74,144,217,0.12)',  color: '#4A90D9' },
+      awarded:     { label: 'Awarded',     bg: 'rgba(61,170,110,0.12)',  color: '#3DAA6E' },
+      rejected:    { label: 'Rejected',    bg: 'rgba(192,57,43,0.12)',   color: '#e74c3c' }
+    };
+    const m = map[s] || map.submitted;
+    return `<span class="bid-status" style="background:${m.bg};color:${m.color};">${m.label}</span>`;
+  }
+
   async function loadBids() {
     const tbody = document.getElementById('bids-tbody');
     const countEl = document.getElementById('bids-count');
     const filter = document.getElementById('bids-order-filter')?.value || '';
+    const showArchived = document.getElementById('bids-show-archived')?.checked;
     if (!tbody) return;
-    tbody.innerHTML = '<tr><td colspan="8" class="table-empty">Loading...</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="7" class="table-empty">Loading...</td></tr>';
     try {
-      const url = filter ? `${SUPA_URL}/rest/v1/order_bids?order_id=eq.${filter}&order=submitted_at.desc` : `${SUPA_URL}/rest/v1/order_bids?order=submitted_at.desc`;
+      let url = `${SUPA_URL}/rest/v1/order_bids?order=submitted_at.desc`;
+      if (filter) url += `&order_id=eq.${filter}`;
+      url += showArchived ? `` : `&archived=not.is.true`;
       const res = await fetch(url, { headers: { 'apikey': SUPA_ANON, 'Authorization': 'Bearer ' + SUPA_ANON } });
       const bids = await res.json();
       if (countEl) countEl.textContent = `(${bids.length})`;
@@ -3158,26 +3206,193 @@
       const orders = await ordersRes.json();
       const orderMap = {};
       orders.forEach(o => { orderMap[o.id] = `${o.order_code} — ${o.part_name}`; });
-      if (!bids.length) { tbody.innerHTML = '<tr><td colspan="8" class="table-empty">No bids received yet.</td></tr>'; return; }
+      if (!bids.length) { tbody.innerHTML = '<tr><td colspan="7" class="table-empty">No bids received yet.</td></tr>'; return; }
       tbody.innerHTML = bids.map(b => `
         <tr>
-          <td style="font-size:11px;color:var(--gold);">${orderMap[b.order_id]||'—'}</td>
-          <td><strong>${b.company_name||'—'}</strong></td>
-          <td class="td-muted">${b.mobile||'—'}</td>
-          <td class="td-muted">${b.email||'—'}</td>
+          <td><input type="checkbox" class="bid-check-item" value="${b.id}" data-order="${b.order_id}" onchange="updateBidActionBtns()" /></td>
+          <td style="font-size:11px;"><button class="link-btn" onclick="openBidCompareModal('${b.order_id}')">${orderMap[b.order_id]||'—'}</button></td>
+          <td><strong>${b.company_name||'—'}</strong><br/><span class="td-muted" style="font-size:11px;">${b.mobile||'—'}</span></td>
+          <td>${bidStatusBadge(b.status)}</td>
           <td><strong style="color:var(--gold);">₹${b.price_per_unit?Number(b.price_per_unit).toLocaleString('en-IN'):'—'}</strong><span class="td-muted"> /unit</span></td>
-          <td style="font-size:12px;max-width:200px;">${b.notes||'—'}</td>
           <td class="td-muted" style="font-size:11px;">${new Date(b.submitted_at).toLocaleString('en-IN')}</td>
-          <td><div class="td-actions"><a href="https://wa.me/${(b.mobile||'').replace(/[^0-9]/g,'')}" target="_blank" class="btn-edit">WhatsApp</a></div></td>
+          <td><div class="td-actions" style="align-items:center;">
+            <button class="btn-icon" title="WhatsApp" onclick="window.open('https://wa.me/${(b.mobile||'').replace(/[^0-9]/g,'')}','_blank')">✆</button>
+            <div class="dropdown-wrap">
+              <button class="btn-icon" onclick="toggleOrderMenu(event,'bid-${b.id}')" title="More actions">⋯</button>
+              <div class="dropdown-menu" id="order-menu-bid-${b.id}">
+                <button onclick="viewManufacturer('${b.manufacturer_id}');closeOrderMenus();">View Manufacturer</button>
+                <button onclick="setBidStatus('${b.id}','shortlisted');closeOrderMenus();">Shortlist</button>
+                <button onclick="awardBid('${b.id}','${b.order_id}','${(b.company_name||'').replace(/'/g,"\\'")}');closeOrderMenus();">Award Contract</button>
+                <button onclick="setBidStatus('${b.id}','rejected');closeOrderMenus();">Reject</button>
+                <button onclick="deleteSingleBid('${b.id}');closeOrderMenus();">Delete</button>
+              </div>
+            </div>
+          </div></td>
         </tr>`).join('');
-    } catch(e) { tbody.innerHTML = `<tr><td colspan="8" class="table-empty">Error: ${e.message}</td></tr>`; }
+    } catch(e) { tbody.innerHTML = `<tr><td colspan="7" class="table-empty">Error: ${e.message}</td></tr>`; }
+  }
+
+  function toggleAllBidChecks(checked) {
+    document.querySelectorAll('.bid-check-item').forEach(cb => cb.checked = checked);
+    updateBidActionBtns();
+  }
+
+  function updateBidActionBtns() {
+    const count = document.querySelectorAll('.bid-check-item:checked').length;
+    ['bids-archive-btn','bids-delete-btn','bids-stop-btn'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = count > 0 ? 'inline-block' : 'none';
+    });
+  }
+
+  function selectedBidIds() {
+    return [...document.querySelectorAll('.bid-check-item:checked')].map(cb => cb.value);
+  }
+
+  async function bulkDeleteBids() {
+    const ids = selectedBidIds();
+    if (!ids.length) return;
+    if (!confirm(`Permanently delete ${ids.length} selected bid(s)? This cannot be undone.`)) return;
+    await fetch(`${SUPA_URL}/rest/v1/order_bids?id=in.(${ids.join(',')})`, { method: 'DELETE', headers: { 'apikey': SUPA_ANON, 'Authorization': 'Bearer ' + SUPA_ANON, 'Prefer': 'return=minimal' } });
+    document.getElementById('bids-check-all').checked = false;
+    loadBids();
+  }
+
+  async function bulkArchiveBids() {
+    const ids = selectedBidIds();
+    if (!ids.length) return;
+    if (!confirm(`Archive ${ids.length} selected bid(s)? They'll be hidden from the default list but not deleted.`)) return;
+    await fetch(`${SUPA_URL}/rest/v1/order_bids?id=in.(${ids.join(',')})`, { method: 'PATCH', headers: { 'apikey': SUPA_ANON, 'Authorization': 'Bearer ' + SUPA_ANON, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' }, body: JSON.stringify({ archived: true }) });
+    document.getElementById('bids-check-all').checked = false;
+    loadBids();
+  }
+
+  async function bulkStopAcceptingBids() {
+    const rows = [...document.querySelectorAll('.bid-check-item:checked')];
+    if (!rows.length) return;
+    const orderIds = [...new Set(rows.map(cb => cb.dataset.order))];
+    if (!confirm(`Stop accepting new bids on ${orderIds.length} order(s)? This closes the order(s) — existing bids stay visible, but manufacturers won't be able to submit new ones.`)) return;
+    await fetch(`${SUPA_URL}/rest/v1/manufacturing_orders?id=in.(${orderIds.join(',')})`, { method: 'PATCH', headers: { 'apikey': SUPA_ANON, 'Authorization': 'Bearer ' + SUPA_ANON, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' }, body: JSON.stringify({ status: 'closed' }) });
+    document.getElementById('bids-check-all').checked = false;
+    loadBids();
+  }
+
+  async function deleteSingleBid(id) {
+    if (!confirm('Delete this bid? This cannot be undone.')) return;
+    await fetch(`${SUPA_URL}/rest/v1/order_bids?id=eq.${id}`, { method: 'DELETE', headers: { 'apikey': SUPA_ANON, 'Authorization': 'Bearer ' + SUPA_ANON, 'Prefer': 'return=minimal' } });
+    loadBids();
+  }
+
+  async function setBidStatus(id, status) {
+    await fetch(`${SUPA_URL}/rest/v1/order_bids?id=eq.${id}`, { method: 'PATCH', headers: { 'apikey': SUPA_ANON, 'Authorization': 'Bearer ' + SUPA_ANON, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' }, body: JSON.stringify({ status }) });
+    loadBids();
+    if (document.getElementById('bid-compare-modal').style.display === 'flex') {
+      const orderId = document.getElementById('bc-body').dataset.orderId;
+      if (orderId) openBidCompareModal(orderId);
+    }
+  }
+
+  async function awardBid(bidId, orderId, companyName) {
+    if (!confirm(`Award this contract to ${companyName}? This closes the order to new bids and marks other bids on it as rejected.`)) return;
+    await fetch(`${SUPA_URL}/rest/v1/order_bids?id=eq.${bidId}`, {
+      method: 'PATCH', headers: { 'apikey': SUPA_ANON, 'Authorization': 'Bearer ' + SUPA_ANON, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ status: 'awarded', awarded_at: new Date().toISOString() })
+    });
+    // Reject the other still-open bids on this order
+    await fetch(`${SUPA_URL}/rest/v1/order_bids?order_id=eq.${orderId}&id=neq.${bidId}&status=in.(submitted,shortlisted)`, {
+      method: 'PATCH', headers: { 'apikey': SUPA_ANON, 'Authorization': 'Bearer ' + SUPA_ANON, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ status: 'rejected' })
+    });
+    // Close the order and record who won it
+    await fetch(`${SUPA_URL}/rest/v1/manufacturing_orders?id=eq.${orderId}`, {
+      method: 'PATCH', headers: { 'apikey': SUPA_ANON, 'Authorization': 'Bearer ' + SUPA_ANON, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ status: 'closed', assigned_to: companyName })
+    });
+    loadBids();
+    if (document.getElementById('bid-compare-modal').style.display === 'flex') openBidCompareModal(orderId);
+  }
+
+  async function openBidCompareModal(orderId) {
+    const modal = document.getElementById('bid-compare-modal');
+    const body = document.getElementById('bc-body');
+    modal.style.display = 'flex';
+    body.dataset.orderId = orderId;
+    body.innerHTML = 'Loading...';
+    try {
+      const oRes = await fetch(`${SUPA_URL}/rest/v1/manufacturing_orders?id=eq.${orderId}&select=*`, { headers: { 'apikey': SUPA_ANON, 'Authorization': 'Bearer ' + SUPA_ANON } });
+      const [order] = await oRes.json();
+      document.getElementById('bc-order-title').textContent = order ? order.part_name : 'Compare Bids';
+      document.getElementById('bc-order-sub').textContent = order ? `${order.order_code} · ${order.status === 'closed' ? (order.assigned_to ? 'Awarded to ' + order.assigned_to : 'Closed') : 'Open for bids'}` : '';
+
+      const bRes = await fetch(`${SUPA_URL}/rest/v1/order_bids?order_id=eq.${orderId}&archived=not.is.true&order=price_per_unit.asc`, { headers: { 'apikey': SUPA_ANON, 'Authorization': 'Bearer ' + SUPA_ANON } });
+      const bids = await bRes.json();
+      if (!bids.length) { body.innerHTML = '<p style="color:var(--muted);font-size:13px;">No bids yet on this order.</p>'; return; }
+
+      const mfrIds = [...new Set(bids.map(b => b.manufacturer_id).filter(Boolean))];
+      let mfrMap = {};
+      if (mfrIds.length) {
+        const mRes = await fetch(`${SUPA_URL}/rest/v1/manufacturers?id=in.(${mfrIds.join(',')})&select=id,city,state,primary_sector,company_type`, { headers: { 'apikey': SUPA_ANON, 'Authorization': 'Bearer ' + SUPA_ANON } });
+        const mfrs = await mRes.json();
+        mfrs.forEach(m => { mfrMap[m.id] = m; });
+      }
+
+      body.innerHTML = bids.map(b => {
+        const m = mfrMap[b.manufacturer_id];
+        const alreadyAwarded = order && order.status === 'closed';
+        return `<div style="border:1px solid var(--faint);padding:16px;margin-bottom:10px;">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;">
+            <div>
+              <strong style="font-size:14px;">${b.company_name||'—'}</strong>
+              ${m ? `<div class="td-muted" style="font-size:11px;margin-top:2px;">${[m.primary_sector, [m.city,m.state].filter(Boolean).join(', ')].filter(Boolean).join(' · ')}</div>` : ''}
+            </div>
+            ${bidStatusBadge(b.status)}
+          </div>
+          <div style="margin-top:10px;font-size:20px;color:var(--gold);font-family:var(--serif);">₹${b.price_per_unit?Number(b.price_per_unit).toLocaleString('en-IN'):'—'}<span style="font-size:11px;color:var(--muted);"> /unit</span></div>
+          ${b.notes ? `<div style="font-size:12px;color:var(--muted);margin-top:6px;">${b.notes}</div>` : ''}
+          <div class="td-actions" style="margin-top:12px;">
+            <button class="btn-icon" title="WhatsApp" onclick="window.open('https://wa.me/${(b.mobile||'').replace(/[^0-9]/g,'')}','_blank')">✆</button>
+            <button class="btn-edit" onclick="viewManufacturer('${b.manufacturer_id}')">View Manufacturer</button>
+            ${b.status !== 'awarded' ? `<button class="btn-edit" onclick="setBidStatus('${b.id}','shortlisted')">Shortlist</button>` : ''}
+            ${!alreadyAwarded ? `<button class="btn-edit" style="color:#3DAA6E;background:rgba(61,170,110,0.1);border-color:rgba(61,170,110,0.3);" onclick="awardBid('${b.id}','${orderId}','${(b.company_name||'').replace(/'/g,"\\'")}')">Award Contract</button>` : ''}
+            ${b.status !== 'rejected' && b.status !== 'awarded' ? `<button class="btn-del" onclick="setBidStatus('${b.id}','rejected')">Reject</button>` : ''}
+          </div>
+        </div>`;
+      }).join('');
+    } catch(e) { body.innerHTML = `<p style="color:#e74c3c;font-size:13px;">Error: ${e.message}</p>`; }
+  }
+
+  function closeBidCompareModal() {
+    document.getElementById('bid-compare-modal').style.display = 'none';
+  }
+
+  async function viewManufacturer(id) {
+    const modal = document.getElementById('mfr-view-modal');
+    const body = document.getElementById('mfr-view-body');
+    modal.style.display = 'flex';
+    body.innerHTML = 'Loading...';
+    try {
+      const res = await fetch(`${SUPA_URL}/rest/v1/manufacturers?id=eq.${id}&select=*`, { headers: { 'apikey': SUPA_ANON, 'Authorization': 'Bearer ' + SUPA_ANON } });
+      const [m] = await res.json();
+      if (!m) { body.innerHTML = '<p style="color:var(--muted);font-size:13px;">Manufacturer record not found.</p>'; return; }
+      body.innerHTML = `
+        <div style="font-family:var(--serif);font-size:20px;margin-bottom:4px;">${m.company_name||'—'}</div>
+        <div class="td-muted" style="font-size:12px;margin-bottom:16px;">${m.company_type||''}</div>
+        <table style="width:100%;font-size:13px;">
+          <tr><td class="td-muted" style="padding:6px 0;">Sector</td><td style="text-align:right;">${m.primary_sector||'—'}</td></tr>
+          <tr><td class="td-muted" style="padding:6px 0;">Location</td><td style="text-align:right;">${[m.city,m.state].filter(Boolean).join(', ')||'—'}</td></tr>
+          <tr><td class="td-muted" style="padding:6px 0;">Contact</td><td style="text-align:right;">${m.poc_name||'—'}</td></tr>
+          <tr><td class="td-muted" style="padding:6px 0;">Phone</td><td style="text-align:right;">${m.poc_phone||m.mobile||'—'}</td></tr>
+          <tr><td class="td-muted" style="padding:6px 0;">Status</td><td style="text-align:right;">${m.status||'—'}</td></tr>
+        </table>
+        <a href="https://wa.me/${(m.poc_phone||m.mobile||'').replace(/[^0-9]/g,'')}" target="_blank" class="btn-save" style="display:block;text-align:center;text-decoration:none;margin-top:16px;">WhatsApp</a>`;
+    } catch(e) { body.innerHTML = `<p style="color:#e74c3c;font-size:13px;">Error: ${e.message}</p>`; }
   }
 
   function exportBids() {
     fetch(`${SUPA_URL}/rest/v1/order_bids?order=submitted_at.desc`, { headers: { 'apikey': SUPA_ANON, 'Authorization': 'Bearer ' + SUPA_ANON } })
       .then(r=>r.json()).then(bids => {
         if (!bids.length) { alert('No bids to export.'); return; }
-        const keys = ['company_name','mobile','email','price_per_unit','notes','submitted_at','order_id'];
+        const keys = ['company_name','mobile','email','price_per_unit','status','notes','submitted_at','order_id'];
         const csv = [keys.join(','), ...bids.map(b=>keys.map(k=>JSON.stringify(b[k]||'')).join(','))].join('\n');
         const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv'})); a.download = 'bids.csv'; a.click();
       });
