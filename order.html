@@ -137,14 +137,6 @@
 
     footer { background: var(--void); padding: 18px 16px; }
 
-    /* STATS STRIP */
-    .stats-strip { display: grid; grid-template-columns: repeat(3, 1fr); border-bottom: 1px solid var(--border); background: var(--white); }
-    .stat-cell { padding: 14px 4px; text-align: center; border-right: 1px solid var(--border); }
-    .stat-cell:last-child { border-right: none; }
-    .stat-num { font-family: var(--serif); font-size: 20px; color: var(--gold); line-height: 1.2; }
-    @media(min-width:600px) { .stat-num { font-size: 24px; } }
-    .stat-label { font-size: 8px; letter-spacing: 0.5px; text-transform: uppercase; color: var(--ink-mid); margin-top: 3px; }
-    @media(min-width:600px) { .stat-label { font-size: 9px; } }
 
     /* POST-BID BROWSE-MORE STATE */
     .postbid-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
@@ -176,12 +168,6 @@
 <div class="hero">
   <div class="hero-eyebrow">Manufacturing Order</div>
   <h1 class="hero-h1">Bid for this order.<br/><em>Get consistent work.</em></h1>
-</div>
-
-<div class="stats-strip" id="stats-strip" style="display:none;">
-  <div class="stat-cell"><div class="stat-num" id="stat-orders">–</div><div class="stat-label">Open orders</div></div>
-  <div class="stat-cell"><div class="stat-num" id="stat-industries">–</div><div class="stat-label">Industries</div></div>
-  <div class="stat-cell"><div class="stat-num" id="stat-manufacturers">–</div><div class="stat-label">Manufacturers</div></div>
 </div>
 
 <div class="content" id="main-content">
@@ -592,9 +578,6 @@
       let others = (all || []).filter(o => o.id !== currentId);
       window._otherOpenOrders = others;
 
-      // Stats strip — total open orders, distinct industries, approved manufacturers
-      loadStatsStrip(all || []);
-
       if (!others.length) return;
 
       let list = others;
@@ -633,20 +616,6 @@
     if (!cards[idx]) return;
     track.scrollTo({ left: cards[idx].offsetLeft - 16, behavior: 'smooth' });
     document.querySelectorAll('#explore-nav .carousel-dot').forEach((d,i) => d.classList.toggle('active', i===idx));
-  }
-
-  async function loadStatsStrip(openOrders) {
-    try {
-      const industries = new Set(openOrders.map(o => (o.industry||'').trim().toLowerCase()).filter(Boolean));
-      document.getElementById('stat-orders').textContent = openOrders.length;
-      document.getElementById('stat-industries').textContent = industries.size;
-
-      const mfgRes = await fetch(`${SUPA_URL}/rest/v1/manufacturers?status=eq.approved&select=id`, { headers: H });
-      const mfgs = await mfgRes.json();
-      document.getElementById('stat-manufacturers').textContent = (mfgs||[]).length + '+';
-
-      document.getElementById('stats-strip').style.display = 'grid';
-    } catch(e) {}
   }
 
   function renderPostBidOrderGrid(list) {
