@@ -141,6 +141,27 @@
       padding: 6px 12px; cursor: pointer; transition: all 0.2s;
     }
     .btn-del:hover { background: rgba(192,57,43,0.2); }
+    .btn-icon {
+      font-family: var(--sans); font-size: 12px; line-height: 1;
+      width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center;
+      border: 1px solid var(--border); background: var(--surface); color: var(--muted);
+      cursor: pointer; transition: all 0.2s; padding: 0;
+    }
+    .btn-icon:hover { filter: brightness(1.15); }
+    .order-thumb { width: 34px; height: 34px; object-fit: contain; background: #f2f2f2; border: 1px solid var(--faint); display: block; margin-top: 4px; }
+    .dropdown-wrap { position: relative; display: inline-block; }
+    .dropdown-menu {
+      display: none; position: absolute; right: 0; top: calc(100% + 4px); z-index: 50;
+      background: var(--panel, #171717); border: 1px solid var(--border); min-width: 140px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+    }
+    .dropdown-menu.open { display: block; }
+    .dropdown-menu button {
+      display: block; width: 100%; text-align: left; padding: 8px 12px; font-size: 11px;
+      background: none; border: none; color: var(--white); cursor: pointer; white-space: nowrap;
+    }
+    .dropdown-menu button:hover { background: var(--faint); }
+    .dropdown-menu button.danger { color: #e74c3c; }
     .live-dot { display: inline-flex; align-items: center; gap: 5px; font-size: 10px; color: var(--green); }
     .live-dot::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--green); display: inline-block; }
 
@@ -248,6 +269,13 @@
     body.light-mode .admin-table tr:hover td {
       background: rgba(28,28,28,0.03);
     }
+
+    body.light-mode .dropdown-menu {
+      background: #FFFFFF; border-color: rgba(28,28,28,0.12); box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+    }
+    body.light-mode .dropdown-menu button { color: #1C1C1C; }
+    body.light-mode .dropdown-menu button:hover { background: rgba(28,28,28,0.05); }
+    body.light-mode .btn-icon { background: #FFFFFF; border-color: rgba(28,28,28,0.12); color: #555; }
 
     body.light-mode .stat-card {
       background: #FFFFFF;
@@ -2761,28 +2789,46 @@
             </td>
           </tr>` : '';
 
+        // Published = visible on the Opportunity page (featured===true). Pending = buyer order awaiting admin action.
+        const isPending = o.review_status === 'pending_review';
+        const isPublished = !!o.featured;
+        const partNameEsc = o.part_name.replace(/'/g,"\\'");
+        const industryEsc = (o.industry||'').replace(/'/g,"\\'");
+        const materialEsc = (o.material||'').replace(/'/g,"\\'");
+
         return `<tr>
           <td><input type="checkbox" class="order-check-item" value="${o.id}" onchange="updateOrderArchiveBtn()" /></td>
           <td>
             <span style="font-family:monospace;font-size:12px;color:var(--gold);">${o.order_code}</span>
+            ${o.drawing_url ? `<img src="${o.drawing_url}" class="order-thumb" alt="${o.part_name}" />` : ''}
             ${subs.length ? `<br/><button onclick="toggleSubOrders('${o.id}')" style="font-size:10px;color:var(--muted);background:none;border:none;cursor:pointer;padding:2px 0;">▶ ${subs.length} sub-order${subs.length>1?'s':''}</button>` : ''}
           </td>
           <td><strong>${o.part_name}</strong></td>
           <td class="td-muted">${o.industry||'—'}</td>
           <td class="td-muted" style="font-size:11px;">${o.monthly_quantity||o.annual_quantity||'—'}</td>
-          <td><span style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;padding:4px 10px;background:rgba(61,170,110,0.1);color:#3DAA6E;">Open</span></td>
-          <td><span style="font-size:9px;text-transform:uppercase;padding:3px 8px;${o.review_status==='pending_review'?'background:rgba(200,134,10,0.1);color:var(--gold);':'background:rgba(61,170,110,0.1);color:#3DAA6E;'}">${o.review_status==='pending_review'?'Pending Review':o.buyer_id?'Buyer Order':'Admin'}</span></td>
+          <td>
+            <span style="display:block;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;padding:4px 10px;background:rgba(61,170,110,0.1);color:#3DAA6E;margin-bottom:4px;">Open</span>
+            <span style="font-size:9px;text-transform:uppercase;padding:3px 8px;${isPublished?'background:rgba(61,170,110,0.1);color:#3DAA6E;':isPending?'background:rgba(200,134,10,0.1);color:var(--gold);':'background:var(--faint);color:var(--muted);'}">${isPublished?'Live · Published':isPending?'Pending Review':o.buyer_id?'Buyer Order':'Admin'}</span>
+          </td>
           <td style="text-align:center;font-weight:600;color:var(--gold);">${bidCounts[o.id]||0}</td>
           <td class="td-muted" style="font-size:11px;">${new Date(o.created_at).toLocaleDateString('en-IN')}</td>
-          <td><div class="td-actions">
-            <button class="btn-edit" onclick="copyOrderLink('${link}')">Link</button>
-            <button class="btn-edit" onclick="whatsappOrder('${o.order_code}','${o.part_name.replace(/'/g,"\\'")}','${link}','${(o.industry||'').replace(/'/g,"\\'")}','${(o.material||'').replace(/'/g,"\\'")}')">WhatsApp</button>
-            <button class="btn-edit" style="color:var(--gold);background:var(--gold-dim);border-color:var(--gold-border);" onclick="openSplitModal('${o.id}','${o.order_code}','${o.part_name.replace(/'/g,'')}','${o.monthly_quantity||o.annual_quantity||''}')">Split</button>
-            <button class="btn-edit" style="color:${o.featured?'#3DAA6E':'var(--muted)'};background:${o.featured?'rgba(61,170,110,0.1)':'var(--surface)'};border-color:${o.featured?'rgba(61,170,110,0.3)':'var(--border)'};" onclick="toggleFeatured('${o.id}',${o.featured})">${o.featured?'★ Featured':'☆ Feature'}</button>
-            <button class="btn-edit" style="color:${o.carousel?'#4A90D9':'var(--muted)'};background:${o.carousel?'rgba(74,144,217,0.1)':'var(--surface)'};border-color:${o.carousel?'rgba(74,144,217,0.3)':'var(--border)'};" onclick="toggleCarousel('${o.id}',${o.carousel||false})">${o.carousel?'⟳ Carousel':'○ Carousel'}</button>
-            ${o.review_status === 'pending_review' ? `<button class="btn-edit" style="color:#3DAA6E;background:rgba(61,170,110,0.1);border-color:rgba(61,170,110,0.3);" onclick="publishOrder('${o.id}')">✓ Publish</button>` : ''}
-            <button class="btn-edit" onclick="openEditOrderModal('${o.id}')">Edit</button>
-            <button class="btn-del" onclick="archiveOrder('${o.id}')">Archive</button>
+          <td><div class="td-actions" style="align-items:center;">
+            <button class="btn-icon" title="${o.featured?'Featured on homepage — click to unfeature':'Not featured — click to feature'}" style="${o.featured?'color:#3DAA6E;border-color:rgba(61,170,110,0.4);':''}" onclick="toggleFeatured('${o.id}',${o.featured})">${o.featured?'★':'☆'}</button>
+            <button class="btn-icon" title="${o.carousel?'In homepage carousel — click to remove':'Not in carousel — click to add'}" style="${o.carousel?'color:#4A90D9;border-color:rgba(74,144,217,0.4);':''}" onclick="toggleCarousel('${o.id}',${o.carousel||false})">${o.carousel?'⟳':'○'}</button>
+            ${o.buyer_id ? (isPending
+              ? `<button class="btn-edit" style="color:var(--gold);background:var(--gold-dim);border-color:var(--gold-border);" onclick="publishOrder('${o.id}')" title="Not yet visible on the Opportunity page">Publish</button>`
+              : `<button class="btn-edit" style="color:var(--muted);" onclick="unpublishOrder('${o.id}')" title="Currently live on the Opportunity page">Unpublish</button>`
+            ) : ''}
+            <div class="dropdown-wrap">
+              <button class="btn-icon" onclick="toggleOrderMenu(event,'${o.id}')" title="More actions">⋯</button>
+              <div class="dropdown-menu" id="order-menu-${o.id}">
+                <button onclick="copyOrderLink('${link}');closeOrderMenus();">Copy Link</button>
+                <button onclick="whatsappOrder('${o.order_code}','${partNameEsc}','${link}','${industryEsc}','${materialEsc}');closeOrderMenus();">WhatsApp</button>
+                <button onclick="openSplitModal('${o.id}','${o.order_code}','${o.part_name.replace(/'/g,'')}','${o.monthly_quantity||o.annual_quantity||''}');closeOrderMenus();">Split Order</button>
+                <button onclick="openEditOrderModal('${o.id}');closeOrderMenus();">Edit</button>
+                <button class="danger" onclick="archiveOrder('${o.id}');closeOrderMenus();">Archive</button>
+              </div>
+            </div>
           </div></td>
         </tr>${subRows}`;
       }).join('');
@@ -2951,6 +2997,27 @@
     });
     loadOrders();
   }
+
+  async function unpublishOrder(id) {
+    if (!confirm('Unpublish this order? It will be removed from the Opportunity page and go back to Pending Review.')) return;
+    await fetch(`${SUPA_URL}/rest/v1/manufacturing_orders?id=eq.${id}`, {
+      method: 'PATCH', headers: { 'apikey': SUPA_ANON, 'Authorization': 'Bearer ' + SUPA_ANON, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ review_status: 'pending_review', featured: false })
+    });
+    loadOrders();
+  }
+
+  function toggleOrderMenu(evt, id) {
+    evt.stopPropagation();
+    const menu = document.getElementById('order-menu-' + id);
+    const wasOpen = menu.classList.contains('open');
+    closeOrderMenus();
+    if (!wasOpen) menu.classList.add('open');
+  }
+  function closeOrderMenus() {
+    document.querySelectorAll('.dropdown-menu.open').forEach(m => m.classList.remove('open'));
+  }
+  document.addEventListener('click', closeOrderMenus);
 
   async function toggleFeatured(id, currentlyFeatured) {
     await fetch(`${SUPA_URL}/rest/v1/manufacturing_orders?id=eq.${id}`, {

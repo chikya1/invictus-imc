@@ -530,6 +530,8 @@
         // My submitted orders
         const ordersRes = await fetch(`${SUPA_URL}/rest/v1/manufacturing_orders?buyer_id=eq.${b.id}&order=created_at.desc&select=*`, { headers: H });
         const myOrders = await ordersRes.json();
+        window._myBuyerOrders = myOrders;
+        window._editingOrderId = null;
 
         html += `<div class="section-wrap">
           <div class="section-title" style="display:flex;align-items:center;justify-content:space-between;">
@@ -537,11 +539,12 @@
             <button class="btn-small-gold" onclick="toggleBuyerOrderForm()" id="add-order-btn" style="font-size:10px;padding:8px 16px;">+ Add Order</button>
           </div>
 
-          <!-- ORDER FORM -->
+          <!-- ORDER FORM (shared for add + edit) -->
           <div id="buyer-order-form" style="display:none;background:var(--white);border:1px solid var(--border);border-left:3px solid var(--gold);padding:24px;margin-bottom:16px;">
             <input type="hidden" id="bo-buyer-id" value="${b.id}" />
-            <div style="font-family:var(--serif);font-size:18px;color:var(--ink);margin-bottom:4px;">Submit a Manufacturing Order</div>
-            <p style="font-size:12px;color:var(--ink-mid);margin-bottom:20px;">Our team will review and publish your order within 48 hours. Manufacturers will then be able to bid on it.</p>
+            <input type="hidden" id="bo-edit-id" value="" />
+            <div style="font-family:var(--serif);font-size:18px;color:var(--ink);margin-bottom:4px;" id="bo-form-title">Submit a Manufacturing Order</div>
+            <p style="font-size:12px;color:var(--ink-mid);margin-bottom:20px;" id="bo-form-sub">Our team will review and publish your order within 48 hours. Manufacturers will then be able to bid on it.</p>
             <label class="field-label">Part Name *</label>
             <input type="text" class="field-input" id="bo-part" placeholder="e.g. Injection Moulded Plastic Casing" />
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
@@ -568,11 +571,12 @@
             <input type="text" class="field-input" id="bo-process" placeholder="e.g. Injection Moulding" />
             <label class="field-label">Additional Details</label>
             <textarea class="field-input" id="bo-details" rows="3" placeholder="Any certifications, tolerances, surface finish requirements..."></textarea>
-            <label class="field-label">Technical Drawing * <span style="font-size:9px;font-weight:400;color:var(--ink-mid);">(image or PDF)</span></label>
+            <label class="field-label" id="bo-drawing-label">Technical Drawing * <span style="font-size:9px;font-weight:400;color:var(--ink-mid);">(image or PDF)</span></label>
             <input type="file" class="field-input" id="bo-drawing" accept="image/*,.pdf" style="padding:8px;" />
+            <div id="bo-current-drawing" style="font-size:11px;color:var(--ink-mid);margin-top:4px;"></div>
             <div id="bo-msg" class="msg"></div>
             <div style="display:flex;gap:10px;margin-top:16px;">
-              <button class="btn-small-gold" onclick="submitBuyerOrder()" style="padding:12px 24px;font-size:11px;">Submit Order →</button>
+              <button class="btn-small-gold" onclick="submitBuyerOrder()" id="bo-submit-btn" style="padding:12px 24px;font-size:11px;">Submit Order →</button>
               <button onclick="toggleBuyerOrderForm()" style="font-family:var(--sans);font-size:11px;padding:12px 20px;background:transparent;border:1px solid var(--border);color:var(--ink-mid);cursor:pointer;">Cancel</button>
             </div>
           </div>`;
@@ -585,6 +589,7 @@
             const rs = o.review_status || 'pending_review';
             const rsColor = rs === 'open' ? '#2E7D32' : rs === 'rejected' ? '#c0392b' : 'var(--gold)';
             const rsLabel = rs === 'open' ? 'Open for Bids' : rs === 'rejected' ? 'Rejected' : 'Pending Review';
+            const canEdit = rs === 'pending_review' || rs === 'rejected';
             html += `<div class="order-card" style="display:grid;grid-template-columns:${o.drawing_url?'80px 1fr':'1fr'};gap:12px;align-items:start;margin-bottom:10px;">
               ${o.drawing_url ? `<img src="${o.drawing_url}" style="width:80px;height:64px;object-fit:contain;background:#f8f8f8;border:1px solid var(--border);" alt="${o.part_name}" />` : ''}
               <div>
@@ -594,7 +599,10 @@
                     <div class="order-card-title">${o.part_name}</div>
                     <div class="order-card-meta">${o.industry||''} ${o.annual_quantity?'· '+o.annual_quantity:''}</div>
                   </div>
-                  <span style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;padding:4px 10px;border:1px solid;color:${rsColor};border-color:${rsColor};white-space:nowrap;">${rsLabel}</span>
+                  <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
+                    <span style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;padding:4px 10px;border:1px solid;color:${rsColor};border-color:${rsColor};white-space:nowrap;">${rsLabel}</span>
+                    ${canEdit ? `<button onclick="editBuyerOrder('${o.id}')" style="font-family:var(--sans);font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--gold);background:none;border:1px solid var(--gold-border,var(--border));padding:4px 10px;cursor:pointer;">Edit</button>` : ''}
+                  </div>
                 </div>
               </div>
             </div>`;
@@ -613,14 +621,54 @@
     const form = document.getElementById('buyer-order-form');
     const btn = document.getElementById('add-order-btn');
     const show = form.style.display === 'none';
+    if (show) resetBuyerOrderForm(); // opening via "+ Add Order" always starts fresh (not editing)
     form.style.display = show ? 'block' : 'none';
     btn.textContent = show ? '✕ Cancel' : '+ Add Order';
     if (show) form.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
+  function resetBuyerOrderForm() {
+    window._editingOrderId = null;
+    document.getElementById('bo-edit-id').value = '';
+    ['bo-part','bo-industry','bo-annual','bo-monthly','bo-material','bo-process','bo-details'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
+    const fileInput = document.getElementById('bo-drawing');
+    if (fileInput) fileInput.value = '';
+    document.getElementById('bo-current-drawing').innerHTML = '';
+    document.getElementById('bo-drawing-label').innerHTML = 'Technical Drawing * <span style="font-size:9px;font-weight:400;color:var(--ink-mid);">(image or PDF)</span>';
+    document.getElementById('bo-form-title').textContent = 'Submit a Manufacturing Order';
+    document.getElementById('bo-form-sub').textContent = 'Our team will review and publish your order within 48 hours. Manufacturers will then be able to bid on it.';
+    document.getElementById('bo-submit-btn').textContent = 'Submit Order →';
+  }
+
+  function editBuyerOrder(id) {
+    const order = (window._myBuyerOrders || []).find(o => String(o.id) === String(id));
+    if (!order) return;
+    window._editingOrderId = id;
+    document.getElementById('bo-edit-id').value = id;
+    document.getElementById('bo-part').value = order.part_name || '';
+    document.getElementById('bo-industry').value = order.industry || '';
+    document.getElementById('bo-annual').value = order.annual_quantity || '';
+    document.getElementById('bo-monthly').value = order.monthly_quantity || '';
+    document.getElementById('bo-material').value = order.material || '';
+    document.getElementById('bo-process').value = order.primary_process || '';
+    document.getElementById('bo-details').value = order.additional_details || '';
+    document.getElementById('bo-drawing-label').innerHTML = 'Technical Drawing <span style="font-size:9px;font-weight:400;color:var(--ink-mid);">(leave blank to keep the current file)</span>';
+    document.getElementById('bo-current-drawing').innerHTML = order.drawing_url ? `Current file: <a href="${order.drawing_url}" target="_blank" style="color:var(--gold);">view drawing</a>` : '';
+    document.getElementById('bo-form-title').textContent = 'Edit Manufacturing Order';
+    document.getElementById('bo-form-sub').textContent = 'Changes will be reviewed again by our team before the order stays live.';
+    document.getElementById('bo-submit-btn').textContent = 'Update Order →';
+    document.getElementById('bo-msg').innerHTML = '';
+    const form = document.getElementById('buyer-order-form');
+    const btn = document.getElementById('add-order-btn');
+    form.style.display = 'block';
+    btn.textContent = '✕ Cancel';
+    form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
   function toSlug(str) { return str.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''); }
 
   async function submitBuyerOrder() {
+    const editId = document.getElementById('bo-edit-id')?.value || window._editingOrderId;
     const buyerId = document.getElementById('bo-buyer-id')?.value;
     const part = document.getElementById('bo-part')?.value.trim();
     const industry = document.getElementById('bo-industry')?.value.trim();
@@ -636,52 +684,66 @@
     if (!industry) { showMsg(msg, 'error', 'Industry is required.'); return; }
     if (!annual) { showMsg(msg, 'error', 'Annual quantity is required.'); return; }
     if (!material) { showMsg(msg, 'error', 'Material is required.'); return; }
-    if (!fileInput?.files?.[0]) { showMsg(msg, 'error', 'Technical drawing is required.'); return; }
-
-    showMsg(msg, 'success', 'Uploading drawing...');
+    // Drawing is only mandatory when adding a new order — editing can keep the existing file
+    if (!editId && !fileInput?.files?.[0]) { showMsg(msg, 'error', 'Technical drawing is required.'); return; }
 
     try {
-      const orderCode = 'IMC-' + Date.now().toString(36).toUpperCase().slice(-6);
-
-      // Generate slug
-      const baseSlug = [industry, part].map(toSlug).join('-').substring(0, 80);
-      let slug = baseSlug, suffix = 2;
-      while (true) {
-        const check = await fetch(`${SUPA_URL}/rest/v1/manufacturing_orders?slug=eq.${slug}&select=id`, { headers: H });
-        const ex = await check.json();
-        if (!ex.length) break;
-        slug = `${baseSlug}-${suffix++}`;
+      let drawingUrl = null;
+      if (fileInput?.files?.[0]) {
+        showMsg(msg, 'success', 'Uploading drawing...');
+        const orderCodeForFile = editId ? ('EDIT-' + Date.now().toString(36).toUpperCase()) : ('IMC-' + Date.now().toString(36).toUpperCase().slice(-6));
+        const file = fileInput.files[0];
+        const ext = file.name.split('.').pop();
+        const fileName = `${orderCodeForFile}.${ext}`;
+        const uploadRes = await fetch(`${SUPA_URL}/storage/v1/object/order-drawings/${fileName}`, {
+          method: 'POST', headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY, 'Content-Type': file.type }, body: file
+        });
+        if (uploadRes.ok) drawingUrl = `${SUPA_URL}/storage/v1/object/public/order-drawings/${fileName}`;
+        else { showMsg(msg, 'error', 'Drawing upload failed. Please try again.'); return; }
       }
 
-      // Upload drawing
-      let drawingUrl = null;
-      const file = fileInput.files[0];
-      const ext = file.name.split('.').pop();
-      const fileName = `${orderCode}.${ext}`;
-      const uploadRes = await fetch(`${SUPA_URL}/storage/v1/object/order-drawings/${fileName}`, {
-        method: 'POST', headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY, 'Content-Type': file.type }, body: file
-      });
-      if (uploadRes.ok) drawingUrl = `${SUPA_URL}/storage/v1/object/public/order-drawings/${fileName}`;
-      else { showMsg(msg, 'error', 'Drawing upload failed. Please try again.'); return; }
+      if (editId) {
+        // UPDATE existing order — send back for review since details changed
+        showMsg(msg, 'success', 'Saving changes...');
+        const body = {
+          part_name: part, industry, annual_quantity: annual, monthly_quantity: monthly||null,
+          material, primary_process: process||null, additional_details: details||null,
+          review_status: 'pending_review', featured: false
+        };
+        if (drawingUrl) body.drawing_url = drawingUrl;
+        const res = await fetch(`${SUPA_URL}/rest/v1/manufacturing_orders?id=eq.${editId}`, {
+          method: 'PATCH', headers: { ...H, 'Prefer': 'return=minimal' }, body: JSON.stringify(body)
+        });
+        if (!res.ok) throw new Error(await res.text());
+        showMsg(msg, 'success', '✓ Order updated! Our team will review the changes before it goes live again.');
+      } else {
+        // CREATE new order
+        const orderCode = 'IMC-' + Date.now().toString(36).toUpperCase().slice(-6);
+        const baseSlug = [industry, part].map(toSlug).join('-').substring(0, 80);
+        let slug = baseSlug, suffix = 2;
+        while (true) {
+          const check = await fetch(`${SUPA_URL}/rest/v1/manufacturing_orders?slug=eq.${slug}&select=id`, { headers: H });
+          const ex = await check.json();
+          if (!ex.length) break;
+          slug = `${baseSlug}-${suffix++}`;
+        }
+        showMsg(msg, 'success', 'Creating order...');
+        const res = await fetch(`${SUPA_URL}/rest/v1/manufacturing_orders`, {
+          method: 'POST',
+          headers: { ...H, 'Prefer': 'return=representation' },
+          body: JSON.stringify({
+            order_code: orderCode, slug, part_name: part, industry, annual_quantity: annual,
+            monthly_quantity: monthly||null, material, primary_process: process||null,
+            additional_details: details||null, drawing_url: drawingUrl,
+            status: 'open', review_status: 'pending_review', buyer_id: parseInt(buyerId)
+          })
+        });
+        if (!res.ok) throw new Error(await res.text());
+        showMsg(msg, 'success', '✓ Order submitted! Our team will review and publish it within 48 hours.');
+      }
 
-      showMsg(msg, 'success', 'Creating order...');
-
-      const res = await fetch(`${SUPA_URL}/rest/v1/manufacturing_orders`, {
-        method: 'POST',
-        headers: { ...H, 'Prefer': 'return=representation' },
-        body: JSON.stringify({
-          order_code: orderCode, slug, part_name: part, industry, annual_quantity: annual,
-          monthly_quantity: monthly||null, material, primary_process: process||null,
-          additional_details: details||null, drawing_url: drawingUrl,
-          status: 'open', review_status: 'pending_review', buyer_id: parseInt(buyerId)
-        })
-      });
-      if (!res.ok) throw new Error(await res.text());
-
-      showMsg(msg, 'success', '✓ Order submitted! Our team will review and publish it within 48 hours.');
-      ['bo-part','bo-industry','bo-annual','bo-monthly','bo-material','bo-process','bo-details'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
-      fileInput.value = '';
-      // Reload dashboard to show new order
+      resetBuyerOrderForm();
+      // Reload dashboard to show updated list
       setTimeout(() => renderDashboard(), 1500);
     } catch(e) {
       showMsg(msg, 'error', 'Error: ' + e.message);
