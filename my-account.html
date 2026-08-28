@@ -90,6 +90,12 @@
     footer { background: var(--void); padding: 18px 16px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 6px; }
     .footer-text { font-size: 10px; color: rgba(255,255,255,0.25); }
     .footer-contact { font-size: 11px; color: rgba(200,134,10,0.6); }
+
+    .img-lightbox { display: none; position: fixed; inset: 0; z-index: 999; background: rgba(0,0,0,0.85); align-items: center; justify-content: center; padding: 40px; cursor: zoom-out; }
+    .img-lightbox.open { display: flex; }
+    .img-lightbox img { max-width: 90vw; max-height: 88vh; object-fit: contain; background: #fff; }
+    .img-lightbox-close { position: absolute; top: 20px; right: 28px; font-size: 28px; color: #fff; cursor: pointer; background: none; border: none; line-height: 1; }
+    .bid-thumb { width: 56px; height: 56px; object-fit: contain; background: #f8f8f8; border: 1px solid var(--border); cursor: pointer; flex-shrink: 0; }
   </style>
 </head>
 <body>
@@ -397,14 +403,29 @@
           html += `<div class="empty-state"><p>No bids submitted yet.</p></div>`;
         } else {
           const orderIds = [...new Set(bids.map(b => b.order_id))];
-          const ordersRes = await fetch(`${SUPA_URL}/rest/v1/manufacturing_orders?id=in.(${orderIds.join(',')})&select=id,order_code,part_name,status,slug`, { headers: H });
+          const ordersRes = await fetch(`${SUPA_URL}/rest/v1/manufacturing_orders?id=in.(${orderIds.join(',')})&select=*`, { headers: H });
           const orders = await ordersRes.json();
           const orderMap = {};
           orders.forEach(o => { orderMap[o.id] = o; });
 
+          // Buyer company name only — Invictus IMC manages the relationship, so we don't expose buyer contact details directly
+          const buyerIds = [...new Set(orders.map(o => o.buyer_id).filter(Boolean))];
+          let buyerMap = {};
+          if (buyerIds.length) {
+            const buyersRes = await fetch(`${SUPA_URL}/rest/v1/buyers?id=in.(${buyerIds.join(',')})&select=id,company_name`, { headers: H });
+            const buyersList = await buyersRes.json();
+            buyersList.forEach(b => { buyerMap[b.id] = b; });
+          }
+
           bids.forEach(b => {
             const o = orderMap[b.order_id] || {};
-            const bs = b.status || 'submitted';
+            const buyer = o.buyer_id ? buyerMap[o.buyer_id] : null;
+
+            // Derive the LIVE status: an order can close via routes that never touch bid.status
+            // (e.g. admin "Stop Accepting Bids"), so always fold in current order.status too.
+            let bs = b.status || 'submitted';
+            if (bs !== 'awarded' && bs !== 'rejected' && o.status && o.status !== 'open') bs = 'rejected';
+
             const bsMap = {
               awarded:     { label: '🎉 Awarded to You', color: '#2E7D32' },
               rejected:    { label: 'Not Selected This Time', color: '#c0392b' },
@@ -412,18 +433,28 @@
               submitted:   { label: 'Bid Submitted — Under Review', color: 'var(--ink-mid)' }
             };
             const bsInfo = bsMap[bs] || bsMap.submitted;
+            const partNameEsc = (o.part_name||'').replace(/'/g,"\\'");
+            const contactMsg = `Hi Invictus IMC team, I'd like to get in touch regarding order ${o.order_code||''} (${o.part_name||''}) that I bid on. Could you help facilitate contact with the buyer?`;
+
             html += `<div class="order-card">
-              <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;flex-wrap:wrap;">
-                <div class="order-card-code">${o.order_code||'—'}</div>
-                <span style="font-size:9px;letter-spacing:1px;text-transform:uppercase;padding:4px 10px;border:1px solid;color:${bsInfo.color};border-color:${bsInfo.color};white-space:nowrap;">${bsInfo.label}</span>
+              <div style="display:flex;gap:12px;">
+                ${o.drawing_url ? `<img src="${o.drawing_url}" class="bid-thumb" alt="${partNameEsc}" onclick="openImgLightbox('${o.drawing_url}','${partNameEsc}')" />` : ''}
+                <div style="flex:1;min-width:0;">
+                  <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;flex-wrap:wrap;">
+                    <div class="order-card-code">${o.order_code||'—'}</div>
+                    <span style="font-size:9px;letter-spacing:1px;text-transform:uppercase;padding:4px 10px;border:1px solid;color:${bsInfo.color};border-color:${bsInfo.color};white-space:nowrap;">${bsInfo.label}</span>
+                  </div>
+                  <div class="order-card-title">${o.part_name||'—'}</div>
+                  <div class="order-card-meta">${[o.industry, o.material, buyer ? 'Buyer: '+buyer.company_name : null].filter(Boolean).join(' · ')}</div>
+                </div>
               </div>
-              <div class="order-card-title">${o.part_name||'—'}</div>
-              <div class="order-card-meta">Order Status: ${o.status||'—'} · Submitted ${new Date(b.submitted_at).toLocaleDateString('en-IN')}</div>
               <div class="order-card-footer">
                 <div class="bid-amount">₹${Number(b.price_per_unit).toLocaleString('en-IN')}/unit ${b.partial_bid ? `<span style="font-size:12px;color:var(--ink-mid);">(${b.partial_quantity})</span>` : ''}</div>
-                ${o.status === 'open' ? `<a href="/order/${o.slug||o.id}" class="btn-small-gold">View Order</a>` : '<span style="font-size:11px;color:var(--ink-mid);">Order Closed</span>'}
+                ${bs === 'awarded' ? `<a href="https://wa.me/918217367948?text=${encodeURIComponent(contactMsg)}" target="_blank" class="btn-small-gold" style="text-decoration:none;">Contact Buyer</a>`
+                  : o.status === 'open' ? `<a href="/order/${o.slug||o.id}" class="btn-small-gold">View Order</a>` : '<span style="font-size:11px;color:var(--ink-mid);">Order Closed</span>'}
               </div>
               ${b.notes ? `<div style="font-size:12px;color:var(--ink-mid);margin-top:8px;padding-top:8px;border-top:1px solid var(--border);">${b.notes}</div>` : ''}
+              ${bs === 'rejected' ? `<div style="font-size:12px;color:var(--ink-mid);margin-top:10px;padding:12px;background:var(--ivory);border-left:3px solid var(--border);line-height:1.6;">Sorry to inform you — this order is now closed and the buyer has gone with another manufacturer this time. We have plenty of open orders, though — <a href="/the-opportunity" style="color:var(--gold);">browse other opportunities</a> and get your next order.</div>` : ''}
             </div>`;
           });
         }
@@ -544,6 +575,16 @@
         window._myBuyerOrders = myOrders;
         window._editingOrderId = null;
 
+        // Bid counts per order, for the "View Bids" button
+        let bidCountMap = {};
+        if (myOrders.length) {
+          const oIds = myOrders.map(o => o.id);
+          const bcRes = await fetch(`${SUPA_URL}/rest/v1/order_bids?order_id=in.(${oIds.join(',')})&select=order_id`, { headers: H });
+          const bc = await bcRes.json();
+          bc.forEach(row => { bidCountMap[row.order_id] = (bidCountMap[row.order_id]||0) + 1; });
+        }
+        window._buyerBidCounts = bidCountMap;
+
         html += `<div class="section-wrap">
           <div class="section-title" style="display:flex;align-items:center;justify-content:space-between;">
             <span>My Orders (${myOrders.length})</span>
@@ -601,21 +642,28 @@
             const rsColor = rs === 'open' ? '#2E7D32' : rs === 'rejected' ? '#c0392b' : 'var(--gold)';
             const rsLabel = rs === 'open' ? 'Open for Bids' : rs === 'rejected' ? 'Rejected' : 'Pending Review';
             const canEdit = rs === 'pending_review' || rs === 'rejected';
-            html += `<div class="order-card" style="display:grid;grid-template-columns:${o.drawing_url?'80px 1fr':'1fr'};gap:12px;align-items:start;margin-bottom:10px;">
-              ${o.drawing_url ? `<img src="${o.drawing_url}" style="width:80px;height:64px;object-fit:contain;background:#f8f8f8;border:1px solid var(--border);" alt="${o.part_name}" />` : ''}
-              <div>
-                <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;flex-wrap:wrap;">
-                  <div>
-                    <div class="order-card-code">${o.order_code||'Pending'}</div>
-                    <div class="order-card-title">${o.part_name}</div>
-                    <div class="order-card-meta">${o.industry||''} ${o.annual_quantity?'· '+o.annual_quantity:''}</div>
-                  </div>
-                  <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
-                    <span style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;padding:4px 10px;border:1px solid;color:${rsColor};border-color:${rsColor};white-space:nowrap;">${rsLabel}</span>
-                    ${canEdit ? `<button onclick="editBuyerOrder('${o.id}')" style="font-family:var(--sans);font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--gold);background:none;border:1px solid var(--gold-border,var(--border));padding:4px 10px;cursor:pointer;">Edit</button>` : ''}
+            const bidCount = bidCountMap[o.id] || 0;
+            html += `<div class="order-card" style="margin-bottom:10px;">
+              <div style="display:grid;grid-template-columns:${o.drawing_url?'80px 1fr':'1fr'};gap:12px;align-items:start;">
+                ${o.drawing_url ? `<img src="${o.drawing_url}" class="bid-thumb" style="width:80px;height:64px;" alt="${o.part_name}" onclick="openImgLightbox('${o.drawing_url}','${(o.part_name||'').replace(/'/g,"\\'")}')" />` : ''}
+                <div>
+                  <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;flex-wrap:wrap;">
+                    <div>
+                      <div class="order-card-code">${o.order_code||'Pending'}</div>
+                      <div class="order-card-title">${o.part_name}</div>
+                      <div class="order-card-meta">${o.industry||''} ${o.annual_quantity?'· '+o.annual_quantity:''}</div>
+                    </div>
+                    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
+                      <span style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;padding:4px 10px;border:1px solid;color:${rsColor};border-color:${rsColor};white-space:nowrap;">${rsLabel}</span>
+                      ${canEdit ? `<button onclick="editBuyerOrder('${o.id}')" style="font-family:var(--sans);font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--gold);background:none;border:1px solid var(--gold-border,var(--border));padding:4px 10px;cursor:pointer;">Edit</button>` : ''}
+                    </div>
                   </div>
                 </div>
               </div>
+              ${bidCount > 0 ? `
+                <button class="btn-small-outline" style="margin-top:12px;" onclick="toggleBuyerBids('${o.id}')" id="bids-toggle-${o.id}">View Bids (${bidCount})</button>
+                <div id="bids-panel-${o.id}" style="display:none;margin-top:12px;"></div>
+              ` : ''}
             </div>`;
           });
         }
@@ -649,6 +697,76 @@
     document.getElementById('bo-form-title').textContent = 'Submit a Manufacturing Order';
     document.getElementById('bo-form-sub').textContent = 'Our team will review and publish your order within 48 hours. Manufacturers will then be able to bid on it.';
     document.getElementById('bo-submit-btn').textContent = 'Submit Order →';
+  }
+
+  function bidStatusBadgeBuyer(status) {
+    const map = {
+      submitted:   { label: 'Submitted',   color: 'var(--ink-mid)' },
+      shortlisted: { label: 'Shortlisted', color: '#4A90D9' },
+      awarded:     { label: 'Awarded',     color: '#2E7D32' },
+      rejected:    { label: 'Rejected',    color: '#c0392b' }
+    };
+    const m = map[status||'submitted'] || map.submitted;
+    return `<span style="font-size:9px;letter-spacing:1px;text-transform:uppercase;padding:3px 8px;border:1px solid;color:${m.color};border-color:${m.color};">${m.label}</span>`;
+  }
+
+  async function toggleBuyerBids(orderId) {
+    const panel = document.getElementById('bids-panel-' + orderId);
+    const btn = document.getElementById('bids-toggle-' + orderId);
+    const showing = panel.style.display === 'none';
+    if (!showing) { panel.style.display = 'none'; return; }
+    panel.style.display = 'block';
+    panel.innerHTML = '<div style="font-size:12px;color:var(--ink-mid);padding:10px 0;">Loading bids...</div>';
+    await loadBuyerBids(orderId);
+  }
+
+  async function loadBuyerBids(orderId) {
+    const panel = document.getElementById('bids-panel-' + orderId);
+    const order = (window._myBuyerOrders || []).find(o => String(o.id) === String(orderId));
+    try {
+      const res = await fetch(`${SUPA_URL}/rest/v1/order_bids?order_id=eq.${orderId}&order=price_per_unit.asc&select=*`, { headers: H });
+      const bids = await res.json();
+      if (!bids.length) { panel.innerHTML = '<div style="font-size:12px;color:var(--ink-mid);padding:10px 0;">No bids yet.</div>'; return; }
+      const isOpen = order && order.status === 'open';
+      panel.innerHTML = bids.map(bid => `
+        <div style="border:1px solid var(--border);padding:12px;margin-top:8px;background:var(--white);">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;flex-wrap:wrap;">
+            <strong style="font-size:13px;">${bid.company_name||'—'}</strong>
+            ${bidStatusBadgeBuyer(bid.status)}
+          </div>
+          <div style="font-family:var(--serif);font-size:18px;color:var(--gold);margin-top:6px;">₹${bid.price_per_unit?Number(bid.price_per_unit).toLocaleString('en-IN'):'—'}<span style="font-size:11px;color:var(--ink-mid);"> /unit</span></div>
+          ${bid.notes ? `<div style="font-size:12px;color:var(--ink-mid);margin-top:4px;">${bid.notes}</div>` : ''}
+          ${isOpen ? `<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
+            ${bid.status !== 'awarded' ? `<button class="btn-small-gold" onclick="buyerAwardBid('${bid.id}','${orderId}','${(bid.company_name||'').replace(/'/g,"\\'")}','${bid.mobile||''}')">Award Contract</button>` : ''}
+            ${bid.status !== 'rejected' && bid.status !== 'awarded' ? `<button class="btn-small-outline" onclick="buyerRejectBid('${bid.id}','${orderId}','${bid.mobile||''}','${(bid.company_name||'').replace(/'/g,"\\'")}')">Reject</button>` : ''}
+          </div>` : ''}
+        </div>`).join('');
+    } catch(e) { panel.innerHTML = `<div style="font-size:12px;color:#c0392b;padding:10px 0;">Error: ${e.message}</div>`; }
+  }
+
+  async function buyerAwardBid(bidId, orderId, companyName, mobile) {
+    const order = (window._myBuyerOrders || []).find(o => String(o.id) === String(orderId));
+    if (!confirm(`Award this contract to ${companyName}? This closes the order to new bids.`)) return;
+    await fetch(`${SUPA_URL}/rest/v1/order_bids?id=eq.${bidId}`, { method: 'PATCH', headers: { ...H, 'Prefer': 'return=minimal' }, body: JSON.stringify({ status: 'awarded', awarded_at: new Date().toISOString() }) });
+    await fetch(`${SUPA_URL}/rest/v1/order_bids?order_id=eq.${orderId}&id=neq.${bidId}&status=in.(submitted,shortlisted)`, { method: 'PATCH', headers: { ...H, 'Prefer': 'return=minimal' }, body: JSON.stringify({ status: 'rejected' }) });
+    await fetch(`${SUPA_URL}/rest/v1/manufacturing_orders?id=eq.${orderId}`, { method: 'PATCH', headers: { ...H, 'Prefer': 'return=minimal' }, body: JSON.stringify({ status: 'closed', assigned_to: companyName }) });
+    if (order) order.status = 'closed';
+    await loadBuyerBids(orderId);
+    if (mobile) {
+      const msg = `Congratulations ${companyName}! Your bid on "${order?.part_name||''}"${order?.order_code ? ' ('+order.order_code+')' : ''} has been awarded. Our team will reach out shortly with next steps.`;
+      window.open(`https://wa.me/${mobile.replace(/[^0-9]/g,'')}?text=${encodeURIComponent(msg)}`, '_blank');
+    }
+  }
+
+  async function buyerRejectBid(bidId, orderId, mobile, companyName) {
+    const order = (window._myBuyerOrders || []).find(o => String(o.id) === String(orderId));
+    if (!confirm(`Reject ${companyName}'s bid?`)) return;
+    await fetch(`${SUPA_URL}/rest/v1/order_bids?id=eq.${bidId}`, { method: 'PATCH', headers: { ...H, 'Prefer': 'return=minimal' }, body: JSON.stringify({ status: 'rejected' }) });
+    await loadBuyerBids(orderId);
+    if (mobile) {
+      const msg = `Hi ${companyName}, thank you for bidding on "${order?.part_name||''}" via Invictus IMC. We've gone ahead with another manufacturer for this order this time. We'll keep your details on file for future orders.`;
+      window.open(`https://wa.me/${mobile.replace(/[^0-9]/g,'')}?text=${encodeURIComponent(msg)}`, '_blank');
+    }
   }
 
   function editBuyerOrder(id) {
@@ -773,6 +891,23 @@
     el.className = 'msg ' + type; el.textContent = text;
     el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
+
+  function openImgLightbox(url, caption) {
+    document.getElementById('img-lightbox-img').src = url;
+    document.getElementById('img-lightbox-caption').textContent = caption || '';
+    document.getElementById('img-lightbox').classList.add('open');
+  }
+  function closeImgLightbox(evt) {
+    if (evt) evt.stopPropagation();
+    document.getElementById('img-lightbox').classList.remove('open');
+    document.getElementById('img-lightbox-img').src = '';
+  }
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeImgLightbox(); });
 </script>
+<div class="img-lightbox" id="img-lightbox" onclick="closeImgLightbox(event)">
+  <button class="img-lightbox-close" onclick="closeImgLightbox(event)">&times;</button>
+  <img id="img-lightbox-img" src="" alt="" onclick="event.stopPropagation()" />
+  <div id="img-lightbox-caption" style="position:absolute;bottom:24px;left:0;right:0;text-align:center;color:#ddd;font-size:12px;letter-spacing:1px;"></div>
+</div>
 </body>
 </html>

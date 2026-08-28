@@ -1087,9 +1087,12 @@
 <div class="modal-overlay" id="bid-compare-modal" style="display:none;">
   <div class="modal" style="max-width:680px;">
     <div class="modal-header">
-      <div>
-        <div class="modal-title" id="bc-order-title">Compare Bids</div>
-        <div id="bc-order-sub" style="font-size:11px;color:var(--muted);margin-top:4px;"></div>
+      <div style="display:flex;gap:12px;align-items:center;">
+        <img id="bc-order-thumb" src="" alt="" style="display:none;width:44px;height:44px;object-fit:contain;background:#f2f2f2;border:1px solid var(--faint);cursor:pointer;" onclick="openImgLightbox(this.src, document.getElementById('bc-order-title').textContent)" />
+        <div>
+          <div class="modal-title" id="bc-order-title">Compare Bids</div>
+          <div id="bc-order-sub" style="font-size:11px;color:var(--muted);margin-top:4px;"></div>
+        </div>
       </div>
       <button class="modal-close" onclick="closeBidCompareModal()">✕</button>
     </div>
@@ -3340,6 +3343,9 @@
       const [order] = await oRes.json();
       document.getElementById('bc-order-title').textContent = order ? order.part_name : 'Compare Bids';
       document.getElementById('bc-order-sub').textContent = order ? `${order.order_code} · ${order.status === 'closed' ? (order.assigned_to ? 'Awarded to ' + order.assigned_to : 'Closed') : 'Open for bids'}` : '';
+      const thumb = document.getElementById('bc-order-thumb');
+      if (order && order.drawing_url) { thumb.src = order.drawing_url; thumb.style.display = 'block'; }
+      else { thumb.style.display = 'none'; thumb.src = ''; }
 
       const bRes = await fetch(`${SUPA_URL}/rest/v1/order_bids?order_id=eq.${orderId}&archived=not.is.true&order=price_per_unit.asc`, { headers: { 'apikey': SUPA_ANON, 'Authorization': 'Bearer ' + SUPA_ANON } });
       const bids = await bRes.json();
