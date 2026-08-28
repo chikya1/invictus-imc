@@ -1029,29 +1029,6 @@
             </div>
           </div>
         </div>
-        <!-- Bid Compare Modal -->
-        <div class="modal-overlay" id="bid-compare-modal" style="display:none;">
-          <div class="modal" style="max-width:680px;">
-            <div class="modal-header">
-              <div>
-                <div class="modal-title" id="bc-order-title">Compare Bids</div>
-                <div id="bc-order-sub" style="font-size:11px;color:var(--muted);margin-top:4px;"></div>
-              </div>
-              <button class="modal-close" onclick="closeBidCompareModal()">✕</button>
-            </div>
-            <div style="padding:24px;max-height:70vh;overflow-y:auto;" id="bc-body">Loading...</div>
-          </div>
-        </div>
-        <!-- Manufacturer Quick View Modal -->
-        <div class="modal-overlay" id="mfr-view-modal" style="display:none;">
-          <div class="modal" style="max-width:440px;">
-            <div class="modal-header">
-              <div class="modal-title">Manufacturer</div>
-              <button class="modal-close" onclick="document.getElementById('mfr-view-modal').style.display='none';">✕</button>
-            </div>
-            <div style="padding:24px;" id="mfr-view-body">Loading...</div>
-          </div>
-        </div>
       </div>
       <div class="tab-panel" id="tab-order-bids">
         <div class="page-title">Bids <em>Received</em></div>
@@ -1103,6 +1080,30 @@
       </div>
 
     </main>
+  </div>
+</div>
+
+<!-- Bid Compare Modal -->
+<div class="modal-overlay" id="bid-compare-modal" style="display:none;">
+  <div class="modal" style="max-width:680px;">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title" id="bc-order-title">Compare Bids</div>
+        <div id="bc-order-sub" style="font-size:11px;color:var(--muted);margin-top:4px;"></div>
+      </div>
+      <button class="modal-close" onclick="closeBidCompareModal()">✕</button>
+    </div>
+    <div style="padding:24px;max-height:70vh;overflow-y:auto;" id="bc-body">Loading...</div>
+  </div>
+</div>
+<!-- Manufacturer Quick View Modal -->
+<div class="modal-overlay" id="mfr-view-modal" style="display:none;">
+  <div class="modal" style="max-width:440px;">
+    <div class="modal-header">
+      <div class="modal-title">Manufacturer</div>
+      <button class="modal-close" onclick="document.getElementById('mfr-view-modal').style.display='none';">✕</button>
+    </div>
+    <div style="padding:24px;" id="mfr-view-body">Loading...</div>
   </div>
 </div>
 
@@ -3205,25 +3206,25 @@
       const ordersRes = await fetch(`${SUPA_URL}/rest/v1/manufacturing_orders?select=id,order_code,part_name`, { headers: { 'apikey': SUPA_ANON, 'Authorization': 'Bearer ' + SUPA_ANON } });
       const orders = await ordersRes.json();
       const orderMap = {};
-      orders.forEach(o => { orderMap[o.id] = `${o.order_code} — ${o.part_name}`; });
+      orders.forEach(o => { orderMap[o.id] = { code: o.order_code, part: o.part_name }; });
       if (!bids.length) { tbody.innerHTML = '<tr><td colspan="7" class="table-empty">No bids received yet.</td></tr>'; return; }
       tbody.innerHTML = bids.map(b => `
         <tr>
           <td><input type="checkbox" class="bid-check-item" value="${b.id}" data-order="${b.order_id}" onchange="updateBidActionBtns()" /></td>
-          <td style="font-size:11px;"><button class="link-btn" onclick="openBidCompareModal('${b.order_id}')">${orderMap[b.order_id]||'—'}</button></td>
+          <td style="font-size:11px;"><button class="link-btn" onclick="openBidCompareModal('${b.order_id}')">${orderMap[b.order_id] ? orderMap[b.order_id].code+' — '+orderMap[b.order_id].part : '—'}</button></td>
           <td><strong>${b.company_name||'—'}</strong><br/><span class="td-muted" style="font-size:11px;">${b.mobile||'—'}</span></td>
           <td>${bidStatusBadge(b.status)}</td>
           <td><strong style="color:var(--gold);">₹${b.price_per_unit?Number(b.price_per_unit).toLocaleString('en-IN'):'—'}</strong><span class="td-muted"> /unit</span></td>
           <td class="td-muted" style="font-size:11px;">${new Date(b.submitted_at).toLocaleString('en-IN')}</td>
           <td><div class="td-actions" style="align-items:center;">
-            <button class="btn-icon" title="WhatsApp" onclick="window.open('https://wa.me/${(b.mobile||'').replace(/[^0-9]/g,'')}','_blank')">✆</button>
             <div class="dropdown-wrap">
               <button class="btn-icon" onclick="toggleOrderMenu(event,'bid-${b.id}')" title="More actions">⋯</button>
               <div class="dropdown-menu" id="order-menu-bid-${b.id}">
+                <button onclick="window.open('https://wa.me/${(b.mobile||'').replace(/[^0-9]/g,'')}','_blank');closeOrderMenus();">WhatsApp</button>
                 <button onclick="viewManufacturer('${b.manufacturer_id}');closeOrderMenus();">View Manufacturer</button>
                 <button onclick="setBidStatus('${b.id}','shortlisted');closeOrderMenus();">Shortlist</button>
-                <button onclick="awardBid('${b.id}','${b.order_id}','${(b.company_name||'').replace(/'/g,"\\'")}');closeOrderMenus();">Award Contract</button>
-                <button onclick="setBidStatus('${b.id}','rejected');closeOrderMenus();">Reject</button>
+                <button onclick="awardBid('${b.id}','${b.order_id}','${(b.company_name||'').replace(/'/g,"\\'")}','${b.mobile||''}','${(orderMap[b.order_id]?.part||'').replace(/'/g,"\\'")}','${orderMap[b.order_id]?.code||''}');closeOrderMenus();">Award Contract</button>
+                <button onclick="rejectBid('${b.id}','${b.mobile||''}','${(b.company_name||'').replace(/'/g,"\\'")}','${(orderMap[b.order_id]?.part||'').replace(/'/g,"\\'")}');closeOrderMenus();">Reject</button>
                 <button onclick="deleteSingleBid('${b.id}');closeOrderMenus();">Delete</button>
               </div>
             </div>
@@ -3292,7 +3293,18 @@
     }
   }
 
-  async function awardBid(bidId, orderId, companyName) {
+  // Rejecting is silent on our side by default — Invictus IMC doesn't currently notify manufacturers
+  // automatically, so this opens a WhatsApp draft to the manufacturer so you can send the update yourself.
+  async function rejectBid(id, mobile, companyName, partName) {
+    if (!confirm(`Reject ${companyName}'s bid on ${partName}?`)) return;
+    await setBidStatus(id, 'rejected');
+    if (mobile) {
+      const msg = `Hi ${companyName}, thank you for bidding on "${partName}" via Invictus IMC. We've gone ahead with another manufacturer for this order this time. We'll keep your details on file for future orders — do keep an eye on new opportunities on the platform.`;
+      window.open(`https://wa.me/${mobile.replace(/[^0-9]/g,'')}?text=${encodeURIComponent(msg)}`, '_blank');
+    }
+  }
+
+  async function awardBid(bidId, orderId, companyName, mobile, partName, orderCode) {
     if (!confirm(`Award this contract to ${companyName}? This closes the order to new bids and marks other bids on it as rejected.`)) return;
     await fetch(`${SUPA_URL}/rest/v1/order_bids?id=eq.${bidId}`, {
       method: 'PATCH', headers: { 'apikey': SUPA_ANON, 'Authorization': 'Bearer ' + SUPA_ANON, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
@@ -3310,6 +3322,11 @@
     });
     loadBids();
     if (document.getElementById('bid-compare-modal').style.display === 'flex') openBidCompareModal(orderId);
+    // No automated notification exists yet — open a WhatsApp draft so you can tell them directly
+    if (mobile) {
+      const msg = `Congratulations ${companyName}! Your bid on "${partName}"${orderCode ? ' ('+orderCode+')' : ''} has been awarded. Our team will reach out shortly with next steps.`;
+      window.open(`https://wa.me/${mobile.replace(/[^0-9]/g,'')}?text=${encodeURIComponent(msg)}`, '_blank');
+    }
   }
 
   async function openBidCompareModal(orderId) {
@@ -3328,17 +3345,29 @@
       const bids = await bRes.json();
       if (!bids.length) { body.innerHTML = '<p style="color:var(--muted);font-size:13px;">No bids yet on this order.</p>'; return; }
 
-      const mfrIds = [...new Set(bids.map(b => b.manufacturer_id).filter(Boolean))];
-      let mfrMap = {};
-      if (mfrIds.length) {
-        const mRes = await fetch(`${SUPA_URL}/rest/v1/manufacturers?id=in.(${mfrIds.join(',')})&select=id,city,state,primary_sector,company_type`, { headers: { 'apikey': SUPA_ANON, 'Authorization': 'Bearer ' + SUPA_ANON } });
-        const mfrs = await mRes.json();
-        mfrs.forEach(m => { mfrMap[m.id] = m; });
+      // order_bids.manufacturer_id -> manufacturer_accounts.id (login table). Cross-reference
+      // manufacturers (full applications) by mobile to show sector/city where available.
+      const acctIds = [...new Set(bids.map(b => b.manufacturer_id).filter(Boolean))];
+      let acctMap = {}, mfrByMobile = {};
+      if (acctIds.length) {
+        const aRes = await fetch(`${SUPA_URL}/rest/v1/manufacturer_accounts?id=in.(${acctIds.join(',')})&select=id,mobile`, { headers: { 'apikey': SUPA_ANON, 'Authorization': 'Bearer ' + SUPA_ANON } });
+        const accts = await aRes.json();
+        accts.forEach(a => { acctMap[a.id] = a; });
+        const mobiles = accts.map(a => a.mobile).filter(Boolean);
+        if (mobiles.length) {
+          const mRes = await fetch(`${SUPA_URL}/rest/v1/manufacturers?mobile=in.(${mobiles.map(m=>encodeURIComponent(m)).join(',')})&select=mobile,city,state,primary_sector,company_type`, { headers: { 'apikey': SUPA_ANON, 'Authorization': 'Bearer ' + SUPA_ANON } });
+          const mfrs = await mRes.json();
+          mfrs.forEach(m => { mfrByMobile[m.mobile] = m; });
+        }
       }
 
       body.innerHTML = bids.map(b => {
-        const m = mfrMap[b.manufacturer_id];
+        const acct = acctMap[b.manufacturer_id];
+        const m = acct ? mfrByMobile[acct.mobile] : null;
         const alreadyAwarded = order && order.status === 'closed';
+        const partName = (order?.part_name||'').replace(/'/g,"\\'");
+        const orderCode = order?.order_code||'';
+        const companyEsc = (b.company_name||'').replace(/'/g,"\\'");
         return `<div style="border:1px solid var(--faint);padding:16px;margin-bottom:10px;">
           <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;">
             <div>
@@ -3349,12 +3378,12 @@
           </div>
           <div style="margin-top:10px;font-size:20px;color:var(--gold);font-family:var(--serif);">₹${b.price_per_unit?Number(b.price_per_unit).toLocaleString('en-IN'):'—'}<span style="font-size:11px;color:var(--muted);"> /unit</span></div>
           ${b.notes ? `<div style="font-size:12px;color:var(--muted);margin-top:6px;">${b.notes}</div>` : ''}
-          <div class="td-actions" style="margin-top:12px;">
-            <button class="btn-icon" title="WhatsApp" onclick="window.open('https://wa.me/${(b.mobile||'').replace(/[^0-9]/g,'')}','_blank')">✆</button>
+          <div class="td-actions" style="margin-top:12px;flex-wrap:wrap;">
+            <a href="https://wa.me/${(b.mobile||'').replace(/[^0-9]/g,'')}" target="_blank" class="btn-edit" style="text-decoration:none;">WhatsApp</a>
             <button class="btn-edit" onclick="viewManufacturer('${b.manufacturer_id}')">View Manufacturer</button>
             ${b.status !== 'awarded' ? `<button class="btn-edit" onclick="setBidStatus('${b.id}','shortlisted')">Shortlist</button>` : ''}
-            ${!alreadyAwarded ? `<button class="btn-edit" style="color:#3DAA6E;background:rgba(61,170,110,0.1);border-color:rgba(61,170,110,0.3);" onclick="awardBid('${b.id}','${orderId}','${(b.company_name||'').replace(/'/g,"\\'")}')">Award Contract</button>` : ''}
-            ${b.status !== 'rejected' && b.status !== 'awarded' ? `<button class="btn-del" onclick="setBidStatus('${b.id}','rejected')">Reject</button>` : ''}
+            ${!alreadyAwarded ? `<button class="btn-edit" style="color:#3DAA6E;background:rgba(61,170,110,0.1);border-color:rgba(61,170,110,0.3);" onclick="awardBid('${b.id}','${orderId}','${companyEsc}','${b.mobile||''}','${partName}','${orderCode}')">Award Contract</button>` : ''}
+            ${b.status !== 'rejected' && b.status !== 'awarded' ? `<button class="btn-del" onclick="rejectBid('${b.id}','${b.mobile||''}','${companyEsc}','${partName}')">Reject</button>` : ''}
           </div>
         </div>`;
       }).join('');
@@ -3371,20 +3400,32 @@
     modal.style.display = 'flex';
     body.innerHTML = 'Loading...';
     try {
-      const res = await fetch(`${SUPA_URL}/rest/v1/manufacturers?id=eq.${id}&select=*`, { headers: { 'apikey': SUPA_ANON, 'Authorization': 'Bearer ' + SUPA_ANON } });
-      const [m] = await res.json();
-      if (!m) { body.innerHTML = '<p style="color:var(--muted);font-size:13px;">Manufacturer record not found.</p>'; return; }
+      // order_bids.manufacturer_id points to manufacturer_accounts (login table), not manufacturers (applications table)
+      const accRes = await fetch(`${SUPA_URL}/rest/v1/manufacturer_accounts?id=eq.${id}&select=*`, { headers: { 'apikey': SUPA_ANON, 'Authorization': 'Bearer ' + SUPA_ANON } });
+      const [acc] = await accRes.json();
+      if (!acc) { body.innerHTML = '<p style="color:var(--muted);font-size:13px;">Manufacturer account not found.</p>'; return; }
+
+      // Cross-reference the full application by mobile (same dedup key used across the platform)
+      let m = null;
+      if (acc.mobile) {
+        const mRes = await fetch(`${SUPA_URL}/rest/v1/manufacturers?mobile=eq.${encodeURIComponent(acc.mobile)}&select=*`, { headers: { 'apikey': SUPA_ANON, 'Authorization': 'Bearer ' + SUPA_ANON } });
+        const mfrs = await mRes.json();
+        m = mfrs[0] || null;
+      }
+
+      const phone = acc.mobile || m?.poc_phone || '';
       body.innerHTML = `
-        <div style="font-family:var(--serif);font-size:20px;margin-bottom:4px;">${m.company_name||'—'}</div>
-        <div class="td-muted" style="font-size:12px;margin-bottom:16px;">${m.company_type||''}</div>
+        <div style="font-family:var(--serif);font-size:20px;margin-bottom:4px;">${acc.company_name||m?.company_name||'—'}</div>
+        <div class="td-muted" style="font-size:12px;margin-bottom:16px;">${m?.company_type||'Account holder — no full application on file'}</div>
         <table style="width:100%;font-size:13px;">
-          <tr><td class="td-muted" style="padding:6px 0;">Sector</td><td style="text-align:right;">${m.primary_sector||'—'}</td></tr>
-          <tr><td class="td-muted" style="padding:6px 0;">Location</td><td style="text-align:right;">${[m.city,m.state].filter(Boolean).join(', ')||'—'}</td></tr>
-          <tr><td class="td-muted" style="padding:6px 0;">Contact</td><td style="text-align:right;">${m.poc_name||'—'}</td></tr>
-          <tr><td class="td-muted" style="padding:6px 0;">Phone</td><td style="text-align:right;">${m.poc_phone||m.mobile||'—'}</td></tr>
-          <tr><td class="td-muted" style="padding:6px 0;">Status</td><td style="text-align:right;">${m.status||'—'}</td></tr>
+          ${m ? `<tr><td class="td-muted" style="padding:6px 0;">Sector</td><td style="text-align:right;">${m.primary_sector||'—'}</td></tr>` : ''}
+          ${m ? `<tr><td class="td-muted" style="padding:6px 0;">Location</td><td style="text-align:right;">${[m.city,m.state].filter(Boolean).join(', ')||'—'}</td></tr>` : ''}
+          ${m ? `<tr><td class="td-muted" style="padding:6px 0;">Contact</td><td style="text-align:right;">${m.poc_name||'—'}</td></tr>` : ''}
+          <tr><td class="td-muted" style="padding:6px 0;">Mobile</td><td style="text-align:right;">${phone||'—'}</td></tr>
+          <tr><td class="td-muted" style="padding:6px 0;">Email</td><td style="text-align:right;">${acc.email||'—'}</td></tr>
+          ${m ? `<tr><td class="td-muted" style="padding:6px 0;">Application status</td><td style="text-align:right;">${m.status||'—'}</td></tr>` : ''}
         </table>
-        <a href="https://wa.me/${(m.poc_phone||m.mobile||'').replace(/[^0-9]/g,'')}" target="_blank" class="btn-save" style="display:block;text-align:center;text-decoration:none;margin-top:16px;">WhatsApp</a>`;
+        <a href="https://wa.me/${phone.replace(/[^0-9]/g,'')}" target="_blank" class="btn-save" style="display:block;text-align:center;text-decoration:none;margin-top:16px;">WhatsApp</a>`;
     } catch(e) { body.innerHTML = `<p style="color:#e74c3c;font-size:13px;">Error: ${e.message}</p>`; }
   }
 
