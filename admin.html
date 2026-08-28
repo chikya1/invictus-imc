@@ -953,6 +953,7 @@
               <div><label class="form-label">Material</label><input type="text" class="form-input" id="o-material" placeholder="Aerospace-Grade Aluminum Alloy 7075-T6 / T651" /></div>
               <div><label class="form-label">Primary Process</label><input type="text" class="form-input" id="o-process" placeholder="Multi-axis CNC Milling/Turning (Precision tolerance ±0.01 mm)" /></div>
               <div><label class="form-label">Additional Details</label><textarea class="form-input" id="o-details" rows="3" placeholder="Any other specs, certifications, or requirements..."></textarea></div>
+              <div><label class="form-label">Bid Deadline <span style="font-weight:400;color:var(--muted);">(optional — leave blank to stay open indefinitely)</span></label><input type="date" class="form-input" id="o-deadline" /></div>
               <div><label class="form-label">Technical Drawing (image file)</label><input type="file" class="form-input" id="o-drawing" accept="image/*,.pdf" style="padding:8px;" /></div>
               <div id="o-msg" style="display:none;font-size:12px;padding:10px;border:1px solid;"></div>
               <button class="btn-save" onclick="createOrder()" style="width:100%;">Create Order & Generate Link</button>
@@ -1023,6 +1024,10 @@
               <div>
                 <label class="form-label">Additional Details</label>
                 <textarea class="form-input" id="eo-details" rows="3"></textarea>
+              </div>
+              <div>
+                <label class="form-label">Bid Deadline <span style="font-weight:400;color:var(--muted);">(optional)</span></label>
+                <input type="date" class="form-input" id="eo-deadline" />
               </div>
               <div id="eo-msg" style="display:none;font-size:12px;padding:10px;border:1px solid;"></div>
               <button class="btn-save" onclick="saveEditOrder()" style="width:100%;">Save Changes</button>
@@ -2784,7 +2789,7 @@
       const res = await fetch(`${SUPA_URL}/rest/v1/manufacturing_orders`, {
         method: 'POST',
         headers: { 'apikey': SUPA_ANON, 'Authorization': 'Bearer ' + SUPA_ANON, 'Content-Type': 'application/json', 'Prefer': 'return=representation' },
-        body: JSON.stringify({ order_code: orderCode, slug, part_name: part, industry: industry||null, annual_quantity: document.getElementById('o-annual-qty').value.trim()||null, monthly_quantity: document.getElementById('o-monthly-qty').value.trim()||null, material: document.getElementById('o-material').value.trim()||null, primary_process: document.getElementById('o-process').value.trim()||null, additional_details: document.getElementById('o-details').value.trim()||null, drawing_url: drawingUrl, status: 'open' })
+        body: JSON.stringify({ order_code: orderCode, slug, part_name: part, industry: industry||null, annual_quantity: document.getElementById('o-annual-qty').value.trim()||null, monthly_quantity: document.getElementById('o-monthly-qty').value.trim()||null, material: document.getElementById('o-material').value.trim()||null, primary_process: document.getElementById('o-process').value.trim()||null, additional_details: document.getElementById('o-details').value.trim()||null, bid_deadline: document.getElementById('o-deadline').value||null, drawing_url: drawingUrl, status: 'open' })
       });
       if (!res.ok) throw new Error(await res.text());
       const [order] = await res.json();
@@ -2812,7 +2817,8 @@
       const bidsRes = await fetch(`${SUPA_URL}/rest/v1/order_bids?select=order_id`, { headers: { 'apikey': SUPA_ANON, 'Authorization': 'Bearer ' + SUPA_ANON } });
       const bids = await bidsRes.json();
       const bidCounts = {};
-      bids.forEach(b => { bidCounts[b.order_id] = (bidCounts[b.order_id]||0)+1; });
+      if (Array.isArray(bids)) { bids.forEach(b => { bidCounts[b.order_id] = (bidCounts[b.order_id]||0)+1; }); }
+      else { console.error('order_bids count fetch failed:', bidsRes.status, bids); }
 
       // Get sub-orders (orders with a parent)
       const subRes = await fetch(`${SUPA_URL}/rest/v1/manufacturing_orders?parent_order_id=not.is.null&status=eq.open&select=*`, { headers: { 'apikey': SUPA_ANON, 'Authorization': 'Bearer ' + SUPA_ANON } });
@@ -2858,6 +2864,7 @@
           <td>
             <span style="display:block;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;padding:4px 10px;background:rgba(61,170,110,0.1);color:#3DAA6E;margin-bottom:4px;">Open</span>
             <span style="font-size:9px;text-transform:uppercase;padding:3px 8px;${isPublished?'background:rgba(61,170,110,0.1);color:#3DAA6E;':isPending?'background:rgba(200,134,10,0.1);color:var(--gold);':'background:var(--faint);color:var(--muted);'}">${isPublished?'Live · Published':isPending?'Pending Review':o.buyer_id?'Buyer Order':'Admin'}</span>
+            ${o.bid_deadline ? `<div style="font-size:9px;color:${new Date(o.bid_deadline)<new Date()?'#e74c3c':'var(--muted)'};margin-top:4px;">Deadline: ${new Date(o.bid_deadline).toLocaleDateString('en-IN',{day:'numeric',month:'short'})}</div>` : ''}
           </td>
           <td style="text-align:center;">${bidCounts[o.id] ? `<button class="link-btn" style="font-weight:600;" onclick="openBidCompareModal('${o.id}')">${bidCounts[o.id]}</button>` : `<span style="color:var(--muted);">0</span>`}</td>
           <td class="td-muted" style="font-size:11px;">${new Date(o.created_at).toLocaleDateString('en-IN')}</td>
@@ -2875,7 +2882,7 @@
                 <button onclick="whatsappOrder('${o.order_code}','${partNameEsc}','${link}','${industryEsc}','${materialEsc}');closeOrderMenus();">WhatsApp</button>
                 <button onclick="openSplitModal('${o.id}','${o.order_code}','${o.part_name.replace(/'/g,'')}','${o.monthly_quantity||o.annual_quantity||''}');closeOrderMenus();">Split Order</button>
                 <button onclick="openEditOrderModal('${o.id}');closeOrderMenus();">Edit</button>
-                <button class="danger" onclick="archiveOrder('${o.id}');closeOrderMenus();">Archive</button>
+                <button class="danger" onclick="archiveOrder('${o.id}');closeOrderMenus();">Stop Accepting Bids</button>
               </div>
             </div>
           </div></td>
@@ -3012,6 +3019,7 @@
         document.getElementById('eo-material').value = o.material || '';
         document.getElementById('eo-process').value = o.primary_process || '';
         document.getElementById('eo-details').value = o.additional_details || '';
+        document.getElementById('eo-deadline').value = o.bid_deadline ? o.bid_deadline.substring(0,10) : '';
         document.getElementById('edit-order-modal').style.display = 'flex';
       });
   }
@@ -3029,7 +3037,7 @@
     try {
       const res = await fetch(`${SUPA_URL}/rest/v1/manufacturing_orders?id=eq.${id}`, {
         method: 'PATCH', headers: { 'apikey': SUPA_ANON, 'Authorization': 'Bearer ' + SUPA_ANON, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
-        body: JSON.stringify({ part_name: part, industry: document.getElementById('eo-industry').value.trim()||null, annual_quantity: document.getElementById('eo-annual-qty').value.trim()||null, monthly_quantity: document.getElementById('eo-monthly-qty').value.trim()||null, material: document.getElementById('eo-material').value.trim()||null, primary_process: document.getElementById('eo-process').value.trim()||null, additional_details: document.getElementById('eo-details').value.trim()||null })
+        body: JSON.stringify({ part_name: part, industry: document.getElementById('eo-industry').value.trim()||null, annual_quantity: document.getElementById('eo-annual-qty').value.trim()||null, monthly_quantity: document.getElementById('eo-monthly-qty').value.trim()||null, material: document.getElementById('eo-material').value.trim()||null, primary_process: document.getElementById('eo-process').value.trim()||null, additional_details: document.getElementById('eo-details').value.trim()||null, bid_deadline: document.getElementById('eo-deadline').value||null })
       });
       if (!res.ok) throw new Error(await res.text());
       msg.style.cssText = 'display:block;padding:10px;font-size:12px;border:1px solid rgba(61,170,110,0.3);background:rgba(61,170,110,0.08);color:#2E7D32;';
@@ -3160,7 +3168,8 @@
       const bidsRes = await fetch(`${SUPA_URL}/rest/v1/order_bids?select=order_id`, { headers: { 'apikey': SUPA_ANON, 'Authorization': 'Bearer ' + SUPA_ANON } });
       const bids = await bidsRes.json();
       const bidCounts = {};
-      bids.forEach(b => { bidCounts[b.order_id] = (bidCounts[b.order_id]||0)+1; });
+      if (Array.isArray(bids)) { bids.forEach(b => { bidCounts[b.order_id] = (bidCounts[b.order_id]||0)+1; }); }
+      else { console.error('order_bids count fetch failed:', bidsRes.status, bids); }
       tbody.innerHTML = orders.map(o => {
         const sc = o.status === 'awarded' ? 'var(--gold)' : 'var(--muted)';
         return `<tr>

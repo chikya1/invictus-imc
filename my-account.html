@@ -339,7 +339,8 @@
       if (!u.password_hash) { showMsg(msg,'error','No password set. Please sign up to set a password.'); return; }
       if (u.password_hash !== hash) { showMsg(msg,'error','Incorrect password.'); return; }
 
-      await fetch(`${SUPA_URL}/rest/v1/${table}?id=eq.${u.id}`, { method: 'PATCH', headers: { ...H, 'Prefer': 'return=minimal' }, body: JSON.stringify({ last_login: new Date().toISOString() }) });
+      // Fire-and-forget — don't block login on this side-effect write
+      fetch(`${SUPA_URL}/rest/v1/${table}?id=eq.${u.id}`, { method: 'PATCH', headers: { ...H, 'Prefer': 'return=minimal' }, body: JSON.stringify({ last_login: new Date().toISOString() }) }).catch(()=>{});
 
       let loginId = u.id;
       if (selectedType === 'manufacturer') {
@@ -623,6 +624,8 @@
             <input type="text" class="field-input" id="bo-process" placeholder="e.g. Injection Moulding" />
             <label class="field-label">Additional Details</label>
             <textarea class="field-input" id="bo-details" rows="3" placeholder="Any certifications, tolerances, surface finish requirements..."></textarea>
+            <label class="field-label">Bid Deadline <span style="font-size:9px;font-weight:400;color:var(--ink-mid);">(optional — leave blank to keep this open until you close it yourself)</span></label>
+            <input type="date" class="field-input" id="bo-deadline" />
             <label class="field-label" id="bo-drawing-label">Technical Drawing * <span style="font-size:9px;font-weight:400;color:var(--ink-mid);">(image or PDF)</span></label>
             <input type="file" class="field-input" id="bo-drawing" accept="image/*,.pdf" style="padding:8px;" />
             <div id="bo-current-drawing" style="font-size:11px;color:var(--ink-mid);margin-top:4px;"></div>
@@ -639,9 +642,17 @@
         } else {
           myOrders.forEach(o => {
             const rs = o.review_status || 'pending_review';
-            const rsColor = rs === 'open' ? '#2E7D32' : rs === 'rejected' ? '#c0392b' : 'var(--gold)';
-            const rsLabel = rs === 'open' ? 'Open for Bids' : rs === 'rejected' ? 'Rejected' : 'Pending Review';
+            const deadlinePassed = o.bid_deadline && new Date(o.bid_deadline) < new Date();
+            let statusLabel, statusColor;
+            if (o.status === 'closed' && o.assigned_to) { statusLabel = `Awarded to ${o.assigned_to}`; statusColor = '#2E7D32'; }
+            else if (o.status === 'closed') { statusLabel = 'Closed to Bidding'; statusColor = 'var(--ink-mid)'; }
+            else if (rs === 'rejected') { statusLabel = 'Rejected'; statusColor = '#c0392b'; }
+            else if (rs === 'pending_review') { statusLabel = 'Pending Review'; statusColor = 'var(--gold)'; }
+            else if (deadlinePassed) { statusLabel = 'Bidding Closed (Deadline Passed)'; statusColor = 'var(--ink-mid)'; }
+            else { statusLabel = 'Open for Bids'; statusColor = '#2E7D32'; }
             const canEdit = rs === 'pending_review' || rs === 'rejected';
+            const isLive = o.status === 'open' && rs === 'open' && !deadlinePassed;
+            const canReopen = o.status === 'closed' && !o.assigned_to;
             const bidCount = bidCountMap[o.id] || 0;
             html += `<div class="order-card" style="margin-bottom:10px;">
               <div style="display:grid;grid-template-columns:${o.drawing_url?'80px 1fr':'1fr'};gap:12px;align-items:start;">
@@ -652,10 +663,13 @@
                       <div class="order-card-code">${o.order_code||'Pending'}</div>
                       <div class="order-card-title">${o.part_name}</div>
                       <div class="order-card-meta">${o.industry||''} ${o.annual_quantity?'· '+o.annual_quantity:''}</div>
+                      ${o.bid_deadline && !deadlinePassed && o.status==='open' ? `<div style="font-size:11px;color:var(--gold);margin-top:4px;">Last day to accept bids: ${new Date(o.bid_deadline).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}</div>` : ''}
                     </div>
                     <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
-                      <span style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;padding:4px 10px;border:1px solid;color:${rsColor};border-color:${rsColor};white-space:nowrap;">${rsLabel}</span>
+                      <span style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;padding:4px 10px;border:1px solid;color:${statusColor};border-color:${statusColor};white-space:nowrap;">${statusLabel}</span>
                       ${canEdit ? `<button onclick="editBuyerOrder('${o.id}')" style="font-family:var(--sans);font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--gold);background:none;border:1px solid var(--gold-border,var(--border));padding:4px 10px;cursor:pointer;">Edit</button>` : ''}
+                      ${isLive ? `<button onclick="buyerToggleAcceptingBids('${o.id}',true)" style="font-family:var(--sans);font-size:10px;letter-spacing:1px;text-transform:uppercase;color:#c0392b;background:none;border:1px solid #c0392b;padding:4px 10px;cursor:pointer;">Stop Accepting Bids</button>` : ''}
+                      ${canReopen ? `<button onclick="buyerToggleAcceptingBids('${o.id}',false)" style="font-family:var(--sans);font-size:10px;letter-spacing:1px;text-transform:uppercase;color:#2E7D32;background:none;border:1px solid #2E7D32;padding:4px 10px;cursor:pointer;">Reopen Bidding</button>` : ''}
                     </div>
                   </div>
                 </div>
@@ -769,6 +783,16 @@
     }
   }
 
+  // Independent order-level control — irrespective of whether any bids have come in.
+  async function buyerToggleAcceptingBids(orderId, currentlyOpen) {
+    const confirmMsg = currentlyOpen
+      ? 'Stop accepting new bids on this order? Manufacturers won\'t be able to submit new bids, but any already received stay visible.'
+      : 'Reopen this order for bidding?';
+    if (!confirm(confirmMsg)) return;
+    await fetch(`${SUPA_URL}/rest/v1/manufacturing_orders?id=eq.${orderId}`, { method: 'PATCH', headers: { ...H, 'Prefer': 'return=minimal' }, body: JSON.stringify({ status: currentlyOpen ? 'closed' : 'open' }) });
+    renderDashboard();
+  }
+
   function editBuyerOrder(id) {
     const order = (window._myBuyerOrders || []).find(o => String(o.id) === String(id));
     if (!order) return;
@@ -806,6 +830,7 @@
     const monthly = document.getElementById('bo-monthly')?.value.trim();
     const process = document.getElementById('bo-process')?.value.trim();
     const details = document.getElementById('bo-details')?.value.trim();
+    const deadline = document.getElementById('bo-deadline')?.value || null;
     const fileInput = document.getElementById('bo-drawing');
     const msg = document.getElementById('bo-msg');
 
@@ -836,7 +861,7 @@
         showMsg(msg, 'success', 'Saving changes...');
         const body = {
           part_name: part, industry, annual_quantity: annual, monthly_quantity: monthly||null,
-          material, primary_process: process||null, additional_details: details||null,
+          material, primary_process: process||null, additional_details: details||null, bid_deadline: deadline,
           review_status: 'pending_review', featured: false
         };
         if (drawingUrl) body.drawing_url = drawingUrl;

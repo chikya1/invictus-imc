@@ -89,6 +89,10 @@
 
     .partial-note { background: var(--gold-dim); border: 1px solid var(--gold-border); padding: 12px 14px; margin-top: 16px; font-size: 12px; color: var(--ink-mid); line-height: 1.6; display: flex; gap: 10px; }
     .partial-note-icon { color: var(--gold); font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+    .toggle-slider { position: absolute; cursor: pointer; inset: 0; background: var(--border); transition: 0.2s; border-radius: 24px; }
+    .toggle-slider::before { content: ""; position: absolute; height: 18px; width: 18px; left: 3px; top: 3px; background: #fff; border-radius: 50%; transition: 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
+    #partial-toggle:checked + .toggle-slider { background: var(--gold); }
+    #partial-toggle:checked + .toggle-slider::before { transform: translateX(20px); }
 
     .msg { font-size: 13px; padding: 12px 14px; margin-top: 14px; border: 1px solid; line-height: 1.6; display: none; }
     .msg.success { background: rgba(46,125,50,0.08); border-color: rgba(46,125,50,0.3); color: #2E7D32; display: block; }
@@ -258,7 +262,8 @@
 
   function renderPage() {
     const o = orderData;
-    const isOpen = o.status === 'open';
+    const deadlinePassed = o.bid_deadline && new Date(o.bid_deadline) < new Date();
+    const isOpen = o.status === 'open' && !deadlinePassed;
 
     document.title = `${o.part_name} — Invictus IMC`;
 
@@ -267,6 +272,7 @@
         <div class="order-code">${o.order_code}</div>
         <div class="order-title">${o.part_name}</div>
         <span class="order-status ${isOpen ? 'status-open' : 'status-closed'}">${isOpen ? 'Open for Bids' : 'Closed'}</span>
+        ${o.bid_deadline && !deadlinePassed && o.status === 'open' ? `<div style="font-size:12px;color:var(--gold);margin-top:8px;">Last day to accept bids: ${new Date(o.bid_deadline).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}</div>` : ''}
       </div>`;
 
     if (o.drawing_url) {
@@ -285,7 +291,7 @@
 
     let bottomHtml = '';
     if (!isOpen) {
-      bottomHtml = `<div class="closed-banner"><p>This order is no longer accepting bids.</p></div>`;
+      bottomHtml = `<div class="closed-banner"><p>${deadlinePassed && o.status === 'open' ? 'The bidding deadline for this order has passed.' : 'This order is no longer accepting bids.'}</p></div>`;
     } else if (showingLogin) {
       bottomHtml = renderLoginSection();
     } else if (currentUser) {
@@ -376,7 +382,7 @@
             </div>
             <label style="position:relative;display:inline-block;width:44px;height:24px;flex-shrink:0;">
               <input type="checkbox" id="partial-toggle" onchange="togglePartial()" style="opacity:0;width:0;height:0;" />
-              <span id="partial-slider" style="position:absolute;cursor:pointer;inset:0;background:var(--border);transition:0.2s;border-radius:24px;"></span>
+              <span id="partial-slider" class="toggle-slider"></span>
             </label>
           </div>
           <div id="partial-fields" style="display:none;margin-top:12px;border-top:1px solid var(--border);padding-top:12px;">
@@ -513,9 +519,7 @@
 
   function togglePartial() {
     const checked = document.getElementById('partial-toggle').checked;
-    const slider = document.getElementById('partial-slider');
     const fields = document.getElementById('partial-fields');
-    slider.style.background = checked ? 'var(--gold)' : 'var(--border)';
     fields.style.display = checked ? 'block' : 'none';
   }
 
