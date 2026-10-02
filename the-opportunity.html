@@ -32,7 +32,7 @@
   </script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -55,7 +55,7 @@
       --ivory: #FAF8F3;
       --ivory-border: rgba(28,28,28,0.10);
       --serif: 'Cormorant Garamond', Georgia, serif;
-      --sans: 'Outfit', sans-serif;
+      --sans: 'Montserrat', sans-serif;
     }
     html { scroll-behavior: smooth; }
     body { font-family: var(--sans); background: var(--ivory); color: var(--ink); overflow-x: hidden; }
@@ -1332,7 +1332,7 @@
                 ${o.monthly_quantity ? `<span style="display:block;">Qty/month: ${o.monthly_quantity}</span>` : ''}
                 ${o.material ? `<span style="display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Material: ${o.material.substring(0,40)}${o.material.length>40?'...':''}</span>` : ''}
               </div>
-              <a href="/order/${o.slug||o.id}" style="display:inline-block;font-family:'Outfit',sans-serif;font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:#0A0A0A;background:#C8860A;border:none;padding:10px 18px;text-decoration:none;">Bid for This Order →</a>
+              <a href="/order/${o.slug||o.id}" style="display:inline-block;font-family:'Montserrat',sans-serif;font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:#0A0A0A;background:#C8860A;border:none;padding:10px 18px;text-decoration:none;">Bid for This Order →</a>
             </div>
           </div>`).join('');
       } catch(e) {
