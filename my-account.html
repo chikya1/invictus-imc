@@ -119,7 +119,7 @@
 
 <footer>
   <span class="footer-text">© 2025 Invictus IMC · SKYLabs India Private Limited</span>
-  <span class="footer-contact">connect@invictusimc.com</span>
+  <span class="footer-contact">connect@invictusimc.com · <a href="/terms" style="color:rgba(200,134,10,0.75);text-decoration:none">Terms</a> · <a href="/privacy-policy" style="color:rgba(200,134,10,0.75);text-decoration:none">Privacy</a> · <a href="/refund-policy" style="color:rgba(200,134,10,0.75);text-decoration:none">Refunds</a> · <a href="/pricing" style="color:rgba(200,134,10,0.75);text-decoration:none">Pricing</a> · <a href="/contact" style="color:rgba(200,134,10,0.75);text-decoration:none">Contact</a></span>
 </footer>
 
 <script>
@@ -820,6 +820,44 @@
 
   function toSlug(str) { return str.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''); }
 
+  // PAYMENTS: asks the server whether this action costs money; if so, opens Razorpay (UPI/cards/netbanking).
+  // Resolves to { paid:false } (free), { paid:true, payment_id, amount }, or { cancelled:true }. Throws on errors.
+  function loadRazorpayScript() {
+    return new Promise((resolve, reject) => {
+      if (window.Razorpay) return resolve();
+      const s = document.createElement('script');
+      s.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      s.onload = resolve; s.onerror = () => reject(new Error('Could not load the payment window. Check your connection and try again.'));
+      document.head.appendChild(s);
+    });
+  }
+  async function collectPayment(action, userId, orderRef, btn) {
+    const r = await fetch('/api/create-payment', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action, user_id: String(userId), order_id: orderRef ? String(orderRef) : null }) });
+    const d = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(d.error || 'Could not start payment');
+    if (d.free) return { paid: false };
+    if (btn) btn.textContent = 'Waiting for payment...';
+    await loadRazorpayScript();
+    return new Promise((resolve, reject) => {
+      const rzp = new Razorpay({
+        key: d.key_id, amount: d.amount, currency: d.currency, order_id: d.razorpay_order_id,
+        name: 'Invictus IMC', description: d.label, theme: { color: '#C8860A' },
+        prefill: { name: currentUser?.company_name || '', contact: currentUser?.mobile || '', email: currentUser?.email || '' },
+        handler: async function (resp) {
+          try {
+            const v = await fetch('/api/verify-payment', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(resp) });
+            const vd = await v.json().catch(() => ({}));
+            if (!v.ok || !vd.ok) throw new Error(vd.error || 'Payment could not be verified');
+            resolve({ paid: true, payment_id: vd.payment_id, amount: vd.amount });
+          } catch (e) { reject(e); }
+        },
+        modal: { ondismiss: () => resolve({ cancelled: true }) }
+      });
+      rzp.on('payment.failed', () => {});
+      rzp.open();
+    });
+  }
+
   async function submitBuyerOrder() {
     const editId = document.getElementById('bo-edit-id')?.value || window._editingOrderId;
     const buyerId = document.getElementById('bo-buyer-id')?.value;
@@ -840,6 +878,17 @@
     if (!material) { showMsg(msg, 'error', 'Material is required.'); return; }
     // Drawing is only mandatory when adding a new order — editing can keep the existing file
     if (!editId && !fileInput?.files?.[0]) { showMsg(msg, 'error', 'Technical drawing is required.'); return; }
+
+    // New orders may cost money (admin-set pricing). Edits are always free.
+    let paymentInfo = null;
+    if (!editId) {
+      try {
+        showMsg(msg, 'success', 'Checking order fee...');
+        const pay = await collectPayment('buyer_order', buyerId, null, null);
+        if (pay.cancelled) { showMsg(msg, 'error', 'Payment not completed, so the order was not submitted.'); return; }
+        if (pay.paid) paymentInfo = pay;
+      } catch (e) { showMsg(msg, 'error', 'Payment error: ' + e.message); return; }
+    }
 
     try {
       let drawingUrl = null;
@@ -889,7 +938,8 @@
             order_code: orderCode, slug, part_name: part, industry, annual_quantity: annual,
             monthly_quantity: monthly||null, material, primary_process: process||null,
             additional_details: details||null, drawing_url: drawingUrl,
-            status: 'open', review_status: 'pending_review', buyer_id: parseInt(buyerId)
+            status: 'open', review_status: 'pending_review', buyer_id: parseInt(buyerId),
+            ...(paymentInfo ? { payment_id: paymentInfo.payment_id, amount_paid: paymentInfo.amount } : {})
           })
         });
         if (!res.ok) throw new Error(await res.text());
