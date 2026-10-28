@@ -511,6 +511,10 @@
           <svg viewBox="0 0 14 14" fill="none"><rect x="1" y="4" width="12" height="9" rx="1" stroke="currentColor" stroke-width="1"/><path d="M1 4l2-3h8l2 3" stroke="currentColor" stroke-width="1" stroke-linejoin="round"/><line x1="5" y1="7" x2="9" y2="7" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
           Archived Orders
         </div>
+        <div class="sidebar-link" onclick="showTab('pricing', this)">
+          <svg viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1"/><path d="M5 5h4M5 7h4M6 5c2 0 2.5 1 2.5 1.5S8 8 6 8l2.5 2.5" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Pricing &amp; Payments
+        </div>
       </div>
       <div class="sidebar-divider"></div>
       <div class="sidebar-section">
@@ -1062,6 +1066,29 @@
         </table>
       </div>
 
+      <!-- PRICING & PAYMENTS TAB -->
+      <div class="tab-panel" id="tab-pricing">
+        <div class="page-title">Pricing &amp; <em>Payments</em></div>
+        <div class="page-subtitle">Choose what is free and what is paid. Each row means: <em>from the user's Nth time onward, charge this amount</em> (until the next row). Changes apply to the next action anyone takes. Payments are collected via Razorpay (UPI, cards, netbanking).</div>
+
+        <div class="section-header"><div class="section-title">Manufacturers <span style="font-size:11px;color:var(--muted);margin-left:8px;">placing a new bid (editing a bid is always free)</span></div></div>
+        <div id="pricing-manufacturer_bid" style="margin-bottom:12px;"></div>
+        <div style="display:flex;gap:8px;margin-bottom:36px;">
+          <button class="btn-edit" onclick="addPricingTier('manufacturer_bid')">+ Add tier</button>
+          <button class="btn-save" style="width:auto;padding:10px 24px;" onclick="savePricing('manufacturer_bid')">Save Manufacturer Pricing</button>
+          <span id="pricing-msg-manufacturer_bid" style="font-size:12px;align-self:center;"></span>
+        </div>
+
+        <div class="section-header"><div class="section-title">Buyers <span style="font-size:11px;color:var(--muted);margin-left:8px;">posting a new order (editing an order is always free)</span></div></div>
+        <div id="pricing-buyer_order" style="margin-bottom:12px;"></div>
+        <div style="display:flex;gap:8px;margin-bottom:24px;">
+          <button class="btn-edit" onclick="addPricingTier('buyer_order')">+ Add tier</button>
+          <button class="btn-save" style="width:auto;padding:10px 24px;" onclick="savePricing('buyer_order')">Save Buyer Pricing</button>
+          <span id="pricing-msg-buyer_order" style="font-size:12px;align-self:center;"></span>
+        </div>
+        <p style="font-size:11px;color:var(--muted);line-height:1.7;max-width:640px;">Example: tier 1 = Free, tier 2 from bid 2 = Paid ₹99, tier 3 from bid 3 = Paid ₹199 means a manufacturer's first bid is free, their second costs ₹99 and every bid after costs ₹199. The count is per user, across all their orders. Payment history lives in your Razorpay dashboard.</p>
+      </div>
+
       <!-- ARCHIVED ORDERS TAB -->
       <div class="tab-panel" id="tab-order-archive">
         <div class="page-title">Archived <em>Orders</em></div>
@@ -1504,8 +1531,85 @@
     if (name === 'orders') loadOrders();
     if (name === 'order-bids') { loadOrders(); loadBids(); }
     if (name === 'order-archive') loadArchivedOrders();
+    if (name === 'pricing') { loadPricing('manufacturer_bid'); loadPricing('buyer_order'); }
     if (name === 'field-submissions') loadFieldSubmissions();
     if (name === 'field-leads') loadFieldLeads();
+  }
+
+  // PRICING & PAYMENTS
+  window._pricingTiers = { manufacturer_bid: [], buyer_order: [] };
+  const PRICING_H = { 'apikey': SUPA_ANON, 'Authorization': 'Bearer ' + SUPA_ANON, 'Content-Type': 'application/json' };
+
+  async function loadPricing(action) {
+    const box = document.getElementById('pricing-' + action);
+    box.innerHTML = '<div style="color:var(--muted);font-size:12px;">Loading...</div>';
+    try {
+      const res = await fetch(`${SUPA_URL}/rest/v1/pricing_rules?action=eq.${action}&order=from_n.asc&select=from_n,price`, { headers: PRICING_H });
+      const rows = await res.json();
+      if (!Array.isArray(rows)) throw new Error(JSON.stringify(rows));
+      window._pricingTiers[action] = rows.length ? rows.map(r => ({ from_n: r.from_n, price: Number(r.price) })) : [{ from_n: 1, price: 0 }];
+      renderPricing(action);
+    } catch (e) {
+      box.innerHTML = '<div style="color:#E05555;font-size:12px;">Could not load pricing (did you run supabase-phase7-payments.sql?): ' + e.message + '</div>';
+    }
+  }
+
+  function renderPricing(action) {
+    const tiers = window._pricingTiers[action];
+    const box = document.getElementById('pricing-' + action);
+    box.innerHTML = tiers.map((t, i) => {
+      const paid = t.price > 0;
+      const first = i === 0;
+      return `<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:12px 0;border-bottom:1px solid var(--border);">
+        <span style="font-size:12px;color:var(--muted);width:90px;">From bid no.</span>
+        ${first ? `<span style="width:70px;font-size:14px;">1</span>` : `<input type="number" min="2" class="form-input" style="width:70px;padding:8px 10px;" value="${t.from_n}" onchange="setPricingField('${action}',${i},'from_n',this.value)" />`}
+        <select class="form-input" style="width:110px;padding:8px 10px;" onchange="setPricingMode('${action}',${i},this.value)">
+          <option value="free" ${paid ? '' : 'selected'}>Free</option>
+          <option value="paid" ${paid ? 'selected' : ''}>Paid</option>
+        </select>
+        ${paid ? `<span style="font-size:13px;color:var(--muted);">₹</span><input type="number" min="1" step="1" class="form-input" style="width:100px;padding:8px 10px;" value="${t.price}" onchange="setPricingField('${action}',${i},'price',this.value)" />` : ''}
+        ${first ? '' : `<button class="btn-del" onclick="removePricingTier('${action}',${i})">Remove</button>`}
+      </div>`;
+    }).join('');
+  }
+
+  function setPricingMode(action, i, mode) {
+    window._pricingTiers[action][i].price = mode === 'paid' ? (window._pricingTiers[action][i].price || 99) : 0;
+    renderPricing(action);
+  }
+  function setPricingField(action, i, field, val) {
+    window._pricingTiers[action][i][field] = Number(val);
+  }
+  function addPricingTier(action) {
+    const t = window._pricingTiers[action];
+    const next = t.length ? Math.max(...t.map(x => x.from_n)) + 1 : 1;
+    t.push({ from_n: next, price: 99 });
+    renderPricing(action);
+  }
+  function removePricingTier(action, i) {
+    window._pricingTiers[action].splice(i, 1);
+    renderPricing(action);
+  }
+
+  async function savePricing(action) {
+    const msg = document.getElementById('pricing-msg-' + action);
+    const tiers = window._pricingTiers[action].map(t => ({ from_n: Math.round(Number(t.from_n)), price: Number(t.price) }));
+    tiers.sort((a, b) => a.from_n - b.from_n);
+    const bad = tiers.some(t => !(t.from_n >= 1) || !(t.price >= 0) || Number.isNaN(t.price));
+    const dup = new Set(tiers.map(t => t.from_n)).size !== tiers.length;
+    if (!tiers.length || tiers[0].from_n !== 1) { msg.style.color = '#E05555'; msg.textContent = 'The first tier must start from bid 1.'; return; }
+    if (bad || dup) { msg.style.color = '#E05555'; msg.textContent = 'Check the tiers: bid numbers must be unique and amounts valid.'; return; }
+    msg.style.color = 'var(--muted)'; msg.textContent = 'Saving...';
+    try {
+      // Replace this action's tiers: delete old, insert new.
+      const del = await fetch(`${SUPA_URL}/rest/v1/pricing_rules?action=eq.${action}`, { method: 'DELETE', headers: { ...PRICING_H, 'Prefer': 'return=minimal' } });
+      if (!del.ok) throw new Error(await del.text());
+      const ins = await fetch(`${SUPA_URL}/rest/v1/pricing_rules`, { method: 'POST', headers: { ...PRICING_H, 'Prefer': 'return=minimal' }, body: JSON.stringify(tiers.map(t => ({ action, from_n: t.from_n, price: t.price }))) });
+      if (!ins.ok) throw new Error(await ins.text());
+      window._pricingTiers[action] = tiers;
+      renderPricing(action);
+      msg.style.color = 'var(--gold)'; msg.textContent = '✓ Saved';
+    } catch (e) { msg.style.color = '#E05555'; msg.textContent = 'Error: ' + e.message; loadPricing(action); }
   }
 
   // DASHBOARD
