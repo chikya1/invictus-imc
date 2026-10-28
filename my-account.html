@@ -835,7 +835,7 @@
     const r = await fetch('/api/create-payment', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action, user_id: String(userId), order_id: orderRef ? String(orderRef) : null }) });
     const d = await r.json().catch(() => ({}));
     if (!r.ok) throw new Error(d.error || 'Could not start payment');
-    if (d.free) return { paid: false };
+    if (d.free) return d.unlocked ? { paid: true, payment_id: d.payment_id, amount: d.amount } : { paid: false };
     if (btn) btn.textContent = 'Waiting for payment...';
     await loadRazorpayScript();
     return new Promise((resolve, reject) => {

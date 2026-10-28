@@ -1069,24 +1069,22 @@
       <!-- PRICING & PAYMENTS TAB -->
       <div class="tab-panel" id="tab-pricing">
         <div class="page-title">Pricing &amp; <em>Payments</em></div>
-        <div class="page-subtitle">Choose what is free and what is paid. Each row means: <em>from the user's Nth time onward, charge this amount</em> (until the next row). Changes apply to the next action anyone takes. Payments are collected via Razorpay (UPI, cards, netbanking).</div>
+        <div class="page-subtitle">One switch and one amount per group. Payment is collected once per product and unlocks it for good; editing afterwards is always free. Collected via Razorpay (UPI, cards, netbanking). Changes apply from the next action anyone takes.</div>
 
-        <div class="section-header"><div class="section-title">Manufacturers <span style="font-size:11px;color:var(--muted);margin-left:8px;">placing a new bid (editing a bid is always free)</span></div></div>
+        <div class="section-header"><div class="section-title">Manufacturers <span style="font-size:11px;color:var(--muted);margin-left:8px;">one-time fee per product to unlock bidding</span></div></div>
         <div id="pricing-manufacturer_bid" style="margin-bottom:12px;"></div>
         <div style="display:flex;gap:8px;margin-bottom:36px;">
-          <button class="btn-edit" onclick="addPricingTier('manufacturer_bid')">+ Add tier</button>
           <button class="btn-save" style="width:auto;padding:10px 24px;" onclick="savePricing('manufacturer_bid')">Save Manufacturer Pricing</button>
           <span id="pricing-msg-manufacturer_bid" style="font-size:12px;align-self:center;"></span>
         </div>
 
-        <div class="section-header"><div class="section-title">Buyers <span style="font-size:11px;color:var(--muted);margin-left:8px;">posting a new order (editing an order is always free)</span></div></div>
+        <div class="section-header"><div class="section-title">Buyers <span style="font-size:11px;color:var(--muted);margin-left:8px;">fee for each new order posted</span></div></div>
         <div id="pricing-buyer_order" style="margin-bottom:12px;"></div>
         <div style="display:flex;gap:8px;margin-bottom:24px;">
-          <button class="btn-edit" onclick="addPricingTier('buyer_order')">+ Add tier</button>
           <button class="btn-save" style="width:auto;padding:10px 24px;" onclick="savePricing('buyer_order')">Save Buyer Pricing</button>
           <span id="pricing-msg-buyer_order" style="font-size:12px;align-self:center;"></span>
         </div>
-        <p style="font-size:11px;color:var(--muted);line-height:1.7;max-width:640px;">Example: tier 1 = Free, tier 2 from bid 2 = Paid ₹99, tier 3 from bid 3 = Paid ₹199 means a manufacturer's first bid is free, their second costs ₹99 and every bid after costs ₹199. The count is per user, across all their orders. Payment history lives in your Razorpay dashboard.</p>
+        <p style="font-size:11px;color:var(--muted);line-height:1.7;max-width:640px;">Example: set Manufacturers to Paid ₹99. Each manufacturer pays ₹99 once for each product they want to bid on. After that they can change their bid as often as they like at no cost. Keep both on Free until your Razorpay account is connected. Payment history lives in your Razorpay dashboard.</p>
       </div>
 
       <!-- ARCHIVED ORDERS TAB -->
@@ -1537,77 +1535,50 @@
   }
 
   // PRICING & PAYMENTS
-  window._pricingTiers = { manufacturer_bid: [], buyer_order: [] };
   const PRICING_H = { 'apikey': SUPA_ANON, 'Authorization': 'Bearer ' + SUPA_ANON, 'Content-Type': 'application/json' };
+  window._pricing = { manufacturer_bid: 0, buyer_order: 0 };
 
   async function loadPricing(action) {
     const box = document.getElementById('pricing-' + action);
     box.innerHTML = '<div style="color:var(--muted);font-size:12px;">Loading...</div>';
     try {
-      const res = await fetch(`${SUPA_URL}/rest/v1/pricing_rules?action=eq.${action}&order=from_n.asc&select=from_n,price`, { headers: PRICING_H });
+      const res = await fetch(`${SUPA_URL}/rest/v1/pricing_rules?action=eq.${action}&order=from_n.asc&limit=1&select=price`, { headers: PRICING_H });
       const rows = await res.json();
       if (!Array.isArray(rows)) throw new Error(JSON.stringify(rows));
-      window._pricingTiers[action] = rows.length ? rows.map(r => ({ from_n: r.from_n, price: Number(r.price) })) : [{ from_n: 1, price: 0 }];
+      window._pricing[action] = rows.length ? Number(rows[0].price) : 0;
       renderPricing(action);
     } catch (e) {
-      box.innerHTML = '<div style="color:#E05555;font-size:12px;">Could not load pricing (did you run supabase-phase7-payments.sql?): ' + e.message + '</div>';
+      box.innerHTML = '<div style="color:#E05555;font-size:12px;">Could not load pricing: ' + e.message + '</div>';
     }
   }
 
   function renderPricing(action) {
-    const tiers = window._pricingTiers[action];
-    const box = document.getElementById('pricing-' + action);
-    box.innerHTML = tiers.map((t, i) => {
-      const paid = t.price > 0;
-      const first = i === 0;
-      return `<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:12px 0;border-bottom:1px solid var(--border);">
-        <span style="font-size:12px;color:var(--muted);width:90px;">From bid no.</span>
-        ${first ? `<span style="width:70px;font-size:14px;">1</span>` : `<input type="number" min="2" class="form-input" style="width:70px;padding:8px 10px;" value="${t.from_n}" onchange="setPricingField('${action}',${i},'from_n',this.value)" />`}
-        <select class="form-input" style="width:110px;padding:8px 10px;" onchange="setPricingMode('${action}',${i},this.value)">
-          <option value="free" ${paid ? '' : 'selected'}>Free</option>
-          <option value="paid" ${paid ? 'selected' : ''}>Paid</option>
-        </select>
-        ${paid ? `<span style="font-size:13px;color:var(--muted);">₹</span><input type="number" min="1" step="1" class="form-input" style="width:100px;padding:8px 10px;" value="${t.price}" onchange="setPricingField('${action}',${i},'price',this.value)" />` : ''}
-        ${first ? '' : `<button class="btn-del" onclick="removePricingTier('${action}',${i})">Remove</button>`}
-      </div>`;
-    }).join('');
+    const price = window._pricing[action];
+    const paid = price > 0;
+    document.getElementById('pricing-' + action).innerHTML = `<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:12px 0;border-bottom:1px solid var(--border);">
+      <select class="form-input" style="width:120px;padding:8px 10px;" onchange="setPricingMode('${action}',this.value)">
+        <option value="free" ${paid ? '' : 'selected'}>Free</option>
+        <option value="paid" ${paid ? 'selected' : ''}>Paid</option>
+      </select>
+      ${paid ? `<span style="font-size:13px;color:var(--muted);">₹</span><input type="number" min="1" step="1" class="form-input" style="width:110px;padding:8px 10px;" value="${price}" onchange="window._pricing['${action}']=Number(this.value)" />` : '<span style="font-size:12px;color:var(--muted);">No charge</span>'}
+    </div>`;
   }
 
-  function setPricingMode(action, i, mode) {
-    window._pricingTiers[action][i].price = mode === 'paid' ? (window._pricingTiers[action][i].price || 99) : 0;
-    renderPricing(action);
-  }
-  function setPricingField(action, i, field, val) {
-    window._pricingTiers[action][i][field] = Number(val);
-  }
-  function addPricingTier(action) {
-    const t = window._pricingTiers[action];
-    const next = t.length ? Math.max(...t.map(x => x.from_n)) + 1 : 1;
-    t.push({ from_n: next, price: 99 });
-    renderPricing(action);
-  }
-  function removePricingTier(action, i) {
-    window._pricingTiers[action].splice(i, 1);
+  function setPricingMode(action, mode) {
+    window._pricing[action] = mode === 'paid' ? (window._pricing[action] || 99) : 0;
     renderPricing(action);
   }
 
   async function savePricing(action) {
     const msg = document.getElementById('pricing-msg-' + action);
-    const tiers = window._pricingTiers[action].map(t => ({ from_n: Math.round(Number(t.from_n)), price: Number(t.price) }));
-    tiers.sort((a, b) => a.from_n - b.from_n);
-    const bad = tiers.some(t => !(t.from_n >= 1) || !(t.price >= 0) || Number.isNaN(t.price));
-    const dup = new Set(tiers.map(t => t.from_n)).size !== tiers.length;
-    if (!tiers.length || tiers[0].from_n !== 1) { msg.style.color = '#E05555'; msg.textContent = 'The first tier must start from bid 1.'; return; }
-    if (bad || dup) { msg.style.color = '#E05555'; msg.textContent = 'Check the tiers: bid numbers must be unique and amounts valid.'; return; }
+    const price = Number(window._pricing[action]);
+    if (Number.isNaN(price) || price < 0) { msg.style.color = '#E05555'; msg.textContent = 'Enter a valid amount.'; return; }
     msg.style.color = 'var(--muted)'; msg.textContent = 'Saving...';
     try {
-      // Replace this action's tiers: delete old, insert new.
       const del = await fetch(`${SUPA_URL}/rest/v1/pricing_rules?action=eq.${action}`, { method: 'DELETE', headers: { ...PRICING_H, 'Prefer': 'return=minimal' } });
       if (!del.ok) throw new Error(await del.text());
-      const ins = await fetch(`${SUPA_URL}/rest/v1/pricing_rules`, { method: 'POST', headers: { ...PRICING_H, 'Prefer': 'return=minimal' }, body: JSON.stringify(tiers.map(t => ({ action, from_n: t.from_n, price: t.price }))) });
+      const ins = await fetch(`${SUPA_URL}/rest/v1/pricing_rules`, { method: 'POST', headers: { ...PRICING_H, 'Prefer': 'return=minimal' }, body: JSON.stringify([{ action, from_n: 1, price }]) });
       if (!ins.ok) throw new Error(await ins.text());
-      window._pricingTiers[action] = tiers;
-      renderPricing(action);
       msg.style.color = 'var(--gold)'; msg.textContent = '✓ Saved';
     } catch (e) { msg.style.color = '#E05555'; msg.textContent = 'Error: ' + e.message; loadPricing(action); }
   }

@@ -58,17 +58,18 @@
 <div class="legal-nav"><a href="/terms">Terms &amp; Conditions</a><a href="/privacy-policy">Privacy Policy</a><a href="/refund-policy">Cancellation &amp; Refund Policy</a><a href="/pricing" class="active">Pricing</a><a href="/shipping-policy">Delivery Policy</a><a href="/contact">Contact Us</a></div>
 <div class="content"><div class="doc">
 
-<p>Using Invictus IMC is free to browse and to create an account. We charge a small fee only when you submit a <strong>new</strong> Bid (Manufacturers) or a <strong>new</strong> Order (Buyers), and only where a fee applies under the rates below. Editing a Bid or Order you already submitted is always free.</p>
+<p>Using Invictus IMC is free to browse and to create an account. We may charge a small <strong>one-time fee per product</strong>, and only where a fee is switched on below. Once you have paid for a product it stays unlocked, and editing your bid afterwards is always free.</p>
 
-<h2>Manufacturers: submitting a new Bid</h2>
+<h2>Manufacturers: bidding on a product</h2>
 <div id="price-manufacturer_bid"><p>Loading current pricing...</p></div>
 
-<h2>Buyers: posting a new Order</h2>
+<h2>Buyers: posting an Order</h2>
 <div id="price-buyer_order"><p>Loading current pricing...</p></div>
 
 <h2>How it works</h2>
 <ul>
-<li>The count is per account, across all your Orders. For example, if your first Bid is free and your second costs &#8377;99, your second Bid on any Order is charged &#8377;99.</li>
+<li>For manufacturers the fee is charged once for each product you want to bid on. After paying, you can change your price, notes and quantity as often as you like at no extra cost, and the product stays unlocked.</li>
+<li>For buyers, where a fee applies it is charged for each new Order you post. Editing an Order is free.</li>
 <li>Prices are in Indian Rupees (INR). Applicable taxes, where chargeable, are shown at checkout before you pay.</li>
 <li>You see the exact amount before you pay. Payment is made securely via Razorpay (UPI, cards, net banking).</li>
 <li>The fee is for listing and processing your submission and does not guarantee an award. See the <a href="/refund-policy">Cancellation &amp; Refund Policy</a> and <a href="/terms">Terms &amp; Conditions</a>.</li>
@@ -85,23 +86,19 @@
 <script>
   const SUPA_URL='https://nmjkzhquoxuuebzyotnx.supabase.co';
   const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5tamt6aHF1b3h1dWVienlvdG54Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwNzY0MDEsImV4cCI6MjA5MTY1MjQwMX0.6uwyWMSLGhG259TY9x-vpUxNiENkYAXOqFEUI3aSv5M';
-  const ORD=n=>n+(n%100>=11&&n%100<=13?'th':({1:'st',2:'nd',3:'rd'}[n%10]||'th'));
-  function renderTiers(action,rows){
+  function renderFee(action,rows){
     const el=document.getElementById('price-'+action);
-    if(!rows||!rows.length){el.innerHTML='<p><strong>Free.</strong> No fee currently applies.</p>';return;}
-    const out='<table><tr><th>Submission</th><th>Fee (INR)</th></tr>'+rows.map((r,i)=>{
-      const next=rows[i+1];
-      const label=next?(next.from_n-1===r.from_n?ORD(r.from_n):ORD(r.from_n)+' to '+ORD(next.from_n-1)):(r.from_n===1?'Every one':ORD(r.from_n)+' onwards');
-      const fee=Number(r.price)>0?'&#8377;'+Number(r.price).toLocaleString('en-IN'):'Free';
-      return '<tr><td>'+label+'</td><td>'+fee+'</td></tr>';}).join('')+'</table>';
-    el.innerHTML=out;
+    const price=rows&&rows.length?Number(rows[0].price):0;
+    if(!(price>0)){el.innerHTML='<p><strong>Free.</strong> No fee currently applies.</p>';return;}
+    const unit=action==='manufacturer_bid'?'one-time, per product you bid on':'per new Order posted';
+    el.innerHTML='<table><tr><th>Fee (INR)</th><th>Charged</th></tr><tr><td><strong>&#8377;'+price.toLocaleString('en-IN')+'</strong></td><td>'+unit+'</td></tr></table>';
   }
   async function loadPrices(){
     for(const a of ['manufacturer_bid','buyer_order']){
       try{
-        const r=await fetch(SUPA_URL+'/rest/v1/pricing_rules?action=eq.'+a+'&order=from_n.asc&select=from_n,price',{headers:{apikey:SUPA_KEY,Authorization:'Bearer '+SUPA_KEY}});
+        const r=await fetch(SUPA_URL+'/rest/v1/pricing_rules?action=eq.'+a+'&order=from_n.asc&limit=1&select=from_n,price',{headers:{apikey:SUPA_KEY,Authorization:'Bearer '+SUPA_KEY}});
         const d=await r.json();
-        renderTiers(a,Array.isArray(d)?d:[]);
+        renderFee(a,Array.isArray(d)?d:[]);
       }catch(e){document.getElementById('price-'+a).innerHTML='<p>Pricing is shown at checkout before any payment. Contact connect@invictusimc.com for details.</p>';}
     }
   }
