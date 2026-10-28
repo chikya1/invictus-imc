@@ -1,14 +1,20 @@
 // Decides whether an action costs money for this user and, if so, creates a Razorpay order.
 // The price is computed HERE from pricing_rules - the browser never gets to say how much to charge.
 //
+// Rules:
+//  - Manufacturers pay ONE flat fee per product (order) to unlock bidding. Once paid, it stays unlocked.
+//  - Editing an existing bid is always free.
+//  - Buyers pay the flat fee for each new order they post.
+//  - If any lookup fails, we stop with an error (we never let an action through as "free" by accident).
+//
 // Vercel environment variables needed:
-//   RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET, SUPABASE_SERVICE_KEY
+//   SUPABASE_SERVICE_KEY (always), RAZORPAY_KEY_ID + RAZORPAY_KEY_SECRET (only when a price is switched on)
 
 const SUPA_URL = 'https://nmjkzhquoxuuebzyotnx.supabase.co';
 
 const ACTIONS = {
-  manufacturer_bid: { table: 'order_bids', userCol: 'manufacturer_id', label: 'Bid fee' },
-  buyer_order: { table: 'manufacturing_orders', userCol: 'buyer_id', label: 'Order posting fee' }
+  manufacturer_bid: { label: 'Bid unlock fee' },
+  buyer_order: { label: 'Order posting fee' }
 };
 
 function sb(path, opts = {}) {
@@ -17,6 +23,13 @@ function sb(path, opts = {}) {
     ...opts,
     headers: { apikey: key, Authorization: `Bearer ${key}`, 'Content-Type': 'application/json', ...(opts.headers || {}) }
   });
+}
+
+async function sbJson(path) {
+  const r = await sb(path);
+  const d = await r.json().catch(() => null);
+  if (!r.ok || !Array.isArray(d)) throw new Error('Could not complete the check. Please try again.');
+  return d;
 }
 
 export default async function handler(req, res) {
@@ -33,27 +46,26 @@ export default async function handler(req, res) {
   if (!process.env.SUPABASE_SERVICE_KEY) return res.status(500).json({ error: 'Server not configured (SUPABASE_SERVICE_KEY)' });
 
   try {
-    // Editing a bid you already placed is always free - only NEW bids are charged.
-    if (action === 'manufacturer_bid' && order_id) {
-      const ex = await (await sb(`order_bids?order_id=eq.${encodeURIComponent(order_id)}&manufacturer_id=eq.${encodeURIComponent(user_id)}&select=id`)).json();
-      if (Array.isArray(ex) && ex.length) return res.status(200).json({ free: true });
+    if (action === 'manufacturer_bid') {
+      if (!order_id) return res.status(400).json({ error: 'Missing order' });
+
+      // Editing a bid you already placed is always free.
+      const existing = await sbJson(`order_bids?order_id=eq.${encodeURIComponent(order_id)}&manufacturer_id=eq.${encodeURIComponent(user_id)}&select=id`);
+      if (existing.length) return res.status(200).json({ free: true });
+
+      // Already paid for this product? It stays unlocked - never charge twice.
+      const paid = await sbJson(`payments?action=eq.manufacturer_bid&user_id=eq.${encodeURIComponent(String(user_id))}&order_ref=eq.${encodeURIComponent(String(order_id))}&status=eq.paid&select=id,amount_paise&limit=1`);
+      if (paid.length) return res.status(200).json({ free: true, unlocked: true, payment_id: paid[0].id, amount: paid[0].amount_paise / 100 });
     }
 
-    // How many of this action has the user already done? This one is number (count + 1).
-    const cntRes = await sb(`${cfg.table}?${cfg.userCol}=eq.${encodeURIComponent(user_id)}&select=id`, { headers: { Prefer: 'count=exact', Range: '0-0' } });
-    const range = cntRes.headers.get('content-range') || '';
-    const count = parseInt(range.split('/')[1], 10);
-    if (Number.isNaN(count)) return res.status(500).json({ error: 'Could not read usage count' });
-    const n = count + 1;
-
-    // Pick the tier with the highest from_n that is <= n.
-    const rules = await (await sb(`pricing_rules?action=eq.${action}&from_n=lte.${n}&order=from_n.desc&limit=1&select=price,from_n`)).json();
-    const price = Array.isArray(rules) && rules.length ? Number(rules[0].price) : 0;
+    // One flat fee per action (admin sets it; 0 = free).
+    const rules = await sbJson(`pricing_rules?action=eq.${action}&order=from_n.asc&limit=1&select=price`);
+    const price = rules.length ? Number(rules[0].price) : 0;
     if (!(price > 0)) return res.status(200).json({ free: true });
 
     const amountPaise = Math.round(price * 100);
     const rzKey = process.env.RAZORPAY_KEY_ID, rzSecret = process.env.RAZORPAY_KEY_SECRET;
-    if (!rzKey || !rzSecret) return res.status(500).json({ error: 'Payments not configured yet' });
+    if (!rzKey || !rzSecret) return res.status(500).json({ error: 'Payments are not switched on yet. Please contact connect@invictusimc.com.' });
 
     const rzRes = await fetch('https://api.razorpay.com/v1/orders', {
       method: 'POST',
@@ -69,7 +81,7 @@ export default async function handler(req, res) {
     });
     if (!ins.ok) return res.status(500).json({ error: 'Could not record payment' });
 
-    return res.status(200).json({ free: false, key_id: rzKey, razorpay_order_id: rz.id, amount: amountPaise, currency: 'INR', label: cfg.label, bid_number: n });
+    return res.status(200).json({ free: false, key_id: rzKey, razorpay_order_id: rz.id, amount: amountPaise, currency: 'INR', label: cfg.label });
   } catch (e) {
     return res.status(500).json({ error: e.message });
   }
