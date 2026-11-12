@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/png" href="/INVICTUS_LOGO.png" />
+  <title>Manufacturing Cost Estimator — Invictus IMC</title>
+  <meta name="description" content="Estimate the cost of manufacturing toys, scissors or plastic containers in India. Edit every cost line to match your own rates." />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,400&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --ivory:#F7F6F3; --white:#FFF; --void:#0A0A0A; --ink:#1A1A1A; --ink-mid:#555; --border:#E2E0DC; --gold:#C8860A; --gold-light:#E09B12; --gold-border:rgba(200,134,10,.35); --gold-dim:rgba(200,134,10,.08); --serif:'Cormorant Garamond',Georgia,serif; --sans:'Montserrat',sans-serif; }
+    body { font-family:var(--sans); background:var(--ivory); color:var(--ink); min-height:100vh; }
+    .topbar { background:var(--void); padding:0 24px; height:52px; display:flex; align-items:center; justify-content:space-between; }
+    .topbar a.logo { font-family:var(--serif); font-size:16px; font-weight:600; letter-spacing:2.5px; color:#F5F2EC; text-transform:uppercase; text-decoration:none; }
+    .topbar a.back { font-size:11px; color:rgba(255,255,255,.45); text-decoration:none; border:1px solid rgba(255,255,255,.15); padding:5px 12px; }
+    .hero { background:var(--void); padding:44px 24px 48px; border-bottom:1px solid rgba(200,134,10,.15); }
+    .wrap { max-width:960px; margin:0 auto; }
+    .eyebrow { font-size:9px; letter-spacing:3px; text-transform:uppercase; color:var(--gold); margin-bottom:14px; }
+    h1 { font-family:var(--serif); font-size:34px; font-weight:400; color:#F5F2EC; line-height:1.15; margin-bottom:12px; }
+    h1 em { font-style:italic; color:var(--gold); }
+    .hero p { font-size:14px; font-weight:300; color:rgba(255,255,255,.5); line-height:1.7; max-width:560px; }
+    main { padding:32px 24px 56px; }
+    .step-label { font-size:9px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:var(--gold); margin:0 0 10px; display:block; }
+    .cards { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:28px; }
+    .pcard { background:var(--white); border:1px solid var(--border); padding:16px; cursor:pointer; text-align:left; font-family:var(--sans); }
+    .pcard.on { border-color:var(--gold); border-left:3px solid var(--gold); background:var(--gold-dim); }
+    .pcard strong { display:block; font-family:var(--serif); font-size:20px; font-weight:500; margin-bottom:4px; }
+    .pcard span { font-size:11px; color:var(--ink-mid); font-weight:300; line-height:1.5; }
+    .grid { display:grid; grid-template-columns:1fr 340px; gap:20px; align-items:start; }
+    .panel { background:var(--white); border:1px solid var(--border); padding:22px; }
+    .row { display:grid; grid-template-columns:1fr 130px; gap:10px; align-items:center; padding:9px 0; border-bottom:1px solid var(--border); }
+    .row:last-child { border-bottom:none; }
+    .row label { font-size:12px; font-weight:500; }
+    .row small { display:block; font-size:10px; color:var(--ink-mid); font-weight:300; margin-top:2px; }
+    input.f { width:100%; font-family:var(--sans); font-size:14px; padding:10px 11px; border:1px solid var(--border); background:var(--ivory); outline:none; }
+    input.f:focus { border-color:var(--gold-border); background:var(--white); }
+    input.f.edited { border-color:var(--gold); }
+    .sub-head { font-size:10px; letter-spacing:1.5px; text-transform:uppercase; color:var(--ink-mid); margin:14px 0 2px; font-weight:600; }
+    .result { position:sticky; top:16px; border-left:3px solid var(--gold); }
+    .big { font-family:var(--serif); font-size:34px; line-height:1.1; margin:6px 0 2px; }
+    .muted { font-size:11px; color:var(--ink-mid); font-weight:300; line-height:1.6; }
+    .tot { margin-top:14px; padding-top:14px; border-top:1px solid var(--border); }
+    .bk { margin-top:14px; border-top:1px solid var(--border); padding-top:10px; }
+    .bk div { display:flex; justify-content:space-between; font-size:12px; padding:4px 0; }
+    .bk .t { font-weight:600; border-top:1px solid var(--border); margin-top:4px; padding-top:8px; }
+    .locked { position:relative; margin-top:14px; border-top:1px solid var(--border); padding-top:14px; }
+    .locked .blur { filter:blur(5px); user-select:none; pointer-events:none; }
+    .btn { width:100%; margin-top:14px; font-family:var(--sans); font-size:12px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:var(--void); background:var(--gold); border:none; padding:15px; cursor:pointer; }
+    .btn:hover { background:var(--gold-light); } .btn:disabled { opacity:.6; cursor:not-allowed; }
+    .btn.alt { background:transparent; color:var(--ink); border:1px solid var(--border); margin-top:10px; text-decoration:none; display:block; text-align:center; }
+    .disc { font-size:10px; color:var(--ink-mid); margin-top:12px; line-height:1.6; font-weight:300; }
+    .msg { font-size:12px; margin-top:10px; padding:10px 12px; border:1px solid; display:none; line-height:1.5; }
+    .msg.err { display:block; background:rgba(231,76,60,.08); border-color:rgba(231,76,60,.3); color:#c0392b; }
+    .msg.ok { display:block; background:rgba(46,125,50,.08); border-color:rgba(46,125,50,.3); color:#2E7D32; }
+    #leadForm { display:none; margin-top:14px; border-top:1px solid var(--border); padding-top:12px; }
+    #leadForm input { margin-top:8px; }
+    @media (max-width:760px){ .cards{grid-template-columns:1fr;} .grid{grid-template-columns:1fr;} .result{position:static;} h1{font-size:28px;} .row{grid-template-columns:1fr 110px;} }
+  </style>
+</head>
+<body>
+<div class="topbar"><a class="logo" href="/">Invictus</a><a class="back" href="/">← Back to site</a></div>
+<div class="hero"><div class="wrap">
+  <div class="eyebrow">Cost Estimator</div>
+  <h1>What would it cost to <em>make it in India?</em></h1>
+  <p>Pick a product, then change any cost to match your own rates, location and discounts. The estimate updates as you type.</p>
+</div></div>
+
+<main><div class="wrap">
+  <span class="step-label">1 · Pick a product</span>
+  <div class="cards" id="cards"></div>
+
+  <div class="grid">
+    <div class="panel">
+      <span class="step-label">2 · Edit the costs</span>
+      <div class="row"><div><label for="qty">Order quantity (pieces)</label></div><input class="f" id="qty" type="number" min="1" step="100" /></div>
+      <div class="row"><div><label for="city">Your city</label><small>Used to note transport</small></div><input class="f" id="city" type="text" placeholder="e.g. Bengaluru" maxlength="60" /></div>
+      <div class="sub-head">Per piece (₹)</div>
+      <div id="fields"></div>
+      <div class="sub-head">One-time (spread over the quantity above — a higher quantity lowers the per-piece share)</div>
+      <div id="fieldsOnce"></div>
+    </div>
+
+    <div class="panel result">
+      <span class="step-label">3 · Your estimate</span>
+      <div class="muted">Estimated cost per piece</div>
+      <div class="big" id="unitRange">—</div>
+      <div class="muted" id="rangeNote"></div>
+      <div class="tot"><div class="muted">Estimated order total</div><div class="big" style="font-size:24px" id="totalRange">—</div></div>
+
+      <div class="locked" id="lockedBox"><div class="blur" id="bkBlur"></div>
+        <button class="btn" id="unlockBtn" type="button">Unlock full breakdown</button>
+        <form id="leadForm" novalidate>
+          <input class="f" id="ln" placeholder="Your name *" autocomplete="name" maxlength="80" />
+          <input class="f" id="lc" placeholder="Company" autocomplete="organization" maxlength="120" />
+          <input class="f" id="lp" type="tel" placeholder="Phone / WhatsApp *" autocomplete="tel" maxlength="20" />
+          <input class="f" id="le" type="email" placeholder="Email *" autocomplete="email" maxlength="120" />
+          <button class="btn" id="submitBtn" type="submit">Show breakdown</button>
+        </form>
+      </div>
+      <div class="bk" id="bkReal" style="display:none"></div>
+      <a class="btn alt" id="waBtn" style="display:none" target="_blank" rel="noopener">Talk to us on WhatsApp</a>
+      <div class="msg" id="msg"></div>
+      <div class="disc">Indicative estimate based on typical Indian ex-factory rates. It is not a manufacturer quote. Actual prices depend on design, material grade, tooling and supplier.</div>
+    </div>
+  </div>
+</div></main>
+
+<script>
+const SUPA_URL='https://nmjkzhquoxuuebzyotnx.supabase.co';
+const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5tamt6aHF1b3h1dWVienlvdG54Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwNzY0MDEsImV4cCI6MjA5MTY1MjQwMX0.6uwyWMSLGhG259TY9x-vpUxNiENkYAXOqFEUI3aSv5M';
+const WA_NUMBER=''; // optional: your WhatsApp number with country code, e.g. 919XXXXXXXXX. Leave empty to hide the WhatsApp button.
+
+/* ===== DEFAULT COST CONFIG — edit numbers here, no other code needs to change =====
+   All amounts in INR. Weight in grams. rate = INR per kg. */
+const PRODUCTS = {
+  toy:       { name:'Plastic toy car',      desc:'~60 g, ABS/PP, 2 parts',                 qty:25000,
+               weight:{v:60,  hint:'g of plastic per piece'}, rate:{v:150, range:'₹110–190 / kg'},
+               process:{v:2.5,range:'₹1.5–4'}, labour:{v:1,range:'₹0.5–2'}, packaging:{v:4,range:'₹2–6'},
+               transport:{v:1.5}, tooling:{v:250000,range:'₹1.5–4 lakh'}, margin:{v:15} },
+  scissors:  { name:'Steel scissors',       desc:'8" stainless steel, kitchen',            qty:5000,
+               weight:{v:90,  hint:'g of steel per piece'},   rate:{v:250, range:'₹150–300 / kg'},
+               process:{v:25, range:'₹15–40'}, labour:{v:10,range:'₹5–15'},   packaging:{v:6,range:'₹3–10'},
+               transport:{v:3,  }, tooling:{v:120000,range:'₹0.5–2 lakh'},  margin:{v:15} },
+  container: { name:'Plastic container',    desc:'1 L, PP, with lid',                      qty:25000,
+               weight:{v:90,  hint:'g of plastic per piece'}, rate:{v:115, range:'₹100–130 / kg'},
+               process:{v:3.5,range:'₹2–5'},   labour:{v:1,range:'₹0.5–2'},   packaging:{v:3.5,range:'₹2–5'},
+               transport:{v:2.5}, tooling:{v:500000,range:'₹3–8 lakh'},   margin:{v:15} }
+};
+const FIELDS=[ // [key,label]
+  ['weight','Material weight'],['rate','Material rate'],['process','Process cost'],['labour','Labour'],
+  ['packaging','Packaging'],['transport','Transport'],['margin','Manufacturer margin %']
+];
+
+let cur='toy', edited=false, unlocked=false;
+const $=id=>document.getElementById(id);
+const inr=n=>'₹'+Number(n).toLocaleString('en-IN',{maximumFractionDigits:2,minimumFractionDigits:2});
+const inr0=n=>'₹'+Math.round(n).toLocaleString('en-IN');
+
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+
+function renderCards(){
+  $('cards').innerHTML=Object.entries(PRODUCTS).map(([k,p])=>`<button type="button" class="pcard ${k===cur?'on':''}" data-k="${k}"><strong>${esc(p.name)}</strong><span>${esc(p.desc)}</span></button>`).join('');
+  $('cards').querySelectorAll('.pcard').forEach(b=>b.onclick=()=>{cur=b.dataset.k;edited=false;renderCards();renderFields();calc();});
+}
+function rowHTML(key,label,p){
+  const f=p[key], note=f.range?`Typical ${f.range}`:(f.hint||'');
+  return `<div class="row"><div><label for="f_${key}">${label}</label>${note?`<small>${esc(note)}</small>`:''}</div><input class="f" id="f_${key}" data-key="${key}" data-def="${f.v}" type="number" min="0" step="any" value="${f.v}" /></div>`;
+}
+function renderFields(){
+  const p=PRODUCTS[cur];
+  $('qty').value=p.qty;
+  $('fields').innerHTML=FIELDS.map(([k,l])=>rowHTML(k,l,p)).join('');
+  $('fieldsOnce').innerHTML=rowHTML('tooling','Mould / tooling (one-time)',p);
+  document.querySelectorAll('input[data-key]').forEach(i=>i.addEventListener('input',()=>{i.classList.toggle('edited',Number(i.value)!==Number(i.dataset.def));edited=true;calc();}));
+}
+function val(k){const v=parseFloat($('f_'+k).value);return isFinite(v)&&v>=0?v:0;}
+function compute(){
+  const q=Math.max(1,parseInt($('qty').value)||1);
+  const material=val('weight')/1000*val('rate');
+  const lines=[['Material',material],['Process',val('process')],['Labour',val('labour')],['Packaging',val('packaging')],['Transport',val('transport')],['Tooling (spread over quantity)',val('tooling')/q]];
+  const sub=lines.reduce((a,l)=>a+l[1],0);
+  const margin=sub*val('margin')/100;
+  lines.push(['Manufacturer margin',margin]);
+  const unit=sub+margin;
+  return {q,lines,unit,total:unit*q};
+}
+function calc(){
+  const r=compute(), s=edited?0.06:0.12;
+  $('unitRange').textContent=inr(r.unit*(1-s))+' – '+inr(r.unit*(1+s));
+  $('totalRange').textContent=inr0(r.total*(1-s))+' – '+inr0(r.total*(1+s));
+  $('rangeNote').textContent=edited?'Narrowed using your own inputs.':'Edit any cost to narrow this range.';
+  const html=r.lines.map(l=>`<div><span>${esc(l[0])}</span><span>${inr(l[1])}</span></div>`).join('')+`<div class="t"><span>Unit cost</span><span>${inr(r.unit)}</span></div>`;
+  $('bkBlur').innerHTML=html; $('bkReal').innerHTML=html;
+}
+$('qty').addEventListener('input',()=>{edited=true;calc();});
+
+$('unlockBtn').onclick=()=>{ $('unlockBtn').style.display='none'; $('leadForm').style.display='block'; $('ln').focus(); };
+function setMsg(t,c){const m=$('msg');m.textContent=t;m.className='msg '+c;}
+
+$('leadForm').addEventListener('submit',async e=>{
+  e.preventDefault();
+  const name=$('ln').value.trim(), company=$('lc').value.trim(), phone=$('lp').value.trim(), email=$('le').value.trim();
+  if(name.length<2) return setMsg('Please enter your name.','err');
+  if(phone.replace(/\D/g,'').length<10) return setMsg('Please enter a valid phone number (10+ digits).','err');
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return setMsg('Please enter a valid email.','err');
+  const r=compute(), p=PRODUCTS[cur], inputs={};
+  FIELDS.forEach(([k])=>inputs[k]=val(k)); inputs.tooling=val('tooling');
+  const btn=$('submitBtn'); btn.disabled=true; btn.textContent='Saving…';
+  try{
+    const res=await fetch(SUPA_URL+'/rest/v1/quote_leads',{method:'POST',
+      headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},
+      body:JSON.stringify({product:p.name,quantity:r.q,city:$('city').value.trim()||null,inputs,unit_cost:+r.unit.toFixed(2),total_cost:+r.total.toFixed(2),name,company:company||null,phone,email,status:'new'})});
+    if(!res.ok) throw new Error('save failed '+res.status);
+    unlocked=true;
+    $('lockedBox').style.display='none'; $('bkReal').style.display='block';
+    if(WA_NUMBER){const w=$('waBtn');w.style.display='block';w.href='https://wa.me/'+WA_NUMBER+'?text='+encodeURIComponent('Hi Invictus, I used the cost estimator for '+p.name+' ('+r.q+' pcs). Estimated unit cost '+inr(r.unit)+'. I would like to discuss manufacturing.');}
+    setMsg('Thanks, '+name.split(' ')[0]+'. Our team will reach out on the number you gave to discuss real manufacturer quotes.','ok');
+  }catch(err){
+    btn.disabled=false; btn.textContent='Show breakdown';
+    setMsg('Could not save right now. Please try again in a moment.','err');
+  }
+});
+renderCards(); renderFields(); calc();
+</script>
+</body>
+</html>

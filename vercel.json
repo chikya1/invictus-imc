@@ -33,6 +33,7 @@
     { "source": "/shipping-policy", "destination": "/shipping-policy.html" },
     { "source": "/contact", "destination": "/contact.html" },
     { "source": "/pricing", "destination": "/pricing.html" },
-    { "source": "/product-analyser", "destination": "/product-analyser.html" }
+    { "source": "/product-analyser", "destination": "/product-analyser.html" },
+    { "source": "/quote-estimator", "destination": "/quote-estimator.html" }
   ]
 }

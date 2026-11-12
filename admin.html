@@ -495,6 +495,10 @@
           <svg viewBox="0 0 14 14" fill="none"><rect x="1" y="5" width="12" height="8" rx="1" stroke="currentColor" stroke-width="1"/><path d="M4 5V3.5C4 2.12 5.12 1 6.5 1H7.5C8.88 1 10 2.12 10 3.5V5" stroke="currentColor" stroke-width="1"/><line x1="11" y1="3" x2="13" y2="3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="12" y1="2" x2="12" y2="4" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
           Manufacturer Leads
         </div>
+        <div class="sidebar-link" onclick="showTab('quote-leads', this)">
+          <svg viewBox="0 0 14 14" fill="none"><rect x="2" y="1" width="10" height="12" rx="1" stroke="currentColor" stroke-width="1"/><line x1="4.5" y1="4.5" x2="9.5" y2="4.5" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="4.5" y1="7" x2="9.5" y2="7" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="4.5" y1="9.5" x2="7.5" y2="9.5" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
+          Quote Leads
+        </div>
       </div>
       <div class="sidebar-divider"></div>
       <div class="sidebar-section">
@@ -715,6 +719,23 @@
       </div>
 
       <!-- MANUFACTURERS MEMBER TAB -->
+      <!-- QUOTE LEADS TAB -->
+      <div class="tab-panel" id="tab-quote-leads">
+        <div class="page-title">Quote <em>Leads</em></div>
+        <div class="page-subtitle">People who used the Cost Estimator at /quote-estimator and left their details.</div>
+        <div class="section-header">
+          <div class="section-title">Quote Leads <span id="quote-leads-count" style="font-size:11px;color:var(--muted);margin-left:8px;"></span></div>
+        </div>
+        <table class="admin-table">
+          <thead>
+            <tr><th>Status</th><th>Product</th><th>Qty</th><th>Est. Unit / Total</th><th>Name</th><th>Company</th><th>Mobile</th><th>Email</th><th>City</th><th>Submitted</th><th>Actions</th></tr>
+          </thead>
+          <tbody id="quote-leads-tbody">
+            <tr><td colspan="11" class="table-empty">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
       <div class="tab-panel" id="tab-manufacturers">
         <div class="page-title">Manufacturers <em>Club</em></div>
         <div class="page-subtitle">All membership applications from the Manufacturers Club form.</div>
@@ -1523,6 +1544,7 @@
     if (clickedEl) clickedEl.classList.add('active');
     if (name === 'leads-buyers') loadLeads('buyer');
     if (name === 'leads-mfg') loadLeads('manufacturer');
+    if (name === 'quote-leads') loadQuoteLeads();
     if (name === 'projects') loadAcceptanceProjects();
     if (name === 'project-mgmt') loadMgmtProjects();
     if (name === 'archived') loadArchivedProjects();
@@ -1532,6 +1554,54 @@
     if (name === 'pricing') { loadPricing('manufacturer_bid'); loadPricing('buyer_order'); }
     if (name === 'field-submissions') loadFieldSubmissions();
     if (name === 'field-leads') loadFieldLeads();
+  }
+
+  // QUOTE LEADS (Cost Estimator)
+  const QL_URL = 'https://nmjkzhquoxuuebzyotnx.supabase.co/rest/v1/quote_leads';
+  const QL_H = { 'apikey': SUPA_ANON, 'Authorization': 'Bearer ' + SUPA_ANON, 'Content-Type': 'application/json' };
+  function qlEsc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+  async function loadQuoteLeads() {
+    const tbody = document.getElementById('quote-leads-tbody');
+    tbody.innerHTML = '<tr><td colspan="11" class="table-empty">Loading...</td></tr>';
+    try {
+      const res = await fetch(QL_URL + '?order=created_at.desc', { headers: QL_H });
+      const rows = await res.json();
+      if (!res.ok) throw new Error(rows.message || 'load failed');
+      document.getElementById('quote-leads-count').textContent = '(' + rows.length + ')';
+      if (!rows.length) { tbody.innerHTML = '<tr><td colspan="11" class="table-empty">No quote leads yet.</td></tr>'; return; }
+      const inr = n => '\u20B9' + Number(n).toLocaleString('en-IN', { maximumFractionDigits: 2 });
+      tbody.innerHTML = rows.map(l => {
+        const done = l.status === 'contacted';
+        const wa = String(l.phone || '').replace(/\D/g, '');
+        return `<tr>
+          <td><span style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;padding:4px 10px;${done ? 'background:rgba(61,170,110,0.15);color:#3DAA6E;' : 'background:rgba(184,134,11,0.10);color:var(--gold);'}">${done ? 'Contacted' : 'New'}</span></td>
+          <td><strong>${qlEsc(l.product)}</strong></td>
+          <td>${Number(l.quantity).toLocaleString('en-IN')}</td>
+          <td style="font-size:12px;">${inr(l.unit_cost)} / ${inr(l.total_cost)}</td>
+          <td>${qlEsc(l.name)}</td>
+          <td>${qlEsc(l.company) || '\u2014'}</td>
+          <td>${qlEsc(l.phone)}</td>
+          <td class="td-muted">${qlEsc(l.email)}</td>
+          <td>${qlEsc(l.city) || '\u2014'}</td>
+          <td class="td-muted" style="font-size:11px;">${new Date(l.created_at).toLocaleString('en-IN')}</td>
+          <td><div class="td-actions">
+            <a class="btn-edit" style="text-decoration:none;" target="_blank" rel="noopener" href="https://wa.me/${wa.length === 10 ? '91' + wa : wa}">WhatsApp</a>
+            ${done ? '' : `<button class="btn-edit" onclick="markQuoteLead('${qlEsc(l.id)}')">Mark contacted</button>`}
+            <button class="btn-del" onclick="deleteQuoteLead('${qlEsc(l.id)}')">Delete</button>
+          </div></td></tr>`;
+      }).join('');
+    } catch (e) {
+      tbody.innerHTML = '<tr><td colspan="11" class="table-empty">Could not load quote leads. Has the Phase 8 SQL been run in Supabase?</td></tr>';
+    }
+  }
+  async function markQuoteLead(id) {
+    await fetch(QL_URL + '?id=eq.' + encodeURIComponent(id), { method: 'PATCH', headers: QL_H, body: JSON.stringify({ status: 'contacted' }) });
+    loadQuoteLeads();
+  }
+  async function deleteQuoteLead(id) {
+    if (!confirm('Delete this quote lead?')) return;
+    await fetch(QL_URL + '?id=eq.' + encodeURIComponent(id), { method: 'DELETE', headers: QL_H });
+    loadQuoteLeads();
   }
 
   // PRICING & PAYMENTS
