@@ -4,204 +4,348 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="icon" type="image/png" href="/INVICTUS_LOGO.png" />
-  <title>Manufacturing Cost Estimator — Invictus IMC</title>
-  <meta name="description" content="Estimate the cost of manufacturing toys, scissors or plastic containers in India. Edit every cost line to match your own rates." />
+  <title>Instant Manufacturing Quote — Invictus IMC</title>
+  <meta name="description" content="Upload a drawing or photo. Get the ways to make it in India, costs for each, and a timeline. Edit every cost to match your own rates." />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,400&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root { --ivory:#F7F6F3; --white:#FFF; --void:#0A0A0A; --ink:#1A1A1A; --ink-mid:#555; --border:#E2E0DC; --gold:#C8860A; --gold-light:#E09B12; --gold-border:rgba(200,134,10,.35); --gold-dim:rgba(200,134,10,.08); --serif:'Cormorant Garamond',Georgia,serif; --sans:'Montserrat',sans-serif; }
+    :root { --ivory:#F7F6F3; --white:#FFF; --void:#0A0A0A; --ink:#1A1A1A; --mid:#555; --border:#E2E0DC; --gold:#C8860A; --gold-light:#E09B12; --gold-border:rgba(200,134,10,.35); --gold-dim:rgba(200,134,10,.08); --green:#2E7D32; --red:#c0392b; --serif:'Cormorant Garamond',Georgia,serif; --sans:'Montserrat',sans-serif; }
     body { font-family:var(--sans); background:var(--ivory); color:var(--ink); min-height:100vh; }
     .topbar { background:var(--void); padding:0 24px; height:52px; display:flex; align-items:center; justify-content:space-between; }
     .topbar a.logo { font-family:var(--serif); font-size:16px; font-weight:600; letter-spacing:2.5px; color:#F5F2EC; text-transform:uppercase; text-decoration:none; }
     .topbar a.back { font-size:11px; color:rgba(255,255,255,.45); text-decoration:none; border:1px solid rgba(255,255,255,.15); padding:5px 12px; }
-    .hero { background:var(--void); padding:44px 24px 48px; border-bottom:1px solid rgba(200,134,10,.15); }
-    .wrap { max-width:960px; margin:0 auto; }
+    .hero { background:var(--void); padding:40px 24px 44px; border-bottom:1px solid rgba(200,134,10,.15); }
+    .wrap { max-width:1000px; margin:0 auto; }
     .eyebrow { font-size:9px; letter-spacing:3px; text-transform:uppercase; color:var(--gold); margin-bottom:14px; }
     h1 { font-family:var(--serif); font-size:34px; font-weight:400; color:#F5F2EC; line-height:1.15; margin-bottom:12px; }
     h1 em { font-style:italic; color:var(--gold); }
-    .hero p { font-size:14px; font-weight:300; color:rgba(255,255,255,.5); line-height:1.7; max-width:560px; }
-    main { padding:32px 24px 56px; }
-    .step-label { font-size:9px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:var(--gold); margin:0 0 10px; display:block; }
-    .cards { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:28px; }
-    .pcard { background:var(--white); border:1px solid var(--border); padding:16px; cursor:pointer; text-align:left; font-family:var(--sans); }
-    .pcard.on { border-color:var(--gold); border-left:3px solid var(--gold); background:var(--gold-dim); }
-    .pcard strong { display:block; font-family:var(--serif); font-size:20px; font-weight:500; margin-bottom:4px; }
-    .pcard span { font-size:11px; color:var(--ink-mid); font-weight:300; line-height:1.5; }
-    .grid { display:grid; grid-template-columns:1fr 340px; gap:20px; align-items:start; }
-    .panel { background:var(--white); border:1px solid var(--border); padding:22px; }
+    .hero p { font-size:14px; font-weight:300; color:rgba(255,255,255,.5); line-height:1.7; max-width:600px; }
+    main { padding:28px 24px 60px; }
+    .steps { display:flex; gap:6px; margin-bottom:22px; flex-wrap:wrap; }
+    .steps span { font-size:10px; letter-spacing:1.5px; text-transform:uppercase; padding:7px 12px; border:1px solid var(--border); color:var(--mid); background:var(--white); }
+    .steps span.on { border-color:var(--gold); color:var(--ink); background:var(--gold-dim); font-weight:600; }
+    .steps span.done { color:var(--green); border-color:rgba(46,125,50,.3); }
+    .panel { background:var(--white); border:1px solid var(--border); padding:24px; margin-bottom:18px; }
+    .panel.gold { border-left:3px solid var(--gold); }
+    .label-top { font-size:9px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:var(--gold); margin-bottom:8px; display:block; }
+    h2 { font-family:var(--serif); font-size:26px; font-weight:400; margin-bottom:6px; }
+    .muted { font-size:12px; color:var(--mid); font-weight:300; line-height:1.65; }
+    .g2 { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+    .g3 { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+    .field label { display:block; font-size:10px; font-weight:600; letter-spacing:1px; text-transform:uppercase; margin:14px 0 6px; }
+    input.f, select.f { width:100%; font-family:var(--sans); font-size:14px; padding:11px 12px; border:1px solid var(--border); background:var(--ivory); outline:none; color:var(--ink); }
+    input.f:focus, select.f:focus { border-color:var(--gold-border); background:var(--white); }
+    input.f.edited { border-color:var(--gold); }
+    .drop { margin-top:14px; border:1.5px dashed var(--gold-border); background:var(--gold-dim); padding:26px; text-align:center; cursor:pointer; font-size:13px; font-weight:300; line-height:1.7; }
+    .drop strong { font-weight:600; }
+    .drop.has { border-style:solid; background:var(--white); }
+    .f.bad { border-color:#c0392b !important; background:rgba(192,57,43,.08); }
+    .btn { font-family:var(--sans); font-size:12px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:var(--void); background:var(--gold); border:none; padding:15px 24px; cursor:pointer; margin-top:20px; }
+    .btn:hover { background:var(--gold-light); } .btn:disabled { opacity:.55; cursor:not-allowed; }
+    .btn.alt { background:transparent; color:var(--ink); border:1px solid var(--border); margin-right:10px; }
+    .msg { font-size:13px; margin-top:14px; padding:11px 13px; border:1px solid; display:none; line-height:1.55; }
+    .msg.err { display:block; background:rgba(192,57,43,.07); border-color:rgba(192,57,43,.3); color:var(--red); }
+    .banner { font-size:12px; padding:11px 13px; border:1px solid; margin:14px 0 0; line-height:1.6; }
+    .banner.warn { background:rgba(200,134,10,.08); border-color:var(--gold-border); }
+    .banner.ok { background:rgba(46,125,50,.07); border-color:rgba(46,125,50,.25); }
+    ul.plain { margin:8px 0 0 18px; font-size:12px; line-height:1.7; color:var(--mid); }
+    .opts { display:grid; grid-template-columns:repeat(auto-fill,minmax(290px,1fr)); gap:14px; }
+    .opt { background:var(--white); border:1px solid var(--border); padding:18px; display:flex; flex-direction:column; }
+    .opt.rec { border-color:var(--gold); border-left:3px solid var(--gold); }
+    .opt .badge { align-self:flex-start; font-size:9px; letter-spacing:1.5px; text-transform:uppercase; background:var(--gold); color:var(--void); padding:3px 8px; margin-bottom:8px; font-weight:600; }
+    .opt h3 { font-family:var(--serif); font-size:21px; font-weight:500; margin-bottom:4px; }
+    .opt .price { font-family:var(--serif); font-size:30px; line-height:1.1; margin:6px 0 2px; }
+    .opt dl { margin:10px 0; font-size:12px; }
+    .opt dl div { display:flex; justify-content:space-between; gap:10px; padding:4px 0; border-bottom:1px solid var(--border); }
+    .opt dt { color:var(--mid); font-weight:300; } .opt dd { text-align:right; font-weight:500; }
+    .opt .btn { margin-top:auto; width:100%; padding:12px; }
+    .opt .fitnote { font-size:11px; color:var(--mid); font-weight:300; margin-top:2px; }
+    .opt .fitnote.low { color:var(--red); }
     .row { display:grid; grid-template-columns:1fr 130px; gap:10px; align-items:center; padding:9px 0; border-bottom:1px solid var(--border); }
     .row:last-child { border-bottom:none; }
-    .row label { font-size:12px; font-weight:500; }
-    .row small { display:block; font-size:10px; color:var(--ink-mid); font-weight:300; margin-top:2px; }
-    input.f { width:100%; font-family:var(--sans); font-size:14px; padding:10px 11px; border:1px solid var(--border); background:var(--ivory); outline:none; }
-    input.f:focus { border-color:var(--gold-border); background:var(--white); }
-    input.f.edited { border-color:var(--gold); }
-    .sub-head { font-size:10px; letter-spacing:1.5px; text-transform:uppercase; color:var(--ink-mid); margin:14px 0 2px; font-weight:600; }
-    .result { position:sticky; top:16px; border-left:3px solid var(--gold); }
-    .big { font-family:var(--serif); font-size:34px; line-height:1.1; margin:6px 0 2px; }
-    .muted { font-size:11px; color:var(--ink-mid); font-weight:300; line-height:1.6; }
-    .tot { margin-top:14px; padding-top:14px; border-top:1px solid var(--border); }
-    .bk { margin-top:14px; border-top:1px solid var(--border); padding-top:10px; }
-    .bk div { display:flex; justify-content:space-between; font-size:12px; padding:4px 0; }
-    .bk .t { font-weight:600; border-top:1px solid var(--border); margin-top:4px; padding-top:8px; }
-    .locked { position:relative; margin-top:14px; border-top:1px solid var(--border); padding-top:14px; }
-    .locked .blur { filter:blur(5px); user-select:none; pointer-events:none; }
-    .btn { width:100%; margin-top:14px; font-family:var(--sans); font-size:12px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:var(--void); background:var(--gold); border:none; padding:15px; cursor:pointer; }
-    .btn:hover { background:var(--gold-light); } .btn:disabled { opacity:.6; cursor:not-allowed; }
-    .btn.alt { background:transparent; color:var(--ink); border:1px solid var(--border); margin-top:10px; text-decoration:none; display:block; text-align:center; }
-    .disc { font-size:10px; color:var(--ink-mid); margin-top:12px; line-height:1.6; font-weight:300; }
-    .msg { font-size:12px; margin-top:10px; padding:10px 12px; border:1px solid; display:none; line-height:1.5; }
-    .msg.err { display:block; background:rgba(231,76,60,.08); border-color:rgba(231,76,60,.3); color:#c0392b; }
-    .msg.ok { display:block; background:rgba(46,125,50,.08); border-color:rgba(46,125,50,.3); color:#2E7D32; }
-    #leadForm { display:none; margin-top:14px; border-top:1px solid var(--border); padding-top:12px; }
-    #leadForm input { margin-top:8px; }
-    @media (max-width:760px){ .cards{grid-template-columns:1fr;} .grid{grid-template-columns:1fr;} .result{position:static;} h1{font-size:28px;} .row{grid-template-columns:1fr 110px;} }
+    .row label { font-size:12px; font-weight:500; } .row small { display:block; font-size:10px; color:var(--mid); font-weight:300; margin-top:2px; }
+    .bk div.l { display:flex; justify-content:space-between; font-size:13px; padding:5px 0; border-bottom:1px solid var(--border); }
+    .bk div.t { display:flex; justify-content:space-between; font-weight:600; font-size:15px; padding:10px 0 0; }
+    .big { font-family:var(--serif); font-size:40px; line-height:1.1; margin:4px 0; }
+    .split { display:grid; grid-template-columns:1fr 360px; gap:18px; align-items:start; }
+    .tl { display:flex; height:30px; margin:10px 0 6px; border:1px solid var(--border); }
+    .tl div { display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:600; overflow:hidden; white-space:nowrap; }
+    .tl .a { background:#E8D9B8; } .tl .b { background:#D8B26A; } .tl .c { background:#C8860A; color:#fff; } .tl .d { background:#555; color:#fff; }
+    table.cv { width:100%; border-collapse:collapse; font-size:12px; margin-top:8px; }
+    table.cv td, table.cv th { padding:6px 4px; border-bottom:1px solid var(--border); text-align:right; } table.cv th:first-child, table.cv td:first-child { text-align:left; }
+    table.cv tr.cur td { font-weight:700; color:var(--gold); }
+    .steps-list { margin:8px 0 0 18px; font-size:12px; line-height:1.9; }
+    .hide { display:none !important; }
+    .spin { display:inline-block; width:14px; height:14px; border:2px solid rgba(0,0,0,.2); border-top-color:var(--void); border-radius:50%; animation:sp .8s linear infinite; vertical-align:-2px; margin-right:8px; }
+    @keyframes sp { to { transform:rotate(360deg); } }
+    .only-print { display:none; }
+    @media (max-width:800px){ .g2,.g3,.split { grid-template-columns:1fr; } h1 { font-size:28px; } .big { font-size:34px; } }
+    @media print { .topbar, .hero, .steps, .noprint, .btn, #stepUpload, #stepReview, #stepOptions { display:none !important; } .only-print { display:block; } body { background:#fff; } .panel { border:1px solid #ccc; } .split { grid-template-columns:1fr 1fr; } }
   </style>
 </head>
 <body>
 <div class="topbar"><a class="logo" href="/">Invictus</a><a class="back" href="/">← Back to site</a></div>
 <div class="hero"><div class="wrap">
-  <div class="eyebrow">Cost Estimator</div>
-  <h1>What would it cost to <em>make it in India?</em></h1>
-  <p>Pick a product, then change any cost to match your own rates, location and discounts. The estimate updates as you type.</p>
+  <div class="eyebrow">Instant Manufacturing Quote</div>
+  <h1>Upload your design. <em>See how it can be made in India.</em></h1>
+  <p>Share a drawing, photo or PDF. We read it, compare the ways to make it, and show cost and timeline for each. Then change any number to match your own rates.</p>
 </div></div>
 
 <main><div class="wrap">
-  <span class="step-label">1 · Pick a product</span>
-  <div class="cards" id="cards"></div>
+  <div class="steps" id="steps"><span id="s1" class="on">1 · Upload</span><span id="s2">2 · Check what we understood</span><span id="s3">3 · Compare ways to make it</span><span id="s4">4 · Your quote</span></div>
 
-  <div class="grid">
-    <div class="panel">
-      <span class="step-label">2 · Edit the costs</span>
-      <div class="row"><div><label for="qty">Order quantity (pieces)</label></div><input class="f" id="qty" type="number" min="1" step="100" /></div>
-      <div class="row"><div><label for="city">Your city</label><small>Used to note transport</small></div><input class="f" id="city" type="text" placeholder="e.g. Bengaluru" maxlength="60" /></div>
-      <div class="sub-head">Per piece (₹)</div>
-      <div id="fields"></div>
-      <div class="sub-head">One-time (spread over the quantity above — a higher quantity lowers the per-piece share)</div>
-      <div id="fieldsOnce"></div>
+  <!-- STEP 1 -->
+  <section id="stepUpload" class="panel gold">
+    <span class="label-top">Step 1</span><h2>Upload your design</h2>
+    <p class="muted">Works best with a dimensioned drawing or PDF. A photo gives only a rough size. Metal parts, plastic parts and electronics boards are supported for now. Your file is read once and is not stored.</p>
+    <div class="drop" id="drop"><div id="dropText"><strong>Click to choose a file</strong> or drop it here<br><span class="muted">JPG, PNG, WebP or PDF, under 3 MB for PDF</span></div></div>
+    <input type="file" id="file" accept="image/jpeg,image/png,image/webp,application/pdf" class="hide" />
+    <div class="g2">
+      <div class="field"><label for="qty">How many pieces?</label><input class="f" id="qty" type="number" min="1" step="1" placeholder="e.g. 1000" /></div>
+      <div class="field"><label for="name">Your name *</label><input class="f" id="name" autocomplete="name" maxlength="80" /></div>
+      <div class="field"><label for="phone">Phone / WhatsApp *</label><input class="f" id="phone" type="tel" autocomplete="tel" maxlength="20" /></div>
+      <div class="field"><label for="email">Email *</label><input class="f" id="email" type="email" autocomplete="email" maxlength="120" /></div>
     </div>
+    <button class="btn" id="goBtn" type="button">Read my design</button>
+    <div class="msg" id="msg1"></div>
+    <p class="muted" style="margin-top:14px">Estimates are indicative and not a binding quote. Your details are used only to contact you about this quote.</p>
+  </section>
 
-    <div class="panel result">
-      <span class="step-label">3 · Your estimate</span>
-      <div class="muted">Estimated cost per piece</div>
-      <div class="big" id="unitRange">—</div>
-      <div class="muted" id="rangeNote"></div>
-      <div class="tot"><div class="muted">Estimated order total</div><div class="big" style="font-size:24px" id="totalRange">—</div></div>
+  <!-- STEP 2 -->
+  <section id="stepReview" class="panel gold hide">
+    <span class="label-top">Step 2</span><h2>Check what we understood</h2>
+    <p class="muted">AI reads designs well but can get a size or material wrong. Correct anything below. It changes the prices.</p>
+    <div id="qualityBanner"></div>
+    <div class="g3" id="reviewFields"></div>
+    <div id="reviewExtra"></div>
+    <div id="reviewNotes"></div>
+    <button class="btn alt" id="reBack" type="button">← Upload a different file</button><button class="btn" id="goOpts" type="button">Compare ways to make it</button>
+    <div class="msg" id="msg2"></div>
+  </section>
 
-      <div class="locked" id="lockedBox"><div class="blur" id="bkBlur"></div>
-        <button class="btn" id="unlockBtn" type="button">Unlock full breakdown</button>
-        <form id="leadForm" novalidate>
-          <input class="f" id="ln" placeholder="Your name *" autocomplete="name" maxlength="80" />
-          <input class="f" id="lc" placeholder="Company" autocomplete="organization" maxlength="120" />
-          <input class="f" id="lp" type="tel" placeholder="Phone / WhatsApp *" autocomplete="tel" maxlength="20" />
-          <input class="f" id="le" type="email" placeholder="Email *" autocomplete="email" maxlength="120" />
-          <button class="btn" id="submitBtn" type="submit">Show breakdown</button>
-        </form>
+  <!-- STEP 3 -->
+  <section id="stepOptions" class="hide">
+    <div class="panel gold"><span class="label-top">Step 3</span><h2>Ways to make this part</h2>
+      <p class="muted" id="optsIntro"></p>
+      <div style="margin-top:10px"><button class="btn alt" id="optsBack" type="button" style="margin-top:6px">← Edit what we understood</button></div>
+    </div>
+    <div class="opts" id="opts"></div>
+  </section>
+
+  <!-- STEP 4 -->
+  <section id="stepQuote" class="hide">
+    <div class="only-print panel"><strong>Invictus IMC · Indicative manufacturing estimate</strong><div class="muted" id="printMeta"></div></div>
+    <div class="split">
+      <div class="panel gold">
+        <span class="label-top noprint">Step 4</span>
+        <h2 id="qName"></h2>
+        <p class="muted" id="qSub"></p>
+        <div class="noprint" style="margin:10px 0 4px"><button class="btn alt" id="qBack" type="button" style="margin-top:6px">← Compare other ways</button></div>
+        <div style="margin-top:14px"><span class="label-top">Steps involved</span><ol class="steps-list" id="qSteps"></ol></div>
+        <div style="margin-top:18px"><span class="label-top">Timeline</span><div class="tl" id="qTl"></div><div class="muted" id="qTlText"></div></div>
+        <div style="margin-top:18px"><span class="label-top">Price at other quantities (per piece)</span><table class="cv" id="qCurve"></table></div>
+        <div id="qNotes"></div>
       </div>
-      <div class="bk" id="bkReal" style="display:none"></div>
-      <a class="btn alt" id="waBtn" style="display:none" target="_blank" rel="noopener">Talk to us on WhatsApp</a>
-      <div class="msg" id="msg"></div>
-      <div class="disc">Indicative estimate based on typical Indian ex-factory rates. It is not a manufacturer quote. Actual prices depend on design, material grade, tooling and supplier.</div>
+      <div>
+        <div class="panel gold">
+          <span class="label-top">Your estimate</span>
+          <div class="muted">Estimated cost per piece</div>
+          <div class="big" id="qUnit"></div>
+          <div class="muted" id="qRange"></div>
+          <div class="muted" style="margin-top:10px">Order total for <strong id="qQty"></strong> pieces</div>
+          <div class="big" style="font-size:28px" id="qTotal"></div>
+          <div class="bk" id="qBk" style="margin-top:14px"></div>
+        </div>
+        <div class="panel noprint"><span class="label-top">Change the numbers</span><p class="muted">Use your own rates, discounts and local prices. The estimate updates as you type.</p>
+          <div class="row"><div><label for="qQtyIn">Quantity</label></div><input class="f" id="qQtyIn" type="number" min="1" /></div>
+          <div id="qInputs"></div>
+        </div>
+        <div class="panel noprint">
+          <button class="btn" id="printBtn" type="button" style="margin-top:0;width:100%">Save as PDF / Print</button>
+          <a class="btn alt" href="/buyers-club" style="display:block;text-align:center;text-decoration:none;margin:10px 0 0;width:100%">Get real quotes from manufacturers</a>
+          <p class="muted" style="margin-top:12px">Indicative estimate based on typical Indian ex-factory rates. Not a manufacturer quote. Actual prices depend on design, grade, supplier and tooling.</p>
+        </div>
+      </div>
     </div>
-  </div>
+  </section>
 </div></main>
 
 <script>
-const SUPA_URL='https://nmjkzhquoxuuebzyotnx.supabase.co';
-const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5tamt6aHF1b3h1dWVienlvdG54Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwNzY0MDEsImV4cCI6MjA5MTY1MjQwMX0.6uwyWMSLGhG259TY9x-vpUxNiENkYAXOqFEUI3aSv5M';
-const WA_NUMBER=''; // optional: your WhatsApp number with country code, e.g. 919XXXXXXXXX. Leave empty to hide the WhatsApp button.
-
-/* ===== DEFAULT COST CONFIG — edit numbers here, no other code needs to change =====
-   All amounts in INR. Weight in grams. rate = INR per kg. */
-const PRODUCTS = {
-  toy:       { name:'Plastic toy car',      desc:'~60 g, ABS/PP, 2 parts',                 qty:25000,
-               weight:{v:60,  hint:'g of plastic per piece'}, rate:{v:150, range:'₹110–190 / kg'},
-               process:{v:2.5,range:'₹1.5–4'}, labour:{v:1,range:'₹0.5–2'}, packaging:{v:4,range:'₹2–6'},
-               transport:{v:1.5}, tooling:{v:250000,range:'₹1.5–4 lakh'}, margin:{v:15} },
-  scissors:  { name:'Steel scissors',       desc:'8" stainless steel, kitchen',            qty:5000,
-               weight:{v:90,  hint:'g of steel per piece'},   rate:{v:250, range:'₹150–300 / kg'},
-               process:{v:25, range:'₹15–40'}, labour:{v:10,range:'₹5–15'},   packaging:{v:6,range:'₹3–10'},
-               transport:{v:3,  }, tooling:{v:120000,range:'₹0.5–2 lakh'},  margin:{v:15} },
-  container: { name:'Plastic container',    desc:'1 L, PP, with lid',                      qty:25000,
-               weight:{v:90,  hint:'g of plastic per piece'}, rate:{v:115, range:'₹100–130 / kg'},
-               process:{v:3.5,range:'₹2–5'},   labour:{v:1,range:'₹0.5–2'},   packaging:{v:3.5,range:'₹2–5'},
-               transport:{v:2.5}, tooling:{v:500000,range:'₹3–8 lakh'},   margin:{v:15} }
-};
-const FIELDS=[ // [key,label]
-  ['weight','Material weight'],['rate','Material rate'],['process','Process cost'],['labour','Labour'],
-  ['packaging','Packaging'],['transport','Transport'],['margin','Manufacturer margin %']
-];
-
-let cur='toy', edited=false, unlocked=false;
 const $=id=>document.getElementById(id);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const inr=n=>'₹'+Number(n).toLocaleString('en-IN',{maximumFractionDigits:2,minimumFractionDigits:2});
 const inr0=n=>'₹'+Math.round(n).toLocaleString('en-IN');
+const S={id:null,qty:0,analysis:null,materials:[],overrides:{},result:null,selected:null,edited:false,file:null,mime:null,timer:null};
 
-function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function setStep(n){ ['stepUpload','stepReview','stepOptions','stepQuote'].forEach((id,i)=>$(id).classList.toggle('hide',i!==n-1));
+  [1,2,3,4].forEach(i=>{const e=$('s'+i);e.className=i===n?'on':(i<n?'done':'');}); window.scrollTo({top:0,behavior:'smooth'}); }
+function msg(id,t){const m=$(id);m.textContent=t;m.className='msg'+(t?' err':'');}
 
-function renderCards(){
-  $('cards').innerHTML=Object.entries(PRODUCTS).map(([k,p])=>`<button type="button" class="pcard ${k===cur?'on':''}" data-k="${k}"><strong>${esc(p.name)}</strong><span>${esc(p.desc)}</span></button>`).join('');
-  $('cards').querySelectorAll('.pcard').forEach(b=>b.onclick=()=>{cur=b.dataset.k;edited=false;renderCards();renderFields();calc();});
-}
-function rowHTML(key,label,p){
-  const f=p[key], note=f.range?`Typical ${f.range}`:(f.hint||'');
-  return `<div class="row"><div><label for="f_${key}">${label}</label>${note?`<small>${esc(note)}</small>`:''}</div><input class="f" id="f_${key}" data-key="${key}" data-def="${f.v}" type="number" min="0" step="any" value="${f.v}" /></div>`;
-}
-function renderFields(){
-  const p=PRODUCTS[cur];
-  $('qty').value=p.qty;
-  $('fields').innerHTML=FIELDS.map(([k,l])=>rowHTML(k,l,p)).join('');
-  $('fieldsOnce').innerHTML=rowHTML('tooling','Mould / tooling (one-time)',p);
-  document.querySelectorAll('input[data-key]').forEach(i=>i.addEventListener('input',()=>{i.classList.toggle('edited',Number(i.value)!==Number(i.dataset.def));edited=true;calc();}));
-}
-function val(k){const v=parseFloat($('f_'+k).value);return isFinite(v)&&v>=0?v:0;}
-function compute(){
-  const q=Math.max(1,parseInt($('qty').value)||1);
-  const material=val('weight')/1000*val('rate');
-  const lines=[['Material',material],['Process',val('process')],['Labour',val('labour')],['Packaging',val('packaging')],['Transport',val('transport')],['Tooling (spread over quantity)',val('tooling')/q]];
-  const sub=lines.reduce((a,l)=>a+l[1],0);
-  const margin=sub*val('margin')/100;
-  lines.push(['Manufacturer margin',margin]);
-  const unit=sub+margin;
-  return {q,lines,unit,total:unit*q};
-}
-function calc(){
-  const r=compute(), s=edited?0.06:0.12;
-  $('unitRange').textContent=inr(r.unit*(1-s))+' – '+inr(r.unit*(1+s));
-  $('totalRange').textContent=inr0(r.total*(1-s))+' – '+inr0(r.total*(1+s));
-  $('rangeNote').textContent=edited?'Narrowed using your own inputs.':'Edit any cost to narrow this range.';
-  const html=r.lines.map(l=>`<div><span>${esc(l[0])}</span><span>${inr(l[1])}</span></div>`).join('')+`<div class="t"><span>Unit cost</span><span>${inr(r.unit)}</span></div>`;
-  $('bkBlur').innerHTML=html; $('bkReal').innerHTML=html;
-}
-$('qty').addEventListener('input',()=>{edited=true;calc();});
-
-$('unlockBtn').onclick=()=>{ $('unlockBtn').style.display='none'; $('leadForm').style.display='block'; $('ln').focus(); };
-function setMsg(t,c){const m=$('msg');m.textContent=t;m.className='msg '+c;}
-
-$('leadForm').addEventListener('submit',async e=>{
-  e.preventDefault();
-  const name=$('ln').value.trim(), company=$('lc').value.trim(), phone=$('lp').value.trim(), email=$('le').value.trim();
-  if(name.length<2) return setMsg('Please enter your name.','err');
-  if(phone.replace(/\D/g,'').length<10) return setMsg('Please enter a valid phone number (10+ digits).','err');
-  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return setMsg('Please enter a valid email.','err');
-  const r=compute(), p=PRODUCTS[cur], inputs={};
-  FIELDS.forEach(([k])=>inputs[k]=val(k)); inputs.tooling=val('tooling');
-  const btn=$('submitBtn'); btn.disabled=true; btn.textContent='Saving…';
-  try{
-    const res=await fetch(SUPA_URL+'/rest/v1/quote_leads',{method:'POST',
-      headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},
-      body:JSON.stringify({product:p.name,quantity:r.q,city:$('city').value.trim()||null,inputs,unit_cost:+r.unit.toFixed(2),total_cost:+r.total.toFixed(2),name,company:company||null,phone,email,status:'new'})});
-    if(!res.ok) throw new Error('save failed '+res.status);
-    unlocked=true;
-    $('lockedBox').style.display='none'; $('bkReal').style.display='block';
-    if(WA_NUMBER){const w=$('waBtn');w.style.display='block';w.href='https://wa.me/'+WA_NUMBER+'?text='+encodeURIComponent('Hi Invictus, I used the cost estimator for '+p.name+' ('+r.q+' pcs). Estimated unit cost '+inr(r.unit)+'. I would like to discuss manufacturing.');}
-    setMsg('Thanks, '+name.split(' ')[0]+'. Our team will reach out on the number you gave to discuss real manufacturer quotes.','ok');
-  }catch(err){
-    btn.disabled=false; btn.textContent='Show breakdown';
-    setMsg('Could not save right now. Please try again in a moment.','err');
+/* ---------- upload ---------- */
+$('drop').onclick=()=>$('file').click();
+['dragover','drop'].forEach(ev=>$('drop').addEventListener(ev,e=>{e.preventDefault(); if(ev==='drop'&&e.dataTransfer.files[0]) pick(e.dataTransfer.files[0]);}));
+$('file').onchange=e=>{ if(e.target.files[0]) pick(e.target.files[0]); };
+function pick(f){
+  S.file=null; msg('msg1','');
+  if(!/^(image\/(jpeg|png|webp)|application\/pdf)$/.test(f.type)){ msg('msg1','Please upload a JPG, PNG, WebP or PDF file.'); return; }
+  if(f.type==='application/pdf'){
+    if(f.size>3*1024*1024){ msg('msg1','This PDF is over 3 MB. Please compress it or upload a screenshot of the drawing.'); return; }
+    const r=new FileReader(); r.onload=()=>{S.file=String(r.result).split(',')[1];S.mime=f.type;done(f.name);}; r.readAsDataURL(f);
+  } else {
+    const img=new Image(), url=URL.createObjectURL(f);
+    img.onload=()=>{ const max=1800, sc=Math.min(1,max/Math.max(img.width,img.height)); const c=document.createElement('canvas'); c.width=Math.round(img.width*sc); c.height=Math.round(img.height*sc);
+      const x=c.getContext('2d'); x.fillStyle='#fff'; x.fillRect(0,0,c.width,c.height); x.drawImage(img,0,0,c.width,c.height);
+      S.file=c.toDataURL('image/jpeg',0.85).split(',')[1]; S.mime='image/jpeg'; URL.revokeObjectURL(url); done(f.name); };
+    img.onerror=()=>msg('msg1','We could not open this image. Please try a JPG or PNG.'); img.src=url;
   }
-});
-renderCards(); renderFields(); calc();
+}
+function done(name){ $('drop').classList.add('has'); $('dropText').innerHTML='<strong>'+esc(name)+'</strong> ready<br><span class="muted">Click to change the file</span>'; }
+
+$('goBtn').onclick=async()=>{
+  msg('msg1','');
+  const name=$('name').value.trim(), phone=$('phone').value.trim(), email=$('email').value.trim(), qty=parseInt($('qty').value,10);
+  if(!S.file) return msg('msg1','Please upload your design first.');
+  if(!qty||qty<1) return msg('msg1','Please enter how many pieces you need.');
+  if(name.length<2) return msg('msg1','Please enter your name.');
+  if(phone.replace(/\D/g,'').length<10) return msg('msg1','Please enter a valid phone number (10+ digits).');
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return msg('msg1','Please enter a valid email.');
+  const b=$('goBtn'); b.disabled=true; b.innerHTML='<span class="spin"></span>Reading your design… this can take about 30 seconds';
+  try{
+    const r=await fetch('/api/quote-analyse',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,phone,email,qty,file:S.file,mimeType:S.mime})});
+    const d=await r.json().catch(()=>({}));
+    if(!r.ok) throw new Error(d.error||'Something went wrong. Please try again.');
+    S.id=d.id; S.qty=d.qty; S.analysis=d.analysis; S.materials=d.materials||[]; S.overrides={}; S.edited=false;
+    renderReview(); setStep(2);
+  }catch(e){ msg('msg1',e.message||'Something went wrong. Please try again.'); }
+  b.disabled=false; b.textContent='Read my design';
+};
+
+/* ---------- review ---------- */
+function opt(list,val){return list.map(([v,l])=>`<option value="${esc(v)}" ${v===val?'selected':''}>${esc(l)}</option>`).join('');}
+function fld(id,label,html){return `<div class="field"><label for="${id}">${label}</label>${html}</div>`;}
+function num(id,val,step){return `<input class="f" id="${id}" type="number" min="0" step="${step||'any'}" value="${esc(val)}" />`;}
+const andJoin=l=>l.length>1?l.slice(0,-1).join(', ')+' and '+l[l.length-1]:l.join('');
+const isU=v=>v==='printed'||v==='user';
+function needs(a){ return { dims:!isU(a.dimensions_source), grade:a.industry!=='electronics'&&!isU(a.grade_source), thick:!isU(a.thickness_source)&&((a.industry==='metal'&&a.form==='sheet')||a.industry==='plastic') }; }
+function rnum(id,val,needed,step){ return `<input class="f" id="${id}" type="number" min="0" step="${step||'any'}" value="${needed?'':esc(val)}" placeholder="${needed?'AI guess: '+esc(val):''}" />`; }
+function renderReview(){
+  const a=S.analysis, nd=needs(a);
+  const need=[nd.dims&&'the sizes',nd.thick&&'the thickness',nd.grade&&'the material grade'].filter(Boolean);
+  const q=need.length?['warn','We could not read '+andJoin(need)+' from your design. Please fill the fields marked * below. We do not guess these, because a wrong size gives a wrong price.']
+    : ['ok','We found the sizes and grade on your design. Please still check them below.'];
+  $('qualityBanner').innerHTML=`<div class="banner ${q[0]}">${esc(q[1])}</div>`;
+  const mats=S.materials.filter(m=>a.industry==='electronics'||m[2]===(a.industry==='plastic'?'plastic':'metal')).map(m=>[m[0],m[1]]);
+  let h='';
+  h+=fld('r_name','Part name',`<input class="f" id="r_name" value="${esc(a.part_name)}" maxlength="80">`);
+  h+=fld('r_ind','Type',`<select class="f" id="r_ind">${opt([['metal','Metal part'],['plastic','Plastic part'],['electronics','Electronics board'],['other','Other']],a.industry)}</select>`);
+  if(a.industry!=='electronics'){
+    h+=fld('r_mat','Material'+(a.material_confidence==='low'?' (please confirm)':''),`<select class="f" id="r_mat">${opt(mats,a.material_key)}</select>`);
+    h+=fld('r_grade','Material grade'+(nd.grade?' *':'')+' (for example EN8, SS304, 6061-T6, ABS, PA66 GF30)',`<input class="f" id="r_grade" maxlength="60" value="${esc(a.grade_text||'')}" placeholder="${nd.grade?'Type the grade you need':''}" />`);
+    h+=fld('r_l','Length (mm)'+(nd.dims?' *':''),rnum('r_l',a.dimensions_mm.l,nd.dims));
+    h+=fld('r_w','Width (mm)'+(nd.dims?' *':''),rnum('r_w',a.dimensions_mm.w,nd.dims));
+    h+=fld('r_h','Height (mm)'+(nd.dims?' *':''),rnum('r_h',a.dimensions_mm.h,nd.dims));
+    h+=fld('r_form','Shape',`<select class="f" id="r_form">${opt([['solid','Solid part'],['sheet','Sheet / plate part'],['hollow','Hollow part'],['profile','Same profile along length']],a.form)}</select>`);
+    h+=fld('r_fill','How full is the box? (0.05 thin to 1 solid block)',num('r_fill',a.fill_factor,'0.01'));
+    h+=fld('r_cx','Complexity (1 simple to 5 intricate)',num('r_cx',a.complexity,'1'));
+    h+=fld('r_tol','Tolerance',`<select class="f" id="r_tol">${opt([['loose','Loose'],['standard','Standard'],['tight','Tight'],['precision','Precision']],a.tolerance_class)}</select>`);
+    h+=fld('r_fin','Surface finish',`<select class="f" id="r_fin">${opt([['as_made','As made'],['machined','Machined'],['polished','Polished'],['coated','Painted / coated'],['plated','Plated'],['anodised','Anodised']],a.surface_finish)}</select>`);
+    if(a.industry==='metal'){ h+=fld('r_th',(a.form==='sheet'?'Sheet thickness (mm)':'Sheet thickness (mm, 0 if not sheet)')+(nd.thick?' *':''),a.form==='sheet'?rnum('r_th',a.sheet_thickness_mm||2,nd.thick):num('r_th',a.sheet_thickness_mm)); h+=fld('r_bn','Number of bends',num('r_bn',a.bends,'1')); h+=fld('r_hc','Number of holes',num('r_hc',a.hole_count,'1')); }
+    if(a.industry==='plastic'){ h+=fld('r_wl','Wall thickness (mm)'+(nd.thick?' *':''),rnum('r_wl',a.wall_thickness_mm||2.5,nd.thick)); }
+  } else {
+    const e=a.electronics;
+    h+=fld('e_l','Board length (mm)'+(nd.dims?' *':''),rnum('e_l',e.board_l_mm,nd.dims)); h+=fld('e_w','Board width (mm)'+(nd.dims?' *':''),rnum('e_w',e.board_w_mm,nd.dims)); h+=fld('e_ly','Layers',num('e_ly',e.layers,'1'));
+    h+=fld('e_c','Number of components',num('e_c',e.component_count,'1')); h+=fld('e_t','Of which through-hole',num('e_t',e.through_hole_count,'1'));
+  }
+  $('reviewFields').innerHTML=h;
+  let n='';
+  if(a.description) n+=`<p class="muted" style="margin-top:14px"><strong>We think this is:</strong> ${esc(a.description)}${a.material_reason?' Material: '+esc(a.material_reason):''}</p>`;
+  const lists=[['Please confirm',a.questions_for_user],['Assumptions we made',a.assumptions],['Design warnings',a.dfm_warnings]];
+  lists.forEach(([t,l])=>{ if(l&&l.length) n+=`<div style="margin-top:12px"><span class="label-top">${t}</span><ul class="plain">${l.map(x=>'<li>'+esc(x)+'</li>').join('')}</ul></div>`; });
+  if(a.industry==='other') n+='<div class="banner warn">This does not look like a metal part, plastic part or electronics board, so we may not be able to price it. You can still try by changing the type above.</div>';
+  $('reviewNotes').innerHTML=n;
+  const ind=$('r_ind'); ind.onchange=()=>{ readReview(); renderReview(); };
+  const fm=$('r_form'); if(fm) fm.onchange=()=>{ readReview(); renderReview(); };
+}
+const FIELD_FOR={dims:['r_l','r_w','r_h','e_l','e_w'],thick:['r_th','r_wl'],grade:['r_grade']};
+function checkMissing(){
+  const a=S.analysis, nd=needs(a), out=[];
+  document.querySelectorAll('.f.bad').forEach(x=>x.classList.remove('bad'));
+  if(nd.dims) out.push('sizes');
+  if(nd.thick) out.push('thickness');
+  if(nd.grade) out.push('material grade');
+  Object.keys(nd).forEach(k=>{ if(nd[k]) FIELD_FOR[k].forEach(id=>{ const el=$(id); if(el&&!(parseFloat(el.value)>0)&&k!=='grade') el.classList.add('bad'); if(el&&k==='grade'&&!el.value.trim()) el.classList.add('bad'); }); });
+  return out;
+}
+function readReview(){
+  const a=S.analysis, g=id=>$(id)&&$(id).value, n=id=>parseFloat(g(id));
+  a.part_name=g('r_name')||a.part_name; a.industry=g('r_ind');
+  if(a.industry!=='electronics'){
+    if(g('r_mat')) a.material_key=g('r_mat');
+    else a.material_key=(S.materials.find(m=>m[2]===(a.industry==='plastic'?'plastic':'metal'))||[a.material_key])[0];
+    if(g('r_grade')!==null&&g('r_grade')!==undefined&&$('r_grade')){ const gt=g('r_grade').trim(); a.grade_text=gt; if(gt&&!isU(a.grade_source)) a.grade_source='user'; }
+    if($('r_l')){ if(n('r_l')>0&&n('r_w')>0&&n('r_h')>0){ a.dimensions_mm={l:n('r_l'),w:n('r_w'),h:n('r_h')}; if(!isU(a.dimensions_source)) a.dimensions_source='user'; } a.form=g('r_form'); a.fill_factor=n('r_fill')||0.35; a.complexity=n('r_cx')||3; a.tolerance_class=g('r_tol'); a.surface_finish=g('r_fin'); a.hollow=a.form==='hollow'; a.constant_cross_section=a.form==='profile'; }
+    if($('r_th')){ const t=n('r_th')||0; if(t>0||a.form!=='sheet'){ a.sheet_thickness_mm=t; if(t>0&&!isU(a.thickness_source)) a.thickness_source='user'; } a.bends=Math.round(n('r_bn')||0); a.hole_count=Math.round(n('r_hc')||0); }
+    if($('r_wl')){ const t=n('r_wl'); if(t>0){ a.wall_thickness_mm=t; if(!isU(a.thickness_source)) a.thickness_source='user'; } }
+  } else { if(n('e_l')>0&&n('e_w')>0&&!isU(a.dimensions_source)) a.dimensions_source='user'; a.electronics={board_l_mm:n('e_l')||a.electronics.board_l_mm||80,board_w_mm:n('e_w')||a.electronics.board_w_mm||50,layers:Math.round(n('e_ly')||2),component_count:Math.round(n('e_c')||40),through_hole_count:Math.round(n('e_t')||0),needs_enclosure:a.electronics.needs_enclosure}; }
+}
+$('reBack').onclick=()=>setStep(1);
+$('goOpts').onclick=async()=>{ readReview(); msg('msg2',''); if(S.analysis.industry==='other') return msg('msg2','Please choose Metal part, Plastic part or Electronics board.');
+  const miss=checkMissing(); if(miss.length){ return msg('msg2','Please fill in the '+andJoin(miss)+' (marked *) before we compare ways to make it.'); } await calc(null); if(S.result&&S.result.options.length){ renderOptions(); setStep(3);} else if(S.result) msg('msg2','We could not find a process for this combination. Try a different material or shape.'); };
+$('optsBack').onclick=()=>setStep(2);
+
+/* ---------- calc ---------- */
+async function calc(selected){
+  try{
+    const r=await fetch('/api/quote-calc',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:S.id,analysis:S.analysis,qty:S.qty,overrides:S.overrides,selected})});
+    const d=await r.json(); if(!r.ok) throw new Error(d.error||'Could not calculate'); S.result=d; return d;
+  }catch(e){ msg('msg2',e.message); S.result=null; return null; }
+}
+
+/* ---------- options ---------- */
+function fitNote(o){ return o.fit>=3?['Good fit for this quantity','']:(o.fit===2?['Workable for this quantity','']:['Not ideal at '+S.qty.toLocaleString('en-IN')+' pieces','low']); }
+function renderOptions(){
+  const R=S.result;
+  $('optsIntro').textContent=R.options.length+' ways to make this in '+R.material_label+' at '+S.qty.toLocaleString('en-IN')+' pieces. Compare cost, time and quality, then choose one.';
+  const sorted=R.options.slice().sort((a,b)=>(b.recommended-a.recommended)||(b.fit-a.fit)||(a.unit-b.unit));
+  $('opts').innerHTML=sorted.map(o=>{const f=fitNote(o);return `<div class="opt ${o.recommended?'rec':''}">${o.recommended?'<span class="badge">Best fit for your quantity</span>':''}<h3>${esc(o.name)}</h3><div class="muted">${esc(o.min_qty_note)}</div>
+    <div class="price">${inr(o.unit)}</div><div class="muted">per piece</div><div class="fitnote ${f[1]}">${f[0]}</div>
+    <dl><div><dt>Order total</dt><dd>${inr0(o.total)}</dd></div><div><dt>Tooling / setup cost</dt><dd>${o.tooling_cost?inr0(o.tooling_cost):'None'}</dd></div><div><dt>Lead time</dt><dd>${o.lead.total} days</dd></div><div><dt>Material wastage</dt><dd>${o.wastage_pct}%</dd></div><div><dt>Strength</dt><dd>${esc(o.strength)}</dd></div><div><dt>Finish achieved</dt><dd>${esc(o.finish)}</dd></div></dl>
+    <button class="btn" data-id="${esc(o.id)}" type="button">Choose this process</button></div>`;}).join('');
+  $('opts').querySelectorAll('button[data-id]').forEach(b=>b.onclick=()=>choose(b.dataset.id));
+}
+async function choose(id){ S.selected=id; const d=await calc(id); if(!d) return; renderQuote(); setStep(4); }
+
+/* ---------- quote ---------- */
+$('qBack').onclick=()=>setStep(3);
+function renderQuote(){
+  const R=S.result, o=R.options.find(x=>x.id===S.selected); if(!o) return;
+  const lo=S.edited?0.88:0.8, hi=S.edited?1.12:1.25;
+  $('qName').textContent=S.analysis.part_name+' · '+o.name;
+  $('qSub').textContent=R.material_label+' · '+S.qty.toLocaleString('en-IN')+' pieces';
+  $('qSteps').innerHTML=o.steps.map(s=>'<li>'+esc(s)+'</li>').join('');
+  $('qUnit').textContent=inr(o.unit);
+  $('qRange').textContent='Likely range '+inr(o.unit*lo)+' to '+inr(o.unit*hi)+(S.edited?' (narrowed using your inputs)':'. Edit the numbers to narrow it.');
+  $('qQty').textContent=S.qty.toLocaleString('en-IN'); $('qTotal').textContent=inr0(o.total);
+  $('qBk').innerHTML=o.lines.map(l=>`<div class="l"><span>${esc(l.label)}</span><span>${inr(l.amount)}</span></div>`).join('')+`<div class="t"><span>Cost per piece</span><span>${inr(o.unit)}</span></div>`;
+  const L=o.lead, tot=L.total||1, seg=(c,v,t)=>v>0?`<div class="${c}" style="width:${v/tot*100}%" title="${t}">${v>=3?v+'d':''}</div>`:'';
+  $('qTl').innerHTML=seg('a',L.tooling,'Tooling')+seg('b',L.production,'Production')+seg('c',L.finishing,'Finishing')+seg('d',L.shipping,'Shipping');
+  $('qTlText').textContent='About '+L.total+' days: '+(L.tooling?'tooling '+L.tooling+'d, ':'')+'production '+L.production+'d, finishing '+L.finishing+'d, shipping '+L.shipping+'d. Assumes one machine or line; more capacity shortens production.';
+  $('qCurve').innerHTML='<tr><th>Quantity</th><th>Per piece</th></tr>'+(R.curve||[]).map(c=>`<tr class="${c.qty===S.qty?'cur':''}"><td>${c.qty.toLocaleString('en-IN')}${c.qty===S.qty?' (yours)':''}</td><td>${c.unit==null?'Not suitable':inr(c.unit)}</td></tr>`).join('');
+  $('qNotes').innerHTML=(o.notes||[]).map(n=>`<div class="banner warn">${esc(n)}</div>`).join('');
+  $('qQtyIn').value=S.qty;
+  if(!$('qInputs').dataset.proc||$('qInputs').dataset.proc!==S.selected){
+    $('qInputs').dataset.proc=S.selected;
+    $('qInputs').innerHTML=o.inputs.map(i=>`<div class="row"><div><label for="in_${esc(i.key)}">${esc(i.label)}</label><small>${esc(i.unit)}</small></div><input class="f" id="in_${esc(i.key)}" data-key="${esc(i.key)}" data-def="${o.values[i.key]}" type="number" min="0" step="any" value="${Math.round(o.values[i.key]*100)/100}"></div>`).join('');
+    $('qInputs').querySelectorAll('input').forEach(inp=>inp.addEventListener('input',()=>{
+      inp.classList.toggle('edited',Math.abs(parseFloat(inp.value)-parseFloat(inp.dataset.def))>1e-9);
+      const ov=S.overrides[S.selected]||(S.overrides[S.selected]={}); const v=parseFloat(inp.value);
+      if(isFinite(v)&&v>=0) ov[inp.dataset.key]=v; S.edited=true; later();
+    }));
+  }
+}
+$('qQtyIn').addEventListener('input',()=>{ const v=parseInt($('qQtyIn').value,10); if(v>0){S.qty=v;S.edited=true;later();} });
+function later(){ clearTimeout(S.timer); S.timer=setTimeout(async()=>{ const d=await calc(S.selected); if(d) renderQuote(); },350); }
+$('printBtn').onclick=()=>{ $('printMeta').textContent='Reference '+String(S.id||'').slice(0,8).toUpperCase()+' · '+new Date().toLocaleDateString('en-IN')+' · Indicative estimate, not a binding quote. invictusimc.com'; window.print(); };
 </script>
 </body>
 </html>

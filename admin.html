@@ -722,13 +722,13 @@
       <!-- QUOTE LEADS TAB -->
       <div class="tab-panel" id="tab-quote-leads">
         <div class="page-title">Quote <em>Leads</em></div>
-        <div class="page-subtitle">People who used the Cost Estimator at /quote-estimator and left their details.</div>
+        <div class="page-subtitle">People who used the Instant Quote tool at /quote-estimator. Each row shows the part as understood by AI and the process and price they chose.</div>
         <div class="section-header">
           <div class="section-title">Quote Leads <span id="quote-leads-count" style="font-size:11px;color:var(--muted);margin-left:8px;"></span></div>
         </div>
         <table class="admin-table">
           <thead>
-            <tr><th>Status</th><th>Product</th><th>Qty</th><th>Est. Unit / Total</th><th>Name</th><th>Company</th><th>Mobile</th><th>Email</th><th>City</th><th>Submitted</th><th>Actions</th></tr>
+            <tr><th>Status</th><th>Part</th><th>Qty</th><th>Chosen process</th><th>Est. Unit / Total</th><th>Lead time</th><th>Name</th><th>Mobile</th><th>Email</th><th>Submitted</th><th>Actions</th></tr>
           </thead>
           <tbody id="quote-leads-tbody">
             <tr><td colspan="11" class="table-empty">Loading...</td></tr>
@@ -1557,7 +1557,7 @@
   }
 
   // QUOTE LEADS (Cost Estimator)
-  const QL_URL = 'https://nmjkzhquoxuuebzyotnx.supabase.co/rest/v1/quote_leads';
+  const QL_URL = 'https://nmjkzhquoxuuebzyotnx.supabase.co/rest/v1/quote_requests';
   const QL_H = { 'apikey': SUPA_ANON, 'Authorization': 'Bearer ' + SUPA_ANON, 'Content-Type': 'application/json' };
   function qlEsc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
   async function loadQuoteLeads() {
@@ -1573,16 +1573,18 @@
       tbody.innerHTML = rows.map(l => {
         const done = l.status === 'contacted';
         const wa = String(l.phone || '').replace(/\D/g, '');
+        const an = l.analysis || {};
+        const procNames = { cnc:'CNC machining', sheet:'Sheet metal', cast_sand:'Sand casting', cast_investment:'Investment casting', cast_die:'Die casting', forging:'Forging', extrusion_metal:'Metal extrusion', print_metal:'Metal 3D printing', injection:'Injection moulding', blow:'Blow moulding', extrusion_plastic:'Plastic extrusion', print_plastic:'3D printing', vacuum:'Vacuum casting', cnc_plastic:'CNC (plastic)', pcba:'PCBA' };
         return `<tr>
           <td><span style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;padding:4px 10px;${done ? 'background:rgba(61,170,110,0.15);color:#3DAA6E;' : 'background:rgba(184,134,11,0.10);color:var(--gold);'}">${done ? 'Contacted' : 'New'}</span></td>
-          <td><strong>${qlEsc(l.product)}</strong></td>
-          <td>${Number(l.quantity).toLocaleString('en-IN')}</td>
-          <td style="font-size:12px;">${inr(l.unit_cost)} / ${inr(l.total_cost)}</td>
+          <td><strong>${qlEsc(an.part_name) || '\u2014'}</strong><div class="td-muted" style="font-size:11px;">${qlEsc(an.industry || '')}${an.material_key ? ' \u00B7 ' + qlEsc(an.material_key) : ''}</div></td>
+          <td>${l.qty ? Number(l.qty).toLocaleString('en-IN') : '\u2014'}</td>
+          <td>${l.selected_process ? qlEsc(procNames[l.selected_process] || l.selected_process) : '<span class="td-muted">Not chosen yet</span>'}</td>
+          <td style="font-size:12px;">${l.unit_cost ? inr(l.unit_cost) + ' / ' + inr(l.total_cost) : '\u2014'}</td>
+          <td>${l.lead_days ? l.lead_days + ' days' : '\u2014'}</td>
           <td>${qlEsc(l.name)}</td>
-          <td>${qlEsc(l.company) || '\u2014'}</td>
           <td>${qlEsc(l.phone)}</td>
           <td class="td-muted">${qlEsc(l.email)}</td>
-          <td>${qlEsc(l.city) || '\u2014'}</td>
           <td class="td-muted" style="font-size:11px;">${new Date(l.created_at).toLocaleString('en-IN')}</td>
           <td><div class="td-actions">
             <a class="btn-edit" style="text-decoration:none;" target="_blank" rel="noopener" href="https://wa.me/${wa.length === 10 ? '91' + wa : wa}">WhatsApp</a>

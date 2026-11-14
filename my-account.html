@@ -373,6 +373,13 @@
         <button class="btn-small-outline" onclick="logout()">Sign Out</button>
       </div>`;
 
+    html += `
+      <a href="/quote-estimator" style="display:block;text-decoration:none;color:inherit;background:#fff;border:1px solid rgba(200,134,10,.35);border-left:3px solid #C8860A;padding:16px 18px;margin-bottom:16px;">
+        <div style="font-size:9px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:#C8860A;margin-bottom:5px;">New · AI-powered</div>
+        <div style="font-family:'Cormorant Garamond',Georgia,serif;font-size:21px;margin-bottom:3px;">Instant Manufacturing Quote</div>
+        <div style="font-size:12px;font-weight:300;line-height:1.6;color:#555;">${isMfr ? 'Cost a job with your own rates before you bid.' : 'Upload a drawing and see the cost and timeline for every way to make it.'} <span style="color:#C8860A;font-weight:500;">Open →</span></div>
+      </a>`;
+
     if (isMfr) {
       html += await renderMfrDashboard();
     } else {

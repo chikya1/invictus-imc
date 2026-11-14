@@ -61,7 +61,7 @@
     <img src="/INVICTUS_LOGO.png" style="width:24px;height:24px;object-fit:contain;" alt="" />
     Invictus IMC
   </a>
-  <a href="/" class="topbar-back">← Website</a>
+  <div style="display:flex;gap:8px;align-items:center;"><a href="/quote-estimator" class="topbar-back" style="color:#C8860A;border-color:rgba(200,134,10,.4);">Instant Quote</a><a href="/" class="topbar-back">← Website</a></div>
 </div>
 
 <div class="hero">
@@ -71,6 +71,11 @@
 </div>
 
 <div class="content">
+  <a href="/quote-estimator" style="display:block;text-decoration:none;color:inherit;background:#fff;border:1px solid rgba(200,134,10,.35);border-left:3px solid #C8860A;padding:18px 20px;margin-bottom:18px;">
+    <div style="font-size:9px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:#C8860A;margin-bottom:6px;">New · AI-powered</div>
+    <div style="font-family:'Cormorant Garamond',Georgia,serif;font-size:22px;line-height:1.2;margin-bottom:4px;">Instant Manufacturing Quote</div>
+    <div style="font-size:12px;font-weight:300;line-height:1.6;color:#555;">Upload your drawing or photo. See every way to make it in India, with cost and timeline for each. No account needed. <span style="color:#C8860A;font-weight:500;">Try it →</span></div>
+  </a>
   <div class="form-card" id="form-card">
     <div class="form-card-title">Create your account</div>
     <p class="form-card-sub">One account for all your activity on Invictus IMC. Already have an account? <a href="/my-account" style="color:var(--gold);">Login here →</a></p>
@@ -171,14 +176,19 @@
         })
       });
 
-      if (!res.ok) const et=await res.text(); try { if(JSON.parse(et)?.code==="23505") throw new Error("DUPLICATE"); } catch(_){} throw new Error(et);
+      if (!res.ok) {
+        const et = await res.text();
+        let dup = false;
+        try { dup = JSON.parse(et)?.code === "23505"; } catch(_) {}
+        throw new Error(dup ? "DUPLICATE" : et);
+      }
 
       // Show success
       document.getElementById('form-card').style.display = 'none';
       document.getElementById('success-screen').style.display = 'block';
 
     } catch(e) {
-      showMsg(msg, 'error', 'Something went wrong. Please try again or email connect@invictusimc.com');
+      showMsg(msg, 'error', e && e.message === 'DUPLICATE' ? 'An account with this mobile number already exists. Please log in at My Account.' : 'Something went wrong. Please try again or email connect@invictusimc.com');
       btn.disabled = false; btn.textContent = 'Create Account & Join Buyers Club →';
     }
   }
