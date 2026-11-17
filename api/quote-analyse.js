@@ -128,7 +128,10 @@ export default async function handler(req, res) {
     const cr = await sb(`quote_requests?created_at=gte.${encodeURIComponent(since)}&or=(${orParts.join(',')})&select=id`, { headers: { Prefer: 'count=exact', Range: '0-0' } });
     const total = parseInt((cr.headers.get('content-range') || '0/0').split('/')[1], 10) || 0;
     if (!cr.ok) throw new Error('limit check failed');
-    if (total >= DAILY_LIMIT) return res.status(429).json({ error: 'Daily limit reached. Please try again tomorrow or contact us.' });
+    // Testers: emails listed in the QUOTE_TEST_EMAILS setting skip the daily limit. Only counts for a verified app login.
+    const testers = String(process.env.QUOTE_TEST_EMAILS || '').toLowerCase().split(',').map(x => x.trim()).filter(Boolean);
+    const isTester = !!userId && testers.includes(mEmail.toLowerCase());
+    if (!isTester && total >= DAILY_LIMIT) return res.status(429).json({ error: 'Daily limit reached. Please try again tomorrow or contact us.' });
 
     const block = mimeType === 'application/pdf'
       ? { type: 'document', source: { type: 'base64', media_type: mimeType, data: file } }
