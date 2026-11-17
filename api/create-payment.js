@@ -14,7 +14,8 @@ const SUPA_URL = 'https://nmjkzhquoxuuebzyotnx.supabase.co';
 
 const ACTIONS = {
   manufacturer_bid: { label: 'Bid unlock fee' },
-  buyer_order: { label: 'Order posting fee' }
+  buyer_order: { label: 'Order posting fee' },
+  quote_analysis: { label: 'Instant quote fee' }
 };
 
 function sb(path, opts = {}) {
@@ -40,7 +41,7 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { action, user_id, order_id } = req.body || {};
+  const { action, user_id, order_id, phone } = req.body || {};
   const cfg = ACTIONS[action];
   if (!cfg || !user_id) return res.status(400).json({ error: 'Missing or invalid fields' });
   if (!process.env.SUPABASE_SERVICE_KEY) return res.status(500).json({ error: 'Server not configured (SUPABASE_SERVICE_KEY)' });
@@ -59,8 +60,22 @@ export default async function handler(req, res) {
     }
 
     // One flat fee per action (admin sets it; 0 = free).
-    const rules = await sbJson(`pricing_rules?action=eq.${action}&order=from_n.asc&limit=1&select=price`);
-    const price = rules.length ? Number(rules[0].price) : 0;
+    let price;
+    if (action === 'quote_analysis') {
+      // Price depends on how many quotes this person has already had (same rule as quote-analyse.js).
+      const em = String(user_id).trim().toLowerCase();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) return res.status(400).json({ error: 'Please enter a valid email first.' });
+      const ph = String(phone || '').replace(/[^\d+]/g, '');
+      const parts = [`email.eq.${encodeURIComponent(em)}`]; if (ph.length >= 10) parts.push(`phone.eq.${encodeURIComponent(ph)}`);
+      const lr = await sb(`quote_requests?or=(${parts.join(',')})&select=id`, { headers: { Prefer: 'count=exact', Range: '0-0' } });
+      if (!lr.ok) throw new Error('Could not complete the check. Please try again.');
+      const used = parseInt((lr.headers.get('content-range') || '0/0').split('/')[1], 10) || 0;
+      const rq = await sbJson(`pricing_rules?action=eq.quote_analysis&from_n=lte.${used + 1}&order=from_n.desc&limit=1&select=price`);
+      price = rq.length ? Number(rq[0].price) : 0;
+    } else {
+      const rules = await sbJson(`pricing_rules?action=eq.${action}&order=from_n.asc&limit=1&select=price`);
+      price = rules.length ? Number(rules[0].price) : 0;
+    }
     if (!(price > 0)) return res.status(200).json({ free: true });
 
     const amountPaise = Math.round(price * 100);
@@ -77,7 +92,7 @@ export default async function handler(req, res) {
 
     const ins = await sb('payments', {
       method: 'POST', headers: { Prefer: 'return=minimal' },
-      body: JSON.stringify({ action, user_id: String(user_id), order_ref: order_id ? String(order_id) : null, amount_paise: amountPaise, razorpay_order_id: rz.id })
+      body: JSON.stringify({ action, user_id: action === 'quote_analysis' ? String(user_id).trim().toLowerCase() : String(user_id), order_ref: order_id ? String(order_id) : null, amount_paise: amountPaise, razorpay_order_id: rz.id })
     });
     if (!ins.ok) return res.status(500).json({ error: 'Could not record payment' });
 

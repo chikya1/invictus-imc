@@ -98,7 +98,7 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
   if (!process.env.SUPABASE_SERVICE_KEY || !process.env.ANTHROPIC_API_KEY) return res.status(500).json({ error: 'Server not configured' });
 
-  const { name, phone, email, qty, file, mimeType } = req.body || {};
+  const { name, phone, email, qty, file, mimeType, payment_id } = req.body || {};
   // Logged-in app users send their Supabase token. We verify it and use their saved identity.
   let userId = null, mName = '', mPhone = '', mEmail = '';
   const bearer = String(req.headers.authorization || '').replace(/^Bearer\s+/i, '').trim();
@@ -133,6 +133,31 @@ export default async function handler(req, res) {
     const isTester = !!userId && testers.includes(mEmail.toLowerCase());
     if (!isTester && total >= DAILY_LIMIT) return res.status(429).json({ error: 'Daily limit reached. Please try again tomorrow or contact us.' });
 
+    // PAYWALL. The price for this person's Nth quote comes from the pricing_rules table (action 'quote_analysis').
+    // Example: rows (from_n 1, price 0) and (from_n 4, price 20) mean 3 free quotes, then Rs 20 each. Admin can edit the table.
+    let payRow = null;
+    if (!isTester) {
+      const idParts = [`phone.eq.${encodeURIComponent(p)}`, `email.eq.${encodeURIComponent(em)}`];
+      if (userId) idParts.push(`user_id.eq.${userId}`);
+      const lr = await sb(`quote_requests?or=(${idParts.join(',')})&select=id`, { headers: { Prefer: 'count=exact', Range: '0-0' } });
+      if (!lr.ok) throw new Error('limit check failed');
+      const used = parseInt((lr.headers.get('content-range') || '0/0').split('/')[1], 10) || 0;
+      const rr = await sb(`pricing_rules?action=eq.quote_analysis&from_n=lte.${used + 1}&order=from_n.desc&limit=1&select=price`);
+      const rrows = await rr.json().catch(() => null);
+      if (!rr.ok || !Array.isArray(rrows)) throw new Error('price check failed');
+      const price = rrows.length ? Number(rrows[0].price) : 0;
+      if (price > 0) {
+        const appMsg = 'You have used your free quotes. Paid quotes inside the app are coming soon.';
+        if (userId) return res.status(402).json({ error: appMsg, payment_required: true, price, used });
+        const webMsg = `You have used your ${used} free quote${used === 1 ? '' : 's'}. Each new quote costs \u20B9${price}.`;
+        if (!payment_id || !/^[0-9a-f-]{36}$/i.test(String(payment_id))) return res.status(402).json({ error: webMsg, payment_required: true, price, used });
+        const pr = await sb(`payments?id=eq.${payment_id}&action=eq.quote_analysis&status=eq.paid&order_ref=is.null&user_id=eq.${encodeURIComponent(em)}&select=id,amount_paise&limit=1`);
+        const prows = await pr.json().catch(() => null);
+        if (!pr.ok || !Array.isArray(prows) || !prows.length || prows[0].amount_paise < Math.round(price * 100)) return res.status(402).json({ error: 'We could not find your payment for this quote. Please try again.', payment_required: true, price, used });
+        payRow = prows[0];
+      }
+    }
+
     const block = mimeType === 'application/pdf'
       ? { type: 'document', source: { type: 'base64', media_type: mimeType, data: file } }
       : { type: 'image', source: { type: 'base64', media_type: mimeType, data: file } };
@@ -152,6 +177,9 @@ export default async function handler(req, res) {
     const ins = await sb('quote_requests', { method: 'POST', headers: { Prefer: 'return=representation' }, body: JSON.stringify({ name: n.slice(0, 80), phone: p.slice(0, 20), email: em.slice(0, 120), ip, user_id: userId, qty: q, file_kind: mimeType, analysis }) });
     const row = await ins.json().catch(() => null);
     if (!ins.ok || !Array.isArray(row) || !row[0]) throw new Error('save failed');
+    if (payRow) { // mark this payment as used up by this quote, so it cannot pay for a second one
+      await sb(`payments?id=eq.${payRow.id}`, { method: 'PATCH', headers: { Prefer: 'return=minimal' }, body: JSON.stringify({ order_ref: String(row[0].id) }) }).catch(() => {});
+    }
     return res.status(200).json({ id: row[0].id, qty: q, analysis, materials: Object.entries(MATERIALS).map(([k, v]) => [k, v[0], v[1]]) });
   } catch (err) {
     console.error('quote-analyse', err);

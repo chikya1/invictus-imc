@@ -227,6 +227,22 @@ function pick(f){
 }
 function done(name){ $('drop').classList.add('has'); $('dropText').innerHTML='<strong>'+esc(name)+'</strong> ready<br><span class="muted">Click to change the file</span>'; }
 
+/* ---------- paywall: first quotes are free, then Razorpay (price comes from the server) ---------- */
+function loadRzp(){ return new Promise((res,rej)=>{ if(window.Razorpay) return res(); const t=document.createElement('script'); t.src='https://checkout.razorpay.com/v1/checkout.js'; t.onload=res; t.onerror=()=>rej(new Error('Could not load the payment window. Please check your connection and try again.')); document.head.appendChild(t); }); }
+async function payForQuote(name,phone,email,info){
+  if(info&&info.price&&!confirm('You have used your free quotes. Each new quote costs \u20B9'+info.price+'. Continue to payment?')) return null;
+  const r=await fetch('/api/create-payment',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'quote_analysis',user_id:email.toLowerCase(),phone})});
+  const d=await r.json().catch(()=>({})); if(!r.ok) throw new Error(d.error||'Could not start payment.');
+  if(d.free) return 'free';
+  await loadRzp();
+  return new Promise((resolve,reject)=>{
+    const rz=new Razorpay({key:d.key_id,amount:d.amount,currency:d.currency,order_id:d.razorpay_order_id,name:'Invictus IMC',description:d.label,theme:{color:'#C8860A'},prefill:{name,contact:phone,email},
+      handler:async resp=>{ try{ const v=await fetch('/api/verify-payment',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(resp)}); const vd=await v.json().catch(()=>({})); if(!v.ok||!vd.ok) throw new Error(vd.error||'Payment could not be verified.'); resolve(vd.payment_id); }catch(e){ reject(e); } },
+      modal:{ondismiss:()=>resolve(null)}});
+    rz.open();
+  });
+}
+
 $('goBtn').onclick=async()=>{
   msg('msg1','');
   const name=$('name').value.trim(), phone=$('phone').value.trim(), email=$('email').value.trim(), qty=parseInt($('qty').value,10);
@@ -237,10 +253,21 @@ $('goBtn').onclick=async()=>{
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return msg('msg1','Please enter a valid email.');
   const b=$('goBtn'); b.disabled=true; b.innerHTML='<span class="spin"></span>Reading your design…'; showStages(true); let failed=false;
   try{
-    const ac=new AbortController(), to=setTimeout(()=>ac.abort(),75000);
-    const r=await fetch('/api/quote-analyse',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,phone,email,qty,file:S.file,mimeType:S.mime}),signal:ac.signal}); clearTimeout(to);
-    const d=await r.json().catch(()=>({}));
+    const send=async pid=>{
+      const ac=new AbortController(), to=setTimeout(()=>ac.abort(),75000);
+      try{ const r=await fetch('/api/quote-analyse',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,phone,email,qty,file:S.file,mimeType:S.mime,payment_id:pid||undefined}),signal:ac.signal}); const d=await r.json().catch(()=>({})); return {r,d}; }
+      finally{ clearTimeout(to); }
+    };
+    let {r,d}=await send(S.payId);
+    if(r.status===402&&d.payment_required){
+      showStages(false); b.textContent='Waiting for payment…';
+      const pid=await payForQuote(name,phone,email,d);
+      if(pid===null) throw new Error('Payment was cancelled. Press the button again when you are ready.');
+      S.payId=pid==='free'?null:pid; b.innerHTML='<span class="spin"></span>Reading your design…'; showStages(true);
+      ({r,d}=await send(S.payId));
+    }
     if(!r.ok) throw new Error(d.error||'Something went wrong. Please try again.');
+    S.payId=null;
     S.id=d.id; S.qty=d.qty; S.analysis=d.analysis; S.materials=d.materials||[]; S.overrides={}; S.edited=false;
     renderReview(); setStep(2);
   }catch(e){ failed=true; msg('msg1',e.name==='AbortError'?'This is taking too long. Please check your internet and try again.':(e.message||'Something went wrong. Please try again.')); }
