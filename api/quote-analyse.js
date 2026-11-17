@@ -5,7 +5,8 @@ import { MATERIALS } from './_quote-engine.js';
 export const config = { api: { bodyParser: { sizeLimit: '6mb' } } };
 
 const SUPA_URL = 'https://nmjkzhquoxuuebzyotnx.supabase.co';
-const DAILY_LIMIT = 10; // free testing limit per phone, email and IP per 24 hours
+const DAILY_LIMIT = 30;     // brake per person (phone, email or app login) per 24 hours, so paying users are not blocked
+const IP_DAILY_LIMIT = 150; // only a safety net against scripts. Shared offices and mobile networks are not blocked by normal use
 
 function sb(path, opts = {}) {
   const key = process.env.SUPABASE_SERVICE_KEY;
@@ -123,7 +124,6 @@ export default async function handler(req, res) {
   try {
     const since = new Date(Date.now() - 24 * 3600 * 1000).toISOString();
     const orParts = [`phone.eq.${encodeURIComponent(p)}`, `email.eq.${encodeURIComponent(em)}`];
-    if (ip) orParts.push(`ip.eq.${encodeURIComponent(ip)}`);
     if (userId) orParts.push(`user_id.eq.${userId}`);
     const cr = await sb(`quote_requests?created_at=gte.${encodeURIComponent(since)}&or=(${orParts.join(',')})&select=id`, { headers: { Prefer: 'count=exact', Range: '0-0' } });
     const total = parseInt((cr.headers.get('content-range') || '0/0').split('/')[1], 10) || 0;
@@ -131,6 +131,11 @@ export default async function handler(req, res) {
     // Testers: emails listed in the QUOTE_TEST_EMAILS setting skip the daily limit. Only counts for a verified app login.
     const testers = String(process.env.QUOTE_TEST_EMAILS || '').toLowerCase().split(',').map(x => x.trim()).filter(Boolean);
     const isTester = !!userId && testers.includes(mEmail.toLowerCase());
+    if (ip && !isTester) {
+      const ir = await sb(`quote_requests?created_at=gte.${encodeURIComponent(since)}&ip=eq.${encodeURIComponent(ip)}&select=id`, { headers: { Prefer: 'count=exact', Range: '0-0' } });
+      const ipTotal = parseInt((ir.headers.get('content-range') || '0/0').split('/')[1], 10) || 0;
+      if (ir.ok && ipTotal >= IP_DAILY_LIMIT) return res.status(429).json({ error: 'Too many requests from this network today. Please try again tomorrow or contact us.' });
+    }
     if (!isTester && total >= DAILY_LIMIT) return res.status(429).json({ error: 'Daily limit reached. Please try again tomorrow or contact us.' });
 
     // PAYWALL. The price for this person's Nth quote comes from the pricing_rules table (action 'quote_analysis').
