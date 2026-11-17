@@ -1,6 +1,6 @@
 // Step 1 of the quote platform: read an uploaded design with AI and return what it understood.
 // The AI never gives prices. Prices come from _quote-engine.js.
-import { MATERIALS } from './_quote-engine.js';
+import { MATERIALS, loadRates } from './_quote-engine.js';
 
 export const config = { api: { bodyParser: { sizeLimit: '6mb' } } };
 
@@ -13,9 +13,9 @@ function sb(path, opts = {}) {
   return fetch(`${SUPA_URL}/rest/v1/${path}`, { ...opts, headers: { apikey: key, Authorization: `Bearer ${key}`, 'Content-Type': 'application/json', ...(opts.headers || {}) } });
 }
 
+const buildPrompt = () => {
 const MATERIAL_LIST = Object.entries(MATERIALS).map(([k, v]) => `${k} (${v[0]})`).join(', ');
-
-const PROMPT = `You are a senior manufacturing estimator at an Indian contract manufacturer. Read the attached design (drawing, image or PDF) and describe the part so a cost engine can price it. Do NOT give any prices.
+return `You are a senior manufacturing estimator at an Indian contract manufacturer. Read the attached design (drawing, image or PDF) and describe the part so a cost engine can price it. Do NOT give any prices.
 
 Return ONLY valid JSON, no markdown, no code fences, exactly this shape:
 {
@@ -50,6 +50,7 @@ Return ONLY valid JSON, no markdown, no code fences, exactly this shape:
   "electronics": { "board_l_mm": number, "board_w_mm": number, "layers": integer, "component_count": integer, "through_hole_count": integer, "needs_enclosure": true or false }
 }
 Rules: if a dimension is printed on the drawing, use it and set dimensions_source to "printed". If there is none, still give your best guess in dimensions_mm but set dimensions_source to "estimated" or "unknown" and dimensions_confidence to low. Never present a guess as printed. Set grade_source to "printed" only if the grade is written on the drawing. Use only the material_key values listed. For electronics, fill the electronics object and use rough values for the rest. If the file is not a manufacturable part, set industry to "other" and explain in description. Be honest about uncertainty.`;
+};
 
 function clamp(n, lo, hi, d) { n = Number(n); return Number.isFinite(n) ? Math.min(hi, Math.max(lo, n)) : d; }
 
@@ -163,13 +164,14 @@ export default async function handler(req, res) {
       }
     }
 
+    await loadRates();
     const block = mimeType === 'application/pdf'
       ? { type: 'document', source: { type: 'base64', media_type: mimeType, data: file } }
       : { type: 'image', source: { type: 'base64', media_type: mimeType, data: file } };
     const ai = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-api-key': process.env.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01' },
-      body: JSON.stringify({ model: 'claude-haiku-5-5', max_tokens: 3000, messages: [{ role: 'user', content: [block, { type: 'text', text: PROMPT }] }] })
+      body: JSON.stringify({ model: 'claude-haiku-5-5', max_tokens: 3000, messages: [{ role: 'user', content: [block, { type: 'text', text: buildPrompt() }] }] })
     });
     if (!ai.ok) { const e = await ai.json().catch(() => ({})); throw new Error((e.error && e.error.message) || 'AI error'); }
     const data = await ai.json();

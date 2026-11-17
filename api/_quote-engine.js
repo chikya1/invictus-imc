@@ -34,6 +34,37 @@ export const RATES = {
   inr_cm3_metal_print: 350, inr_cm3_titanium_print: 700, inr_cm3_plastic_print: 22
 };
 
+// ---------- central rates ----------
+// The numbers above are the built-in DEFAULTS. If the rate tables exist in Supabase, loadRates() overwrites the defaults
+// with the table values (cached for 5 minutes). If the database cannot be reached, the defaults keep working.
+const RATES_SUPA = 'https://nmjkzhquoxuuebzyotnx.supabase.co';
+let _ratesLoadedAt = 0;
+export async function loadRates() {
+  if (Date.now() - _ratesLoadedAt < 5 * 60 * 1000) return;
+  const key = process.env.SUPABASE_SERVICE_KEY;
+  if (!key) return;
+  try {
+    const h = { apikey: key, Authorization: `Bearer ${key}` };
+    const [mr, sr] = await Promise.all([
+      fetch(`${RATES_SUPA}/rest/v1/rate_materials?active=eq.true&select=*`, { headers: h }),
+      fetch(`${RATES_SUPA}/rest/v1/rate_settings?select=key,value`, { headers: h })
+    ]);
+    if (!mr.ok || !sr.ok) return;
+    const mats = await mr.json(), sets = await sr.json();
+    if (!Array.isArray(mats) || !Array.isArray(sets)) return;
+    for (const m of mats) {
+      const d = Number(m.density), r = Number(m.rate_inr_kg), c = Number(m.removal_cm3_min);
+      if (m.key && d > 0 && r >= 0 && c > 0) MATERIALS[m.key] = [m.label, m.family, d, r, c];
+    }
+    for (const x of sets) {
+      const v = Number(x.value); if (!(v >= 0)) continue;
+      if (String(x.key).startsWith('labour_per_piece.')) RATES.labour_per_piece[x.key.slice('labour_per_piece.'.length)] = v;
+      else if (Object.prototype.hasOwnProperty.call(RATES, x.key) && typeof RATES[x.key] === 'number') RATES[x.key] = v;
+    }
+    _ratesLoadedAt = Date.now();
+  } catch (e) { /* keep defaults */ }
+}
+
 const TOL = { loose: 0.9, standard: 1, tight: 1.3, precision: 1.7 };
 const FINISH_COST_PER_CM2 = { as_made: 0, machined: 0, polished: 0.06, coated: 0.04, plated: 0.08, anodised: 0.05 };
 const num = (v, d) => (Number.isFinite(Number(v)) && Number(v) > 0 ? Number(v) : d);
@@ -79,7 +110,8 @@ function wrap(base, g, a, qty, o, extra) {
   return Object.assign({}, base, { lines: lines.map(l => ({ label: l.label, amount: r2(l.amount) })), unit: r2(unit), total: r2(unit * qty), qty }, extra || {});
 }
 
-const COMMON = { packaging: RATES.packaging, transport: RATES.transport, margin_pct: RATES.margin_pct };
+// Getters, so the values follow RATES after loadRates() refreshes them from the database.
+const COMMON = { get packaging() { return RATES.packaging; }, get transport() { return RATES.transport; }, get margin_pct() { return RATES.margin_pct; } };
 const field = (key, label, unit) => ({ key, label, unit });
 
 /* ---------- METAL PROCESSES ---------- */

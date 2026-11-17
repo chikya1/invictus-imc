@@ -1,6 +1,6 @@
 // Prices a (user-corrected) design in every available process, and again when inputs are edited.
 // No AI call here, so it is cheap. When the paywall is switched on, check payment in this file.
-import { calcAll, breakEven } from './_quote-engine.js';
+import { calcAll, breakEven, loadRates } from './_quote-engine.js';
 
 const SUPA_URL = 'https://nmjkzhquoxuuebzyotnx.supabase.co';
 const MATERIAL_OK = /^[a-z0-9_]{2,30}$/;
@@ -18,6 +18,7 @@ export default async function handler(req, res) {
   const q = Math.max(1, Math.min(10000000, Math.round(Number(qty) || 0)));
   if (!q) return res.status(400).json({ error: 'Please enter a quantity' });
   try {
+    await loadRates();
     const ov = overrides && typeof overrides === 'object' ? overrides : {};
     const result = calcAll(analysis, q, ov);
     const chosen = selected ? (result.options.find(o => o.id === selected) || null) : null;
