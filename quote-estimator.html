@@ -76,10 +76,26 @@
     table.cv tr.cur td { font-weight:700; color:var(--gold); }
     .steps-list { margin:8px 0 0 18px; font-size:12px; line-height:1.9; }
     .hide { display:none !important; }
+    .help { display:block; font-size:11px; color:var(--mid); font-weight:300; margin-top:5px; line-height:1.5; }
+    details#adv summary { cursor:pointer; font-size:11px; font-weight:600; letter-spacing:1.5px; text-transform:uppercase; padding:12px 14px; border:1px solid var(--border); background:var(--ivory); list-style:none; }
+    details#adv[open] summary { border-color:var(--gold-border); }
+    details#adv summary::before { content:'+ '; color:var(--gold); } details#adv[open] summary::before { content:'– '; }
+    .stages { margin-top:16px; padding:6px 14px; border:1px solid var(--border); background:var(--ivory); }
+    .st { display:flex; align-items:center; gap:10px; padding:9px 0; font-size:13px; color:var(--mid); }
+    .st .dot { width:12px; height:12px; border-radius:50%; border:2px solid var(--border); flex:none; }
+    .st.done { color:var(--green); } .st.done .dot { background:var(--green); border-color:var(--green); }
+    .st.now { color:var(--ink); font-weight:600; } .st.now .dot { border-color:var(--gold); animation:pl 1s ease-in-out infinite; }
+    @keyframes pl { 50% { background:var(--gold); } }
+    .actions { margin-top:20px; } .actions .btn { margin-top:0; }
     .spin { display:inline-block; width:14px; height:14px; border:2px solid rgba(0,0,0,.2); border-top-color:var(--void); border-radius:50%; animation:sp .8s linear infinite; vertical-align:-2px; margin-right:8px; }
     @keyframes sp { to { transform:rotate(360deg); } }
     .only-print { display:none; }
-    @media (max-width:800px){ .g2,.g3,.split { grid-template-columns:1fr; } h1 { font-size:28px; } .big { font-size:34px; } }
+    @media (max-width:800px){ .g2,.g3,.split { grid-template-columns:1fr; } h1 { font-size:28px; } .big { font-size:34px; }
+      main { padding:18px 14px 90px; } .hero { padding:28px 16px 30px; } .panel { padding:18px 16px; }
+      input.f, select.f { font-size:16px; min-height:48px; } .btn { width:100%; min-height:50px; margin-right:0; } .btn.alt { margin-bottom:8px; }
+      .steps { flex-wrap:nowrap; overflow-x:auto; } .steps span { white-space:nowrap; font-size:9px; padding:7px 9px; }
+      .drop { padding:22px 14px; }
+      .actions { position:sticky; bottom:0; background:#fff; padding:10px 0 12px; border-top:1px solid var(--border); display:flex; flex-direction:column-reverse; gap:8px; z-index:5; } .actions .btn { margin:0; } }
     @media print { .topbar, .hero, .steps, .noprint, .btn, #stepUpload, #stepReview, #stepOptions { display:none !important; } .only-print { display:block; } body { background:#fff; } .panel { border:1px solid #ccc; } .split { grid-template-columns:1fr 1fr; } }
   </style>
 </head>
@@ -88,38 +104,41 @@
 <div class="hero"><div class="wrap">
   <div class="eyebrow">Instant Manufacturing Quote</div>
   <h1>Upload your design. <em>See how it can be made in India.</em></h1>
-  <p>Share a drawing, photo or PDF. We read it, compare the ways to make it, and show cost and timeline for each. Then change any number to match your own rates.</p>
+  <p>Take a photo or upload a drawing. Tell us how many you need. We show the ways to make it in India, with the cost and delivery time of each.</p>
 </div></div>
 
 <main><div class="wrap">
-  <div class="steps" id="steps"><span id="s1" class="on">1 · Upload</span><span id="s2">2 · Check what we understood</span><span id="s3">3 · Compare ways to make it</span><span id="s4">4 · Your quote</span></div>
+  <div class="steps" id="steps"><span id="s1" class="on">1 · Upload</span><span id="s2">2 · Check</span><span id="s3">3 · Choose</span><span id="s4">4 · Quote</span></div>
 
   <!-- STEP 1 -->
   <section id="stepUpload" class="panel gold">
     <span class="label-top">Step 1</span><h2>Upload your design</h2>
-    <p class="muted">Works best with a dimensioned drawing or PDF. A photo gives only a rough size. Metal parts, plastic parts and electronics boards are supported for now. Your file is read once and is not stored.</p>
-    <div class="drop" id="drop"><div id="dropText"><strong>Click to choose a file</strong> or drop it here<br><span class="muted">JPG, PNG, WebP or PDF, under 3 MB for PDF</span></div></div>
+    <p class="muted">A drawing with sizes works best. A photo is fine too, but then we will ask you for the sizes. We price metal parts, plastic parts and electronics boards. Your file is read once and is not stored.</p>
+    <div class="drop" id="drop"><div id="dropText"><strong>Tap to choose a file</strong><br><span class="muted">JPG, PNG, WebP or PDF (PDF under 3 MB)</span></div></div>
+    <div style="margin-top:10px"><button class="btn alt" id="camBtn" type="button" style="margin:0">📷 Take a photo</button></div>
     <input type="file" id="file" accept="image/jpeg,image/png,image/webp,application/pdf" class="hide" />
+    <input type="file" id="cam" accept="image/*" capture="environment" class="hide" />
     <div class="g2">
-      <div class="field"><label for="qty">How many pieces?</label><input class="f" id="qty" type="number" min="1" step="1" placeholder="e.g. 1000" /></div>
+      <div class="field"><label for="qty">How many pieces do you need?</label><input class="f" id="qty" type="number" min="1" step="1" placeholder="e.g. 1000" /></div>
       <div class="field"><label for="name">Your name *</label><input class="f" id="name" autocomplete="name" maxlength="80" /></div>
       <div class="field"><label for="phone">Phone / WhatsApp *</label><input class="f" id="phone" type="tel" autocomplete="tel" maxlength="20" /></div>
       <div class="field"><label for="email">Email *</label><input class="f" id="email" type="email" autocomplete="email" maxlength="120" /></div>
     </div>
     <button class="btn" id="goBtn" type="button">Read my design</button>
+    <div class="stages hide" id="stages"></div>
     <div class="msg" id="msg1"></div>
     <p class="muted" style="margin-top:14px">Estimates are indicative and not a binding quote. Your details are used only to contact you about this quote.</p>
   </section>
 
   <!-- STEP 2 -->
   <section id="stepReview" class="panel gold hide">
-    <span class="label-top">Step 2</span><h2>Check what we understood</h2>
-    <p class="muted">AI reads designs well but can get a size or material wrong. Correct anything below. It changes the prices.</p>
+    <span class="label-top">Step 2</span><h2>Check these details</h2>
+    <p class="muted">We have read your design and filled in most boxes. Please check the ones below. A wrong size or material changes the price. Boxes marked * are things we could not read, so please fill them in.</p>
     <div id="qualityBanner"></div>
     <div class="g3" id="reviewFields"></div>
     <div id="reviewExtra"></div>
     <div id="reviewNotes"></div>
-    <button class="btn alt" id="reBack" type="button">← Upload a different file</button><button class="btn" id="goOpts" type="button">Compare ways to make it</button>
+    <div class="actions"><button class="btn alt" id="reBack" type="button">← Upload a different file</button><button class="btn" id="goOpts" type="button">See ways to make it</button></div>
     <div class="msg" id="msg2"></div>
   </section>
 
@@ -179,12 +198,19 @@ const S={id:null,qty:0,analysis:null,materials:[],overrides:{},result:null,selec
 
 function setStep(n){ ['stepUpload','stepReview','stepOptions','stepQuote'].forEach((id,i)=>$(id).classList.toggle('hide',i!==n-1));
   [1,2,3,4].forEach(i=>{const e=$('s'+i);e.className=i===n?'on':(i<n?'done':'');}); window.scrollTo({top:0,behavior:'smooth'}); }
+const STAGES=['Identifying the part','Checking the material','Reading the sizes','Getting your options ready'];
+let stageTimer=null;
+function showStages(on){ const el=$('stages'); clearInterval(stageTimer); if(!on){ el.classList.add('hide'); return; } let i=0;
+  const draw=()=>{ el.innerHTML=STAGES.map((t,k)=>`<div class="st ${k<i?'done':(k===i?'now':'')}"><span class="dot"></span>${t}</div>`).join(''); };
+  el.classList.remove('hide'); draw(); stageTimer=setInterval(()=>{ if(i<STAGES.length-1){ i++; draw(); } },6000); }
 function msg(id,t){const m=$(id);m.textContent=t;m.className='msg'+(t?' err':'');}
 
 /* ---------- upload ---------- */
 $('drop').onclick=()=>$('file').click();
 ['dragover','drop'].forEach(ev=>$('drop').addEventListener(ev,e=>{e.preventDefault(); if(ev==='drop'&&e.dataTransfer.files[0]) pick(e.dataTransfer.files[0]);}));
 $('file').onchange=e=>{ if(e.target.files[0]) pick(e.target.files[0]); };
+$('camBtn').onclick=()=>$('cam').click();
+$('cam').onchange=e=>{ if(e.target.files[0]) pick(e.target.files[0]); };
 function pick(f){
   S.file=null; msg('msg1','');
   if(!/^(image\/(jpeg|png|webp)|application\/pdf)$/.test(f.type)){ msg('msg1','Please upload a JPG, PNG, WebP or PDF file.'); return; }
@@ -209,54 +235,67 @@ $('goBtn').onclick=async()=>{
   if(name.length<2) return msg('msg1','Please enter your name.');
   if(phone.replace(/\D/g,'').length<10) return msg('msg1','Please enter a valid phone number (10+ digits).');
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return msg('msg1','Please enter a valid email.');
-  const b=$('goBtn'); b.disabled=true; b.innerHTML='<span class="spin"></span>Reading your design… this can take about 30 seconds';
+  const b=$('goBtn'); b.disabled=true; b.innerHTML='<span class="spin"></span>Reading your design…'; showStages(true); let failed=false;
   try{
-    const r=await fetch('/api/quote-analyse',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,phone,email,qty,file:S.file,mimeType:S.mime})});
+    const ac=new AbortController(), to=setTimeout(()=>ac.abort(),75000);
+    const r=await fetch('/api/quote-analyse',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,phone,email,qty,file:S.file,mimeType:S.mime}),signal:ac.signal}); clearTimeout(to);
     const d=await r.json().catch(()=>({}));
     if(!r.ok) throw new Error(d.error||'Something went wrong. Please try again.');
     S.id=d.id; S.qty=d.qty; S.analysis=d.analysis; S.materials=d.materials||[]; S.overrides={}; S.edited=false;
     renderReview(); setStep(2);
-  }catch(e){ msg('msg1',e.message||'Something went wrong. Please try again.'); }
-  b.disabled=false; b.textContent='Read my design';
+  }catch(e){ failed=true; msg('msg1',e.name==='AbortError'?'This is taking too long. Please check your internet and try again.':(e.message||'Something went wrong. Please try again.')); }
+  showStages(false); b.disabled=false; b.textContent=failed?'Try again':'Read my design';
 };
 
 /* ---------- review ---------- */
 function opt(list,val){return list.map(([v,l])=>`<option value="${esc(v)}" ${v===val?'selected':''}>${esc(l)}</option>`).join('');}
-function fld(id,label,html){return `<div class="field"><label for="${id}">${label}</label>${html}</div>`;}
+function fld(id,label,html,help){return `<div class="field"><label for="${id}">${label}</label>${html}${help?'<small class="help">'+help+'</small>':''}</div>`;}
 function num(id,val,step){return `<input class="f" id="${id}" type="number" min="0" step="${step||'any'}" value="${esc(val)}" />`;}
 const andJoin=l=>l.length>1?l.slice(0,-1).join(', ')+' and '+l[l.length-1]:l.join('');
 const isU=v=>v==='printed'||v==='user';
 function needs(a){ return { dims:!isU(a.dimensions_source), grade:a.industry!=='electronics'&&!isU(a.grade_source), thick:!isU(a.thickness_source)&&((a.industry==='metal'&&a.form==='sheet')||a.industry==='plastic') }; }
 function rnum(id,val,needed,step){ return `<input class="f" id="${id}" type="number" min="0" step="${step||'any'}" value="${needed?'':esc(val)}" placeholder="${needed?'AI guess: '+esc(val):''}" />`; }
+const GRADES={mild_steel:['IS 2062 E250','IS 2062 E350','EN8','C45','EN1A'],alloy_steel:['EN19','EN24','EN31','SAE 4140','D2','H13'],stainless_304:['SS 304','SS 304L'],stainless_316:['SS 316','SS 316L'],aluminium:['6061-T6','6063-T5','7075-T6','5052','ADC12 (die cast)','LM6 (cast)'],brass:['CZ121 (free cutting)','CZ108'],copper:['ETP C11000','OFHC C10200'],cast_iron:['FG200','FG260','SG 500/7'],zinc_alloy:['Zamak 3','Zamak 5'],titanium:['Grade 2','Grade 5 (Ti-6Al-4V)'],abs:['General purpose','Flame retardant (FR)'],pp:['Homopolymer','Copolymer','Talc filled'],hdpe:['Injection grade','Blow moulding grade','Pipe grade'],pc:['General purpose','Glass filled','UV stabilised'],pa6:['PA6 unfilled','PA6 GF30','PA66','PA66 GF30'],pom:['Homopolymer','Copolymer'],pvc:['Rigid','Flexible'],tpu:['Shore 85A','Shore 95A'],pet:['Bottle grade','Sheet grade']};
+function gradeField(a){
+  const list=GRADES[a.material_key]||[], cur=(a.grade_text||'').trim(), inList=list.includes(cur), showTxt=!!cur&&!inList;
+  return `<select class="f" id="r_gsel"><option value="">Choose a grade</option>${list.map(g=>`<option value="${esc(g)}" ${g===cur?'selected':''}>${esc(g)}</option>`).join('')}<option value="__other" ${showTxt?'selected':''}>Other (type it)</option></select><input class="f ${showTxt?'':'hide'}" id="r_grade" maxlength="60" value="${esc(cur)}" placeholder="Type the grade" style="margin-top:8px" />`;
+}
 function renderReview(){
   const a=S.analysis, nd=needs(a);
   const need=[nd.dims&&'the sizes',nd.thick&&'the thickness',nd.grade&&'the material grade'].filter(Boolean);
-  const q=need.length?['warn','We could not read '+andJoin(need)+' from your design. Please fill the fields marked * below. We do not guess these, because a wrong size gives a wrong price.']
+  const q=need.length?['warn','We could not read '+andJoin(need)+' from your design. Please fill the boxes marked * below. We do not guess these, because a wrong size gives a wrong price.']
     : ['ok','We found the sizes and grade on your design. Please still check them below.'];
   $('qualityBanner').innerHTML=`<div class="banner ${q[0]}">${esc(q[1])}</div>`;
   const mats=S.materials.filter(m=>a.industry==='electronics'||m[2]===(a.industry==='plastic'?'plastic':'metal')).map(m=>[m[0],m[1]]);
-  let h='';
+  let h='', adv='';
   h+=fld('r_name','Part name',`<input class="f" id="r_name" value="${esc(a.part_name)}" maxlength="80">`);
-  h+=fld('r_ind','Type',`<select class="f" id="r_ind">${opt([['metal','Metal part'],['plastic','Plastic part'],['electronics','Electronics board'],['other','Other']],a.industry)}</select>`);
+  h+=fld('r_ind','What is it?',`<select class="f" id="r_ind">${opt([['metal','Metal part'],['plastic','Plastic part'],['electronics','Electronics board'],['other','Other']],a.industry)}</select>`);
   if(a.industry!=='electronics'){
-    h+=fld('r_mat','Material'+(a.material_confidence==='low'?' (please confirm)':''),`<select class="f" id="r_mat">${opt(mats,a.material_key)}</select>`);
-    h+=fld('r_grade','Material grade'+(nd.grade?' *':'')+' (for example EN8, SS304, 6061-T6, ABS, PA66 GF30)',`<input class="f" id="r_grade" maxlength="60" value="${esc(a.grade_text||'')}" placeholder="${nd.grade?'Type the grade you need':''}" />`);
-    h+=fld('r_l','Length (mm)'+(nd.dims?' *':''),rnum('r_l',a.dimensions_mm.l,nd.dims));
-    h+=fld('r_w','Width (mm)'+(nd.dims?' *':''),rnum('r_w',a.dimensions_mm.w,nd.dims));
-    h+=fld('r_h','Height (mm)'+(nd.dims?' *':''),rnum('r_h',a.dimensions_mm.h,nd.dims));
-    h+=fld('r_form','Shape',`<select class="f" id="r_form">${opt([['solid','Solid part'],['sheet','Sheet / plate part'],['hollow','Hollow part'],['profile','Same profile along length']],a.form)}</select>`);
-    h+=fld('r_fill','How full is the box? (0.05 thin to 1 solid block)',num('r_fill',a.fill_factor,'0.01'));
-    h+=fld('r_cx','Complexity (1 simple to 5 intricate)',num('r_cx',a.complexity,'1'));
-    h+=fld('r_tol','Tolerance',`<select class="f" id="r_tol">${opt([['loose','Loose'],['standard','Standard'],['tight','Tight'],['precision','Precision']],a.tolerance_class)}</select>`);
-    h+=fld('r_fin','Surface finish',`<select class="f" id="r_fin">${opt([['as_made','As made'],['machined','Machined'],['polished','Polished'],['coated','Painted / coated'],['plated','Plated'],['anodised','Anodised']],a.surface_finish)}</select>`);
-    if(a.industry==='metal'){ h+=fld('r_th',(a.form==='sheet'?'Sheet thickness (mm)':'Sheet thickness (mm, 0 if not sheet)')+(nd.thick?' *':''),a.form==='sheet'?rnum('r_th',a.sheet_thickness_mm||2,nd.thick):num('r_th',a.sheet_thickness_mm)); h+=fld('r_bn','Number of bends',num('r_bn',a.bends,'1')); h+=fld('r_hc','Number of holes',num('r_hc',a.hole_count,'1')); }
-    if(a.industry==='plastic'){ h+=fld('r_wl','Wall thickness (mm)'+(nd.thick?' *':''),rnum('r_wl',a.wall_thickness_mm||2.5,nd.thick)); }
+    h+=fld('r_mat','Material'+(a.material_confidence==='low'?' (please confirm)':''),`<select class="f" id="r_mat">${opt(mats,a.material_key)}</select>`,'Pick the closest one.');
+    h+=fld('r_grade','Material grade'+(nd.grade?' *':''),gradeField(a),'The exact grade is written on most drawings. Choose Other to type your own.');
+    h+=fld('r_l','Length (mm)'+(nd.dims?' *':''),rnum('r_l',a.dimensions_mm.l,nd.dims),'The longest side. 25 mm is about 1 inch.');
+    h+=fld('r_w','Width (mm)'+(nd.dims?' *':''),rnum('r_w',a.dimensions_mm.w,nd.dims),'The next longest side.');
+    h+=fld('r_h','Height (mm)'+(nd.dims?' *':''),rnum('r_h',a.dimensions_mm.h,nd.dims),'The shortest side, or the thickness of the whole part.');
+    if(a.industry==='metal'&&nd.thick) h+=fld('r_th','Sheet thickness (mm) *',rnum('r_th',a.sheet_thickness_mm||2,true),'The thickness of the metal sheet.');
+    if(a.industry==='plastic'&&nd.thick) h+=fld('r_wl','Wall thickness (mm) *',rnum('r_wl',a.wall_thickness_mm||2.5,true),'How thick the plastic wall is. Most parts are 2 to 3 mm.');
+    adv+=fld('r_form','Shape',`<select class="f" id="r_form">${opt([['solid','Solid part'],['sheet','Sheet / plate part'],['hollow','Hollow part'],['profile','Same profile along length']],a.form)}</select>`);
+    adv+=fld('r_fill','How solid is it?',num('r_fill',a.fill_factor,'0.01'),'1 = a full solid block. 0.2 = mostly empty space.');
+    adv+=fld('r_cx','How detailed is it?',num('r_cx',a.complexity,'1'),'1 = simple block. 5 = many small details.');
+    adv+=fld('r_tol','How precise?',`<select class="f" id="r_tol">${opt([['loose','Loose'],['standard','Standard'],['tight','Tight'],['precision','Precision']],a.tolerance_class)}</select>`,'Standard is fine for most parts.');
+    adv+=fld('r_fin','Surface finish',`<select class="f" id="r_fin">${opt([['as_made','As made'],['machined','Machined'],['polished','Polished'],['coated','Painted / coated'],['plated','Plated'],['anodised','Anodised']],a.surface_finish)}</select>`);
+    if(a.industry==='metal'){ if(!nd.thick) adv+=fld('r_th','Sheet thickness (mm)',num('r_th',a.sheet_thickness_mm),'Use 0 if it is not a sheet part.'); adv+=fld('r_bn','Number of bends',num('r_bn',a.bends,'1')); adv+=fld('r_hc','Number of holes',num('r_hc',a.hole_count,'1')); }
+    if(a.industry==='plastic'&&!nd.thick){ adv+=fld('r_wl','Wall thickness (mm)',num('r_wl',a.wall_thickness_mm||2.5)); }
   } else {
     const e=a.electronics;
-    h+=fld('e_l','Board length (mm)'+(nd.dims?' *':''),rnum('e_l',e.board_l_mm,nd.dims)); h+=fld('e_w','Board width (mm)'+(nd.dims?' *':''),rnum('e_w',e.board_w_mm,nd.dims)); h+=fld('e_ly','Layers',num('e_ly',e.layers,'1'));
-    h+=fld('e_c','Number of components',num('e_c',e.component_count,'1')); h+=fld('e_t','Of which through-hole',num('e_t',e.through_hole_count,'1'));
+    h+=fld('e_l','Board length (mm)'+(nd.dims?' *':''),rnum('e_l',e.board_l_mm,nd.dims),'The longest side of the circuit board.');
+    h+=fld('e_w','Board width (mm)'+(nd.dims?' *':''),rnum('e_w',e.board_w_mm,nd.dims));
+    adv+=fld('e_ly','Layers',num('e_ly',e.layers,'1'),'Most simple boards have 2.');
+    adv+=fld('e_c','Number of components',num('e_c',e.component_count,'1'));
+    adv+=fld('e_t','Of which through-hole',num('e_t',e.through_hole_count,'1'),'Parts with legs that go through the board.');
   }
   $('reviewFields').innerHTML=h;
+  $('reviewExtra').innerHTML=`<details id="adv" ${S.advOpen?'open':''} style="margin-top:18px"><summary>Fine-tune details (optional)</summary><p class="muted" style="margin:10px 0 0">We have already filled these in. Change them only if you know better.</p><div class="g3">${adv}</div></details>`;
+  const ad=$('adv'); ad.ontoggle=()=>{ S.advOpen=ad.open; };
   let n='';
   if(a.description) n+=`<p class="muted" style="margin-top:14px"><strong>We think this is:</strong> ${esc(a.description)}${a.material_reason?' Material: '+esc(a.material_reason):''}</p>`;
   const lists=[['Please confirm',a.questions_for_user],['Assumptions we made',a.assumptions],['Design warnings',a.dfm_warnings]];
@@ -265,15 +304,17 @@ function renderReview(){
   $('reviewNotes').innerHTML=n;
   const ind=$('r_ind'); ind.onchange=()=>{ readReview(); renderReview(); };
   const fm=$('r_form'); if(fm) fm.onchange=()=>{ readReview(); renderReview(); };
+  const rm=$('r_mat'); if(rm) rm.onchange=()=>{ readReview(); S.analysis.grade_text=''; S.analysis.grade_source='unknown'; renderReview(); };
+  const gs=$('r_gsel'); if(gs) gs.onchange=()=>{ const g=$('r_grade'); gs.classList.remove('bad'); if(gs.value==='__other'){ g.classList.remove('hide'); g.value=''; g.focus(); } else { g.classList.add('hide'); g.value=gs.value; g.classList.remove('bad'); } };
 }
-const FIELD_FOR={dims:['r_l','r_w','r_h','e_l','e_w'],thick:['r_th','r_wl'],grade:['r_grade']};
+const FIELD_FOR={dims:['r_l','r_w','r_h','e_l','e_w'],thick:['r_th','r_wl'],grade:['r_grade','r_gsel']};
 function checkMissing(){
   const a=S.analysis, nd=needs(a), out=[];
   document.querySelectorAll('.f.bad').forEach(x=>x.classList.remove('bad'));
   if(nd.dims) out.push('sizes');
   if(nd.thick) out.push('thickness');
   if(nd.grade) out.push('material grade');
-  Object.keys(nd).forEach(k=>{ if(nd[k]) FIELD_FOR[k].forEach(id=>{ const el=$(id); if(el&&!(parseFloat(el.value)>0)&&k!=='grade') el.classList.add('bad'); if(el&&k==='grade'&&!el.value.trim()) el.classList.add('bad'); }); });
+  Object.keys(nd).forEach(k=>{ if(nd[k]) FIELD_FOR[k].forEach(id=>{ const el=$(id); if(el&&!(parseFloat(el.value)>0)&&k!=='grade') el.classList.add('bad'); if(el&&k==='grade'&&id==='r_gsel'&&!(el.value&&el.value!=='__other')) el.classList.add('bad'); if(el&&k==='grade'&&id==='r_grade'&&!el.classList.contains('hide')&&!el.value.trim()) el.classList.add('bad'); }); });
   return out;
 }
 function readReview(){
@@ -282,7 +323,7 @@ function readReview(){
   if(a.industry!=='electronics'){
     if(g('r_mat')) a.material_key=g('r_mat');
     else a.material_key=(S.materials.find(m=>m[2]===(a.industry==='plastic'?'plastic':'metal'))||[a.material_key])[0];
-    if(g('r_grade')!==null&&g('r_grade')!==undefined&&$('r_grade')){ const gt=g('r_grade').trim(); a.grade_text=gt; if(gt&&!isU(a.grade_source)) a.grade_source='user'; }
+    if($('r_grade')){ const gt=g('r_grade').trim(); a.grade_text=gt; if(gt){ if(!isU(a.grade_source)) a.grade_source='user'; } else a.grade_source='unknown'; }
     if($('r_l')){ if(n('r_l')>0&&n('r_w')>0&&n('r_h')>0){ a.dimensions_mm={l:n('r_l'),w:n('r_w'),h:n('r_h')}; if(!isU(a.dimensions_source)) a.dimensions_source='user'; } a.form=g('r_form'); a.fill_factor=n('r_fill')||0.35; a.complexity=n('r_cx')||3; a.tolerance_class=g('r_tol'); a.surface_finish=g('r_fin'); a.hollow=a.form==='hollow'; a.constant_cross_section=a.form==='profile'; }
     if($('r_th')){ const t=n('r_th')||0; if(t>0||a.form!=='sheet'){ a.sheet_thickness_mm=t; if(t>0&&!isU(a.thickness_source)) a.thickness_source='user'; } a.bends=Math.round(n('r_bn')||0); a.hole_count=Math.round(n('r_hc')||0); }
     if($('r_wl')){ const t=n('r_wl'); if(t>0){ a.wall_thickness_mm=t; if(!isU(a.thickness_source)) a.thickness_source='user'; } }
@@ -290,7 +331,7 @@ function readReview(){
 }
 $('reBack').onclick=()=>setStep(1);
 $('goOpts').onclick=async()=>{ readReview(); msg('msg2',''); if(S.analysis.industry==='other') return msg('msg2','Please choose Metal part, Plastic part or Electronics board.');
-  const miss=checkMissing(); if(miss.length){ return msg('msg2','Please fill in the '+andJoin(miss)+' (marked *) before we compare ways to make it.'); } await calc(null); if(S.result&&S.result.options.length){ renderOptions(); setStep(3);} else if(S.result) msg('msg2','We could not find a process for this combination. Try a different material or shape.'); };
+  const miss=checkMissing(); if(miss.length){ return msg('msg2','Please fill in the '+andJoin(miss)+' (marked *) before we show the ways to make it.'); } await calc(null); if(S.result&&S.result.options.length){ renderOptions(); setStep(3);} else if(S.result) msg('msg2','We could not find a process for this combination. Try a different material or shape.'); };
 $('optsBack').onclick=()=>setStep(2);
 
 /* ---------- calc ---------- */

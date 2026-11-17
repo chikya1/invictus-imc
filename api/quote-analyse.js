@@ -93,13 +93,25 @@ export default async function handler(req, res) {
   const origin = req.headers.origin || '';
   if (/^https:\/\/(www\.)?invictusimc\.com$/.test(origin)) res.setHeader('Access-Control-Allow-Origin', origin);
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
   if (!process.env.SUPABASE_SERVICE_KEY || !process.env.ANTHROPIC_API_KEY) return res.status(500).json({ error: 'Server not configured' });
 
   const { name, phone, email, qty, file, mimeType } = req.body || {};
-  const n = String(name || '').trim(), p = String(phone || '').replace(/[^\d+]/g, ''), em = String(email || '').trim().toLowerCase();
+  // Logged-in app users send their Supabase token. We verify it and use their saved identity.
+  let userId = null, mName = '', mPhone = '', mEmail = '';
+  const bearer = String(req.headers.authorization || '').replace(/^Bearer\s+/i, '').trim();
+  if (bearer) {
+    try {
+      const ur = await fetch(`${SUPA_URL}/auth/v1/user`, { headers: { apikey: process.env.SUPABASE_SERVICE_KEY, Authorization: `Bearer ${bearer}` } });
+      if (!ur.ok) return res.status(401).json({ error: 'Your session has expired. Please log in again.' });
+      const u = await ur.json();
+      if (!u || !u.id) return res.status(401).json({ error: 'Your session has expired. Please log in again.' });
+      userId = u.id; mEmail = u.email || ''; const md = u.user_metadata || {}; mName = md.full_name || ''; mPhone = md.phone || u.phone || '';
+    } catch (e) { return res.status(401).json({ error: 'Could not check your login. Please try again.' }); }
+  }
+  const n = String(name || mName || '').trim(), p = String(phone || mPhone || '').replace(/[^\d+]/g, ''), em = String(email || mEmail || '').trim().toLowerCase();
   if (n.length < 2 || p.replace(/\D/g, '').length < 10 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) return res.status(400).json({ error: 'Please enter a valid name, phone number and email.' });
   const okTypes = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
   if (!file || !okTypes.includes(mimeType)) return res.status(400).json({ error: 'Please upload a JPG, PNG, WebP or PDF file.' });
@@ -112,6 +124,7 @@ export default async function handler(req, res) {
     const since = new Date(Date.now() - 24 * 3600 * 1000).toISOString();
     const orParts = [`phone.eq.${encodeURIComponent(p)}`, `email.eq.${encodeURIComponent(em)}`];
     if (ip) orParts.push(`ip.eq.${encodeURIComponent(ip)}`);
+    if (userId) orParts.push(`user_id.eq.${userId}`);
     const cr = await sb(`quote_requests?created_at=gte.${encodeURIComponent(since)}&or=(${orParts.join(',')})&select=id`, { headers: { Prefer: 'count=exact', Range: '0-0' } });
     const total = parseInt((cr.headers.get('content-range') || '0/0').split('/')[1], 10) || 0;
     if (!cr.ok) throw new Error('limit check failed');
@@ -133,7 +146,7 @@ export default async function handler(req, res) {
     const raw = rawAll.slice(rawAll.indexOf('{'), rawAll.lastIndexOf('}') + 1);
     const analysis = clean(JSON.parse(raw));
 
-    const ins = await sb('quote_requests', { method: 'POST', headers: { Prefer: 'return=representation' }, body: JSON.stringify({ name: n.slice(0, 80), phone: p.slice(0, 20), email: em.slice(0, 120), ip, qty: q, file_kind: mimeType, analysis }) });
+    const ins = await sb('quote_requests', { method: 'POST', headers: { Prefer: 'return=representation' }, body: JSON.stringify({ name: n.slice(0, 80), phone: p.slice(0, 20), email: em.slice(0, 120), ip, user_id: userId, qty: q, file_kind: mimeType, analysis }) });
     const row = await ins.json().catch(() => null);
     if (!ins.ok || !Array.isArray(row) || !row[0]) throw new Error('save failed');
     return res.status(200).json({ id: row[0].id, qty: q, analysis, materials: Object.entries(MATERIALS).map(([k, v]) => [k, v[0], v[1]]) });
