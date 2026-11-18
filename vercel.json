@@ -3,37 +3,112 @@
     {
       "source": "/(.*).html",
       "headers": [
-        { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, no-store, must-revalidate"
+        }
       ]
     },
     {
       "source": "/order/:id",
       "headers": [
-        { "key": "Cache-Control", "value": "no-cache" },
-        { "key": "X-Content-Type-Options", "value": "nosniff" }
+        {
+          "key": "Cache-Control",
+          "value": "no-cache"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        }
       ]
     }
   ],
   "rewrites": [
-    { "source": "/my-account", "destination": "/my-account.html" },
-    { "source": "/order/:id", "destination": "/order.html" },
-    { "source": "/lp-buyers", "destination": "/lp-buyers.html" },
-    { "source": "/lp-manufacturers", "destination": "/lp-manufacturers.html" },
-    { "source": "/login", "destination": "/login.html" },
-    { "source": "/reset-password", "destination": "/reset-password.html" },
-    { "source": "/buyer-portal", "destination": "/buyer-portal.html" },
-    { "source": "/manufacturer-portal", "destination": "/manufacturer-portal.html" },
-    { "source": "/buyers-club", "destination": "/buyers-club.html" },
-    { "source": "/manufacturers-club", "destination": "/manufacturers-club.html" },
-    { "source": "/the-opportunity", "destination": "/the-opportunity.html" },
-    { "source": "/admin", "destination": "/admin.html" },
-    { "source": "/terms", "destination": "/terms.html" },
-    { "source": "/privacy-policy", "destination": "/privacy-policy.html" },
-    { "source": "/refund-policy", "destination": "/refund-policy.html" },
-    { "source": "/shipping-policy", "destination": "/shipping-policy.html" },
-    { "source": "/contact", "destination": "/contact.html" },
-    { "source": "/pricing", "destination": "/pricing.html" },
-    { "source": "/product-analyser", "destination": "/product-analyser.html" },
-    { "source": "/quote-estimator", "destination": "/quote-estimator.html" }
+    {
+      "source": "/my-account",
+      "destination": "/my-account.html"
+    },
+    {
+      "source": "/order/:id",
+      "destination": "/order.html"
+    },
+    {
+      "source": "/lp-buyers",
+      "destination": "/lp-buyers.html"
+    },
+    {
+      "source": "/lp-manufacturers",
+      "destination": "/lp-manufacturers.html"
+    },
+    {
+      "source": "/login",
+      "destination": "/login.html"
+    },
+    {
+      "source": "/reset-password",
+      "destination": "/reset-password.html"
+    },
+    {
+      "source": "/buyer-portal",
+      "destination": "/buyer-portal.html"
+    },
+    {
+      "source": "/manufacturer-portal",
+      "destination": "/manufacturer-portal.html"
+    },
+    {
+      "source": "/buyers-club",
+      "destination": "/buyers-club.html"
+    },
+    {
+      "source": "/manufacturers-club",
+      "destination": "/manufacturers-club.html"
+    },
+    {
+      "source": "/the-opportunity",
+      "destination": "/the-opportunity.html"
+    },
+    {
+      "source": "/admin",
+      "destination": "/admin.html"
+    },
+    {
+      "source": "/terms",
+      "destination": "/terms.html"
+    },
+    {
+      "source": "/privacy-policy",
+      "destination": "/privacy-policy.html"
+    },
+    {
+      "source": "/refund-policy",
+      "destination": "/refund-policy.html"
+    },
+    {
+      "source": "/shipping-policy",
+      "destination": "/shipping-policy.html"
+    },
+    {
+      "source": "/contact",
+      "destination": "/contact.html"
+    },
+    {
+      "source": "/pricing",
+      "destination": "/pricing.html"
+    },
+    {
+      "source": "/product-analyser",
+      "destination": "/product-analyser.html"
+    },
+    {
+      "source": "/quote-estimator",
+      "destination": "/quote-estimator.html"
+    }
+  ],
+  "crons": [
+    {
+      "path": "/api/rates-refresh",
+      "schedule": "30 1 * * *"
+    }
   ]
 }
