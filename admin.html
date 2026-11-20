@@ -499,6 +499,10 @@
           <svg viewBox="0 0 14 14" fill="none"><rect x="2" y="1" width="10" height="12" rx="1" stroke="currentColor" stroke-width="1"/><line x1="4.5" y1="4.5" x2="9.5" y2="4.5" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="4.5" y1="7" x2="9.5" y2="7" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="4.5" y1="9.5" x2="7.5" y2="9.5" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
           Quote Leads
         </div>
+        <div class="sidebar-link" onclick="showTab('rates', this)">
+          <svg viewBox="0 0 14 14" fill="none"><path d="M2 11 L5 7 L8 9 L12 3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Rates
+        </div>
       </div>
       <div class="sidebar-divider"></div>
       <div class="sidebar-section">
@@ -734,6 +738,36 @@
             <tr><td colspan="11" class="table-empty">Loading...</td></tr>
           </tbody>
         </table>
+      </div>
+
+      <div class="tab-panel" id="tab-rates">
+        <div class="page-title">Market <em>Rates</em></div>
+        <div class="page-subtitle">Every material and process rate the quote engine uses, in one place. Edit a number and press Save. Each change is dated and kept in history. Both the website and the Estima app use these rates, refreshed every 5 minutes.</div>
+        <div id="rates-lock" style="max-width:420px;margin:18px 0;">
+          <label class="form-label" style="display:block;margin-bottom:6px;">Admin key (the ADMIN_API_KEY you set in Vercel)</label>
+          <input type="password" class="form-input" id="rates-key" placeholder="Paste admin key" onkeydown="if(event.key==='Enter') ratesUnlock()" />
+          <button class="btn-add" style="margin-top:10px;" onclick="ratesUnlock()">Unlock rates</button>
+          <div id="rates-err" style="color:#C0504D;font-size:12px;margin-top:8px;"></div>
+        </div>
+        <div id="rates-body" style="display:none;">
+          <div class="section-header"><div class="section-title">Raw materials <span class="td-muted" style="font-size:11px;">(INR per kg)</span></div></div>
+          <table class="admin-table"><thead><tr><th>Material</th><th>Type</th><th>Rate INR/kg</th><th>Source</th><th>Updated</th><th>Actions</th></tr></thead><tbody id="rates-mat"></tbody></table>
+          <div class="section-header" style="margin-top:28px;"><div class="section-title">Process and cost settings</div></div>
+          <table class="admin-table"><thead><tr><th>Setting</th><th>Group</th><th>Value</th><th>Unit</th><th>Source</th><th>Updated</th><th>Actions</th></tr></thead><tbody id="rates-set"></tbody></table>
+          <div class="section-header" style="margin-top:28px;"><div class="section-title">Add a material</div></div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;max-width:900px;">
+            <input class="form-input" id="nm-key" placeholder="key e.g. epdm_rubber" /><input class="form-input" id="nm-label" placeholder="Name e.g. EPDM rubber" />
+            <select class="form-select" id="nm-fam"><option value="plastic">Plastic family</option><option value="metal">Metal family</option></select>
+            <input class="form-input" id="nm-den" type="number" step="any" placeholder="Density g/cm3" /><input class="form-input" id="nm-rate" type="number" step="any" placeholder="Rate INR/kg" />
+            <input class="form-input" id="nm-rem" type="number" step="any" placeholder="Machining cm3/min" />
+            <button class="btn-add" onclick="ratesAddMaterial()">Add material</button>
+          </div>
+          <div class="td-muted" style="font-size:11px;margin-top:6px;">A new material is priced like its family (metal or plastic) until we add rubber and glass processes.</div>
+          <div class="section-header" style="margin-top:28px;"><div class="section-title">Live rate sources</div></div>
+          <table class="admin-table"><thead><tr><th>Source</th><th>Terms checked</th><th>On</th><th>Last result</th><th>Last success</th><th>Message</th></tr></thead><tbody id="rates-src"></tbody></table>
+          <div class="section-header" style="margin-top:28px;"><div class="section-title">Recent changes</div></div>
+          <table class="admin-table"><thead><tr><th>When</th><th>Type</th><th>Item</th><th>New value</th><th>Source</th></tr></thead><tbody id="rates-hist"></tbody></table>
+        </div>
       </div>
 
       <div class="tab-panel" id="tab-manufacturers">
@@ -1545,6 +1579,7 @@
     if (name === 'leads-buyers') loadLeads('buyer');
     if (name === 'leads-mfg') loadLeads('manufacturer');
     if (name === 'quote-leads') loadQuoteLeads();
+    if (name === 'rates') loadRates();
     if (name === 'projects') loadAcceptanceProjects();
     if (name === 'project-mgmt') loadMgmtProjects();
     if (name === 'archived') loadArchivedProjects();
@@ -1596,6 +1631,69 @@
       tbody.innerHTML = '<tr><td colspan="11" class="table-empty">Could not load quote leads. Has the Phase 8 SQL been run in Supabase?</td></tr>';
     }
   }
+  // ---------- Rates tab ----------
+  let RATES_KEY = '';
+  try { RATES_KEY = sessionStorage.getItem('imc_rates_key') || ''; } catch (e) {}
+  async function ratesApi(method, body) {
+    const r = await fetch('/api/admin-rates', { method, headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + RATES_KEY }, body: body ? JSON.stringify(body) : undefined });
+    const d = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(d.error || 'Request failed');
+    return d;
+  }
+  function ratesUnlock() {
+    RATES_KEY = document.getElementById('rates-key').value.trim();
+    try { sessionStorage.setItem('imc_rates_key', RATES_KEY); } catch (e) {}
+    loadRates();
+  }
+  const rEsc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const rWhen = t => t ? new Date(t).toLocaleString('en-IN') : '\u2014';
+  async function loadRates() {
+    if (!RATES_KEY) return;
+    const err = document.getElementById('rates-err'); err.textContent = '';
+    try {
+      const d = await ratesApi('GET');
+      document.getElementById('rates-lock').style.display = 'none';
+      document.getElementById('rates-body').style.display = 'block';
+      document.getElementById('rates-mat').innerHTML = d.materials.map(m => `<tr style="${m.active ? '' : 'opacity:.5'}">
+        <td><strong>${rEsc(m.label)}</strong><div class="td-muted" style="font-size:11px;">${rEsc(m.key)}</div></td><td>${rEsc(m.family)}</td>
+        <td><input class="form-input" style="width:110px;" type="number" step="any" id="rm-${rEsc(m.key)}" value="${Number(m.rate_inr_kg)}" /></td>
+        <td class="td-muted" style="font-size:11px;">${rEsc(m.source)}</td><td class="td-muted" style="font-size:11px;">${rWhen(m.updated_at)}</td>
+        <td><div class="td-actions"><button class="btn-edit" onclick="ratesSave('material','${rEsc(m.key)}','rm-${rEsc(m.key)}')">Save</button>
+        <button class="btn-del" onclick="ratesActive('${rEsc(m.key)}',${!m.active})">${m.active ? 'Hide' : 'Show'}</button></div></td></tr>`).join('');
+      document.getElementById('rates-set').innerHTML = d.settings.map(m => `<tr>
+        <td><strong>${rEsc(m.label)}</strong><div class="td-muted" style="font-size:11px;">${rEsc(m.key)}</div></td><td>${rEsc(m.grp)}</td>
+        <td><input class="form-input" style="width:110px;" type="number" step="any" id="rs-${rEsc(m.key)}" value="${Number(m.value)}" /></td><td>${rEsc(m.unit)}</td>
+        <td class="td-muted" style="font-size:11px;">${rEsc(m.source)}</td><td class="td-muted" style="font-size:11px;">${rWhen(m.updated_at)}</td>
+        <td><button class="btn-edit" onclick="ratesSave('setting','${rEsc(m.key)}','rs-${rEsc(m.key)}')">Save</button></td></tr>`).join('');
+      document.getElementById('rates-src').innerHTML = d.sources.map(x => {
+        const bad = x.last_status && x.last_status !== 'ok';
+        return `<tr><td><strong>${rEsc(x.name)}</strong><div class="td-muted" style="font-size:11px;">${rEsc(x.notes || '')}</div></td>
+        <td><select class="form-select" onchange="ratesSource('${rEsc(x.id)}',{terms_status:this.value})">${['unchecked','permitted','forbidden'].map(v => `<option ${v === x.terms_status ? 'selected' : ''}>${v}</option>`).join('')}</select></td>
+        <td><input type="checkbox" ${x.enabled ? 'checked' : ''} onchange="ratesSource('${rEsc(x.id)}',{enabled:this.checked})" /></td>
+        <td style="${bad ? 'color:#C0504D;font-weight:600;' : ''}">${rEsc(x.last_status || 'never run')}</td><td class="td-muted" style="font-size:11px;">${rWhen(x.last_success_at)}</td>
+        <td class="td-muted" style="font-size:11px;max-width:300px;">${rEsc(x.last_message || '')}</td></tr>`; }).join('');
+      document.getElementById('rates-hist').innerHTML = d.history.map(h => `<tr><td class="td-muted" style="font-size:11px;">${rWhen(h.changed_at)}</td><td>${rEsc(h.kind)}</td><td>${rEsc(h.key)}</td><td>${Number(h.value)}</td><td class="td-muted" style="font-size:11px;">${rEsc(h.source || '')}</td></tr>`).join('') || '<tr><td colspan="5" class="table-empty">No changes yet.</td></tr>';
+    } catch (e) {
+      document.getElementById('rates-lock').style.display = 'block';
+      document.getElementById('rates-body').style.display = 'none';
+      err.textContent = e.message;
+      RATES_KEY = ''; try { sessionStorage.removeItem('imc_rates_key'); } catch (x) {}
+    }
+  }
+  async function ratesSave(kind, key, inputId) {
+    try { await ratesApi('POST', { action: 'set_rate', kind, key, value: document.getElementById(inputId).value }); await loadRates(); }
+    catch (e) { alert(e.message); }
+  }
+  async function ratesActive(key, active) { try { await ratesApi('POST', { action: 'set_material_active', key, active }); await loadRates(); } catch (e) { alert(e.message); } }
+  async function ratesSource(id, patch) { try { await ratesApi('POST', Object.assign({ action: 'set_source', id }, patch)); await loadRates(); } catch (e) { alert(e.message); } }
+  async function ratesAddMaterial() {
+    const v = id => document.getElementById(id).value.trim();
+    try {
+      await ratesApi('POST', { action: 'add_material', key: v('nm-key').toLowerCase(), label: v('nm-label'), family: v('nm-fam'), density: v('nm-den'), rate_inr_kg: v('nm-rate'), removal_cm3_min: v('nm-rem') });
+      ['nm-key','nm-label','nm-den','nm-rate','nm-rem'].forEach(id => document.getElementById(id).value = ''); await loadRates();
+    } catch (e) { alert(e.message); }
+  }
+
   async function markQuoteLead(id) {
     await fetch(QL_URL + '?id=eq.' + encodeURIComponent(id), { method: 'PATCH', headers: QL_H, body: JSON.stringify({ status: 'contacted' }) });
     loadQuoteLeads();
